@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.directory.resilient.ResilientDirectoryFactory">
+
+  <implementation class="org.nuxeo.ecm.directory.resilient.ResilientDirectoryFactory" />
+
+  <require>org.nuxeo.ecm.directory.DirectoryServiceImpl</require>
+
+  <documentation>Resilient directory implementation.</documentation>
+
+  <extension target="org.nuxeo.ecm.directory.DirectoryServiceImpl"
+    point="factoryDescriptor">
+    <factoryDescriptor
+      component="org.nuxeo.ecm.directory.resilient.ResilientDirectoryFactory" />
+  </extension>
+
+  <extension-point name="directories">
+    <object class="org.nuxeo.ecm.directory.resilient.ResilientDirectoryDescriptor" />
+    <object class="org.nuxeo.ecm.directory.resilient.SubDirectoryDescriptor" />
+
+    <documentation>
+      This extension point can be used to register new
+      resilient directories. The
+      extension must contain only one master source for one or many number of
+      slave directories declarations of the form:
+      <code>
+        ...
+        <directory name="resilientUserDirectory">
+
+          <subDirectory name="ldapUserDirectory" master="true" />
+
+          <subDirectory name="sqlUserDirectory" />
+
+        </directory>
+
+        <directory name="resilientGroupDirectory">
+
+          <subDirectory name="ldapGroupDirectory" master="true" />
+
+          <subDirectory name="sqlGroupDirectory" />
+
+        </directory>
+
+        ...
+      </code>
+      Where each referenced subDirectory must be declared in an extension point.
+      Pre-requisite to add a resilient directory:
+      - One master only
+      - At least one slave in write mode
+      - The slave's schema must be the same than the master
+      - The slave must used the same idField/passworField than the master
+      - All SQL sub directory must not use auto-increment id
+      All master definitions (schema,mode,fields) will be used as the resilient
+      definitions.
+      No need to duplicate definition in the resilient
+
+    </documentation>
+  </extension-point>
+
+</component>

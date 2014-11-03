@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<component name="org.nuxeo.ecm.directory.types">
+
+  <extension target="org.nuxeo.ecm.core.schema.TypeService" point="schema">
+    <schema name="base" src="schema/base.xsd" />
+    <schema name="user" src="schema/user.xsd" prefix="usr" />
+    <schema name="group" src="schema/group.xsd" />
+  </extension>
+
+</component>

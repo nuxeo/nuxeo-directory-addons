@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.directory.resilient.config">
+
+  <extension target="org.nuxeo.ecm.directory.resilient.ResilientDirectoryFactory"
+    point="directories">
+
+    <directory name="resilientUserDirectory">
+
+      <!-- The LDAP user directory (defined in the LDAP test case) -->
+      <subDirectory name="ldapUserDirectory" master="true">
+      </subDirectory>
+
+      <!-- The sql slave directory -->
+      <subDirectory name="sqlUserDirectory">
+      </subDirectory>
+
+    </directory>
+
+    <directory name="resilientGroupDirectory">
+
+      <!-- The LDAP user directory (defined in the LDAP test case) -->
+      <subDirectory name="ldapGroupDirectory" master="true">
+      </subDirectory>
+
+      <!-- The sql slave directory -->
+      <subDirectory name="sqlGroupDirectory">
+      </subDirectory>
+
+    </directory>
+
+  </extension>
+
+</component>

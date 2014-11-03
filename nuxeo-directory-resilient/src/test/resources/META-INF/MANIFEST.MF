@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Nuxeo ECM Resilient Directory Tests
+Bundle-SymbolicName: org.nuxeo.ecm.directory.resilient.tests;singleton:=true
+Bundle-Vendor: Nuxeo
+

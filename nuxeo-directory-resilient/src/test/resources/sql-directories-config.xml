@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+
+<component name="org.nuxeo.ecm.directory.resilient.sql.test">
+
+  <require>org.nuxeo.ecm.directory.sql.SQLDirectoryFactory</require>
+
+  <extension target="org.nuxeo.ecm.directory.sql.SQLDirectoryFactory"
+    point="directories">
+
+    <directory name="sqlUserDirectory">
+
+      <schema>user</schema>
+
+      <dbDriver>${nuxeo.test.vcs.driver}</dbDriver>
+      <dbUrl>${nuxeo.test.vcs.url}</dbUrl>
+      <dbUser>${nuxeo.test.vcs.user}</dbUser>
+      <dbPassword>${nuxeo.test.vcs.password}</dbPassword>
+
+      <table>user</table>
+      <idField>username</idField>
+      <passwordField>password</passwordField>
+
+      <createTablePolicy>always</createTablePolicy>
+      <autoincrementIdField>false</autoincrementIdField>
+
+      <references>
+
+        <inverseReference field="groups" directory="sqlGroupDirectory"
+          dualReferenceField="members" />
+
+      </references>
+
+    </directory>
+
+    <directory name="sqlGroupDirectory">
+      <schema>group</schema>
+      <idField>groupname</idField>
+
+      <dbDriver>${nuxeo.test.vcs.driver}</dbDriver>
+      <dbUrl>${nuxeo.test.vcs.url}</dbUrl>
+      <dbUser>${nuxeo.test.vcs.user}</dbUser>
+      <dbPassword>${nuxeo.test.vcs.password}</dbPassword>
+      <table>group</table>
+
+      <createTablePolicy>always</createTablePolicy>
+      <autoincrementIdField>false</autoincrementIdField>
+
+      <readOnly>false</readOnly>
+
+
+      <references>
+
+        <tableReference field="members" directory="sqlUserDirectory"
+          table="user2group" sourceColumn="groupId" targetColumn="userId" />
+
+        <tableReference field="subGroups" directory="sqlGroupDirectory"
+          table="group2SubGroup" sourceColumn="groupId" targetColumn="subgroupId" />
+
+        <inverseReference field="parentGroups" directory="sqlGroupDirectory"
+          dualReferenceField="subGroups" />
+
+      </references>
+
+    </directory>
+
+  </extension>
+
+</component>

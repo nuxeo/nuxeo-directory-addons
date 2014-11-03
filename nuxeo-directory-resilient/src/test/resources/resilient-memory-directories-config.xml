@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.directory.resilient.config">
+
+  <extension target="org.nuxeo.ecm.directory.resilient.ResilientDirectoryFactory"
+    point="directories">
+
+    <directory name="resilient">
+
+      <subDirectory name="dir1" master="true">
+      </subDirectory>
+
+      <subDirectory name="dir2">
+      </subDirectory>
+    </directory>
+
+
+  </extension>
+
+</component>

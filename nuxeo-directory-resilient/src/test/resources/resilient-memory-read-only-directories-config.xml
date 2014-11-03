@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.directory.resilient.config.read-only">
+
+  <extension target="org.nuxeo.ecm.directory.resilient.ResilientDirectoryFactory"
+    point="directories">
+
+
+    <directory name="readOnlyResilient">
+
+      <subDirectory name="dir3" master="true">
+      </subDirectory>
+
+      <subDirectory name="dir4">
+      </subDirectory>
+    </directory>
+
+
+  </extension>
+
+</component>
