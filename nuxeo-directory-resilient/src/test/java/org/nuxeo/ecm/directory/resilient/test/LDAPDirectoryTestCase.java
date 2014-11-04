@@ -53,7 +53,6 @@ import org.nuxeo.ecm.directory.DirectoryException;
 import org.nuxeo.ecm.directory.api.DirectoryService;
 import org.nuxeo.ecm.directory.ldap.LDAPDirectory;
 import org.nuxeo.ecm.directory.ldap.LDAPSession;
-import org.nuxeo.ecm.directory.ldap.MockLdapServer;
 import org.nuxeo.runtime.api.Framework;
 
 /**

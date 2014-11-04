@@ -46,7 +46,7 @@ import org.nuxeo.runtime.api.Framework;
  * @author Maxime Hilaire
  *
  */
-@Ignore("Setup issue : LdapDirectory is not deployed")
+//@Ignore("Setup issue : LdapDirectory is not deployed")
 public class TestLDAPResilientDirectory extends LDAPDirectoryTestCase {
 
     private static final String TEST_BUNDLE = "org.nuxeo.ecm.directory.resilient.tests";

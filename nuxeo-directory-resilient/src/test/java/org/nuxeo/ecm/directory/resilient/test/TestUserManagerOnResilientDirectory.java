@@ -38,7 +38,6 @@ import org.nuxeo.runtime.api.Framework;
  * @author Maxime Hilaire
  *
  */
-@Ignore("Setup issue")
 public class TestUserManagerOnResilientDirectory extends LDAPDirectoryTestCase {
 
     private static final String TEST_BUNDLE = "org.nuxeo.ecm.directory.resilient.tests";
