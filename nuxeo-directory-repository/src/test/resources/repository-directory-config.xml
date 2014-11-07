@@ -21,7 +21,7 @@
       <acl userOrGroupName="user_1" privilege="Write" granted="true" />
       <acl userOrGroupName="user_2" privilege="Read" granted="true" />
       <acl userOrGroupName="user_2" privilege="Write" granted="true" />
-      <acl userOrGroupName="user_3" privilege="Read" granted="false" />
+      <acl userOrGroupName="Everyone" privilege="Everything" granted="false" />
       <references>
         <repositoryDirectoryReference field="groups" directory="groupRepositoryDirectory"
           targetField="groupId" />
@@ -47,7 +47,30 @@
       </references>
     </directory>
 
-
+    <directory name="wrappedUserRepositoryDirectory">
+      <schema>schema1</schema>
+      <docType>RepoDirDoc</docType>
+      <repositoryName>test</repositoryName>
+      <idField>username</idField>
+      <passwordField>password</passwordField>
+      <readOnly>false</readOnly>
+      <autoVersioning>false</autoVersioning>
+      <fieldMapping name="username">uid</fieldMapping>
+      <fieldMapping name="password">foo</fieldMapping>
+      <fieldMapping name="company">bar</fieldMapping>
+      <createPath>/rootFolder</createPath>
+      <canCreateRootFolder>true</canCreateRootFolder>
+      <wrapperClass>org.nuxeo.ecm.directory.repository.test.DummyWrapper</wrapperClass>
+      <acl userOrGroupName="user_1" privilege="Read" granted="true" />
+      <acl userOrGroupName="user_1" privilege="Write" granted="true" />
+      <acl userOrGroupName="user_2" privilege="Read" granted="true" />
+      <acl userOrGroupName="user_2" privilege="Write" granted="true" />
+      <acl userOrGroupName="Everyone" privilege="Everything" granted="false" />
+      <references>
+        <repositoryDirectoryReference field="groups" directory="groupRepositoryDirectory"
+          targetField="groupId" />
+      </references>
+    </directory>
 
   </extension>
 

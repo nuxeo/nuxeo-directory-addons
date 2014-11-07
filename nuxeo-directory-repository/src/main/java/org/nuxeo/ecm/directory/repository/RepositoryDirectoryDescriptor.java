@@ -20,11 +20,15 @@ package org.nuxeo.ecm.directory.repository;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.nuxeo.common.xmap.annotation.XNode;
 import org.nuxeo.common.xmap.annotation.XNodeList;
 import org.nuxeo.common.xmap.annotation.XNodeMap;
 import org.nuxeo.common.xmap.annotation.XObject;
 import org.nuxeo.ecm.directory.InverseReference;
+import org.nuxeo.ecm.directory.repository.intercept.DirectorySessionWrapper;
+import org.nuxeo.ecm.directory.repository.intercept.SimpleForward;
 
 /**
  * Directory on top of repository descriptor
@@ -35,6 +39,8 @@ import org.nuxeo.ecm.directory.InverseReference;
 @XObject(value = "directory")
 public class RepositoryDirectoryDescriptor implements Cloneable {
 
+    protected static final Log log = LogFactory.getLog(RepositoryDirectoryDescriptor.class);
+    
     @XNode("@name")
     public String name;
 
@@ -85,6 +91,11 @@ public class RepositoryDirectoryDescriptor implements Cloneable {
 
     protected RepositoryDirectory repositoryDirectory;
 
+    @XNode("wrapperClass")
+    protected Class<? extends DirectorySessionWrapper> wrapperClass;
+
+    protected DirectorySessionWrapper wrapper = null;
+    
     @Override
     public RepositoryDirectoryDescriptor clone() {
         RepositoryDirectoryDescriptor clone = new RepositoryDirectoryDescriptor();
@@ -101,6 +112,7 @@ public class RepositoryDirectoryDescriptor implements Cloneable {
         clone.createPath = createPath;
         clone.canCreateRootFolder = canCreateRootFolder;
         clone.fieldMapping = fieldMapping;
+        clone.wrapperClass = wrapperClass;
         if (acls != null) {
             clone.acls = acls;
         }
@@ -142,6 +154,9 @@ public class RepositoryDirectoryDescriptor implements Cloneable {
         if (other.fieldMapping != null || overwrite) {
             fieldMapping = other.fieldMapping;
         }
+        if (other.wrapperClass != null || overwrite) {
+            wrapperClass = other.wrapperClass;
+        }
 
         autoVersioning = other.autoVersioning;
         canCreateRootFolder = other.canCreateRootFolder;
@@ -175,4 +190,19 @@ public class RepositoryDirectoryDescriptor implements Cloneable {
         }
     }
 
+    public DirectorySessionWrapper getWrapper() {        
+        if (wrapper==null) {
+            if (wrapperClass!=null) {
+                try {
+                    wrapper = wrapperClass.newInstance();
+                } catch (Exception e) {
+                    log.error("Unable to create Wrapper class " + wrapperClass.getCanonicalName(), e);
+                }
+            }
+            if (wrapper==null) {
+                wrapper = new SimpleForward();
+            }
+        }        
+        return wrapper;        
+    }
 }

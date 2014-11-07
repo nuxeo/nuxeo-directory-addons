@@ -33,12 +33,17 @@ import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DataModel;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentModelList;
+import org.nuxeo.ecm.core.api.NuxeoPrincipal;
+import org.nuxeo.ecm.core.api.local.ClientLoginModule;
 import org.nuxeo.ecm.core.schema.types.Field;
 import org.nuxeo.ecm.directory.BaseSession;
 import org.nuxeo.ecm.directory.DirectoryException;
 import org.nuxeo.ecm.directory.PasswordHelper;
 import org.nuxeo.ecm.directory.Reference;
 import org.nuxeo.ecm.directory.api.DirectoryService;
+import org.nuxeo.ecm.directory.repository.intercept.DirectorySessionWrapper;
+import org.nuxeo.ecm.directory.repository.intercept.SimpleForward;
+import org.nuxeo.ecm.directory.repository.intercept.WrappableDirectorySession;
 
 /**
  * Session class for directory on repository
@@ -46,7 +51,7 @@ import org.nuxeo.ecm.directory.api.DirectoryService;
  *
  * @since 5.9.6
  */
-public class RepositoryDirectorySession extends BaseSession {
+public class RepositoryDirectorySession extends BaseSession implements WrappableDirectorySession {
 
     final protected DirectoryService directoryService;
 
@@ -66,6 +71,8 @@ public class RepositoryDirectorySession extends BaseSession {
 
     private final static Log log = LogFactory.getLog(RepositoryDirectorySession.class);
 
+    protected DirectorySessionWrapper wrapper;
+    
     public RepositoryDirectorySession(RepositoryDirectory repositoryDirectory) {
         directoryService = RepositoryDirectoryFactory.getDirectoryService();
         this.directory = repositoryDirectory;
@@ -77,6 +84,18 @@ public class RepositoryDirectorySession extends BaseSession {
                 directory.getPasswordField());
         docType = directory.getDescriptor().docType;
         createPath = directory.getDescriptor().createPath;
+
+        // init wrapper
+        wrapper = directory.getDescriptor().getWrapper();
+        wrapper.init(this, repositoryDirectory);
+    }
+
+    /**
+     * Returns the tenant id of the logged user if any, {@code null} otherwise.
+     */
+    protected String getCurrentTenantId() {
+        NuxeoPrincipal principal = ClientLoginModule.getCurrentPrincipal();
+        return principal != null ? principal.getTenantId() : null;
     }
 
     @Override
@@ -84,8 +103,16 @@ public class RepositoryDirectorySession extends BaseSession {
         return getEntry(id, false);
     }
 
+    
+
     @Override
     public DocumentModel getEntry(String id, boolean fetchReferences)
+            throws DirectoryException {
+        return wrapper.getEntry(id, fetchReferences);
+    }
+
+    @Override
+    public DocumentModel doGetEntry(String id, boolean fetchReferences)
             throws DirectoryException {
 
         StringBuilder sbQuery = new StringBuilder("SELECT * FROM ");
@@ -129,6 +156,13 @@ public class RepositoryDirectorySession extends BaseSession {
     @SuppressWarnings("unchecked")
     public DocumentModel createEntry(Map<String, Object> fieldMap)
             throws ClientException, DirectoryException {
+        return wrapper.createEntry(fieldMap);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public DocumentModel doCreateEntry(Map<String, Object> fieldMap)
+            throws ClientException, DirectoryException {
 
         if (isReadOnly()) {
             log.warn(String.format(
@@ -171,9 +205,17 @@ public class RepositoryDirectorySession extends BaseSession {
 
     }
 
+
     @Override
     @SuppressWarnings("unchecked")
     public void updateEntry(DocumentModel docModel) throws ClientException,
+            DirectoryException {
+        wrapper.updateEntry(docModel);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void doUpdateEntry(DocumentModel docModel) throws ClientException,
             DirectoryException {
         if (isReadOnly()) {
             log.warn(String.format(
@@ -245,6 +287,12 @@ public class RepositoryDirectorySession extends BaseSession {
     @Override
     public void deleteEntry(String id) throws ClientException,
             DirectoryException {
+        wrapper.deleteEntry(id);
+    }
+    
+    @Override
+    public void doDeleteEntry(String id) throws ClientException,
+            DirectoryException {
         if (isReadOnly()) {
             log.warn(String.format(
                     "The directory '%s' is in read-only mode, could not delete entry.",
@@ -315,8 +363,17 @@ public class RepositoryDirectorySession extends BaseSession {
         return getPrefixedFieldName(backendFieldId);
     }
 
+
     @Override
     public DocumentModelList query(Map<String, Serializable> filter,
+            Set<String> fulltext, Map<String, String> orderBy,
+            boolean fetchReferences, int limit, int offset)
+            throws ClientException, DirectoryException {
+        return wrapper.query(filter, fulltext, orderBy, fetchReferences, limit, offset);
+    }    
+    
+    @Override
+    public DocumentModelList doQuery(Map<String, Serializable> filter,
             Set<String> fulltext, Map<String, String> orderBy,
             boolean fetchReferences, int limit, int offset)
             throws ClientException, DirectoryException {
@@ -401,6 +458,12 @@ public class RepositoryDirectorySession extends BaseSession {
 
     @Override
     public boolean authenticate(String username, String password)
+            throws ClientException {
+        return wrapper.authenticate(username, password);
+    }
+
+    @Override
+    public boolean doAuthenticate(String username, String password)
             throws ClientException {
         DocumentModel entry = getEntry(username);
         if (entry == null) {
