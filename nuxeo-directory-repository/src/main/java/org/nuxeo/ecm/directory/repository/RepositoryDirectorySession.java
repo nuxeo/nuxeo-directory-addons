@@ -33,8 +33,7 @@ import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DataModel;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentModelList;
-import org.nuxeo.ecm.core.api.NuxeoPrincipal;
-import org.nuxeo.ecm.core.api.local.ClientLoginModule;
+import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.schema.types.Field;
 import org.nuxeo.ecm.directory.BaseSession;
 import org.nuxeo.ecm.directory.DirectoryException;
@@ -42,7 +41,6 @@ import org.nuxeo.ecm.directory.PasswordHelper;
 import org.nuxeo.ecm.directory.Reference;
 import org.nuxeo.ecm.directory.api.DirectoryService;
 import org.nuxeo.ecm.directory.repository.intercept.DirectorySessionWrapper;
-import org.nuxeo.ecm.directory.repository.intercept.SimpleForward;
 import org.nuxeo.ecm.directory.repository.intercept.WrappableDirectorySession;
 
 /**
@@ -69,6 +67,8 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
 
     final protected String docType;
 
+    protected static final String UUID_FIELD = "ecm:uuid";
+    
     private final static Log log = LogFactory.getLog(RepositoryDirectorySession.class);
 
     protected DirectorySessionWrapper wrapper;
@@ -88,33 +88,28 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
         // init wrapper
         wrapper = directory.getDescriptor().getWrapper();
         wrapper.init(this, repositoryDirectory);
-    }
-
-    /**
-     * Returns the tenant id of the logged user if any, {@code null} otherwise.
-     */
-    protected String getCurrentTenantId() {
-        NuxeoPrincipal principal = ClientLoginModule.getCurrentPrincipal();
-        return principal != null ? principal.getTenantId() : null;
-    }
+    }    
 
     @Override
     public DocumentModel getEntry(String id) throws DirectoryException {
         return getEntry(id, false);
     }
-
     
 
     @Override
     public DocumentModel getEntry(String id, boolean fetchReferences)
             throws DirectoryException {
         return wrapper.getEntry(id, fetchReferences);
-    }
-
+    }    
+    
     @Override
     public DocumentModel doGetEntry(String id, boolean fetchReferences)
             throws DirectoryException {
 
+        if (UUID_FIELD.equals(directory.getIdField())) {
+            return coreSession.getDocument(new IdRef(id));
+        }
+        
         StringBuilder sbQuery = new StringBuilder("SELECT * FROM ");
         sbQuery.append(docType);
         sbQuery.append(" WHERE ");
@@ -148,12 +143,14 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
     }
 
     private String getPrefixedFieldName(String fieldName) {
+        if (UUID_FIELD.equals(fieldName)) {
+            return fieldName;
+        }
         Field schemaField = directory.getField(fieldName);
         return schemaField.getName().getPrefixedName();
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public DocumentModel createEntry(Map<String, Object> fieldMap)
             throws ClientException, DirectoryException {
         return wrapper.createEntry(fieldMap);
@@ -184,7 +181,7 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
         }
 
         final String rawid = (String) properties.get(getPrefixedFieldName(schemaIdField));
-        if (rawid == null) {
+        if (rawid == null && (!UUID_FIELD.equals(directory.getIdField()))) {
             throw new DirectoryException(String.format(
                     "Entry is missing id field '%s'", schemaIdField));
         }
@@ -202,12 +199,10 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
             reference.setTargetIdsForSource(docModel.getId(), targetIds);
         }
         return docModel;
-
     }
 
 
     @Override
-    @SuppressWarnings("unchecked")
     public void updateEntry(DocumentModel docModel) throws ClientException,
             DirectoryException {
         wrapper.updateEntry(docModel);
@@ -306,7 +301,6 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
                 if (docModel != null)
                     coreSession.removeDocument(docModel.getRef());
             }
-
         }
     }
 
@@ -380,7 +374,7 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
         StringBuilder sbQuery = new StringBuilder("SELECT * FROM ");
         sbQuery.append(docType);
         // TODO deal with fetch ref
-        if (!filter.isEmpty() || !fulltext.isEmpty()) {
+        if (!filter.isEmpty() || !fulltext.isEmpty() || (createPath!=null && !createPath.isEmpty())) {
             sbQuery.append(" WHERE ");
         }
         int i = 1;
@@ -410,7 +404,16 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
             }
             sbQuery.append("'");
         }
-
+        
+        if ((createPath!=null && !createPath.isEmpty())) {
+            if (filter.size() > 0 || fulltext.size() > 0) {
+                sbQuery.append(" AND ");
+            }
+            sbQuery.append(" ecm:path STARTSWITH '");
+            sbQuery.append(createPath);
+            sbQuery.append("'");             
+        }
+        
         // Filter facetFilter = new FacetFilter(FacetNames.VERSIONABLE, true);
         
         DocumentModelList resultsDoc = coreSession.query(sbQuery.toString(), null, new Long(limit),
@@ -421,8 +424,7 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
             for (DocumentModel documentModel : resultsDoc) {
                 BaseSession.setReadOnlyEntry(documentModel);
             }
-        }
-        
+        }        
         return resultsDoc;
 
     }
