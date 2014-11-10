@@ -71,7 +71,7 @@ public class RepositoryDirectory extends AbstractDirectory {
 
     public void start() {
         
-        UnrestrictedSessionRunner directoryInitializer = new UnrestrictedSessionRunner(descriptor.repositoryName) {
+        UnrestrictedSessionRunner directoryInitializer = new UnrestrictedSessionRunner(descriptor.getRepositoryName()) {
             
             @Override
             public void run() throws ClientException {
@@ -99,7 +99,7 @@ public class RepositoryDirectory extends AbstractDirectory {
 
                     log.info(String.format(
                             "Root folder '%s' has not been found for the directory '%s' on the repository '%s', will create it with given ACL",
-                            createPath, name, descriptor.repositoryName));
+                            createPath, name, descriptor.getRepositoryName()));
                     if (descriptor.canCreateRootFolder) {
                         try {
                             DocumentModel doc = session.createDocumentModel(
@@ -121,14 +121,14 @@ public class RepositoryDirectory extends AbstractDirectory {
                                             "The root folder '%s' can not be created under '%s' for the directory '%s' on the repository '%s',"
                                                     + " please make sure you have set the right path or that the path exist",
                                             createFolder, parentFolder, name,
-                                            descriptor.repositoryName), e);
+                                            descriptor.getRepositoryName()), e);
                         } 
                     } 
 
                 } else {
                     log.info(String.format(
                             "Root folder '%s' has been found for the directory '%s' on the repository '%s', ACL will not be set",
-                            createPath, name, descriptor.repositoryName));
+                            createPath, name, descriptor.getRepositoryName()));
                 }
                 
             }

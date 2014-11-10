@@ -26,9 +26,11 @@ import org.nuxeo.common.xmap.annotation.XNode;
 import org.nuxeo.common.xmap.annotation.XNodeList;
 import org.nuxeo.common.xmap.annotation.XNodeMap;
 import org.nuxeo.common.xmap.annotation.XObject;
+import org.nuxeo.ecm.core.api.repository.RepositoryManager;
 import org.nuxeo.ecm.directory.InverseReference;
 import org.nuxeo.ecm.directory.repository.intercept.DirectorySessionWrapper;
 import org.nuxeo.ecm.directory.repository.intercept.SimpleForward;
+import org.nuxeo.runtime.api.Framework;
 
 /**
  * Directory on top of repository descriptor
@@ -69,7 +71,7 @@ public class RepositoryDirectoryDescriptor implements Cloneable {
     public boolean autoVersioning = false;
 
     @XNode("repositoryName")
-    protected String repositoryName = "default";
+    protected String repositoryName;
 
     @XNode("createPath")
     protected String createPath = "/";
@@ -119,6 +121,13 @@ public class RepositoryDirectoryDescriptor implements Cloneable {
         return clone;
     }
 
+    public String getRepositoryName() {
+        if (repositoryName==null || repositoryName.isEmpty()) { 
+            repositoryName = Framework.getService(RepositoryManager.class).getDefaultRepositoryName();
+        }
+        return repositoryName;
+    }
+    
     public void merge(RepositoryDirectoryDescriptor other) {
         merge(other, false);
     }

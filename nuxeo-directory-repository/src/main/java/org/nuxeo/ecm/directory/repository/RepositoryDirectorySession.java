@@ -77,7 +77,7 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
         directoryService = RepositoryDirectoryFactory.getDirectoryService();
         this.directory = repositoryDirectory;
         schemaName = directory.getSchema();
-        coreSession = CoreInstance.openCoreSession(directory.getDescriptor().repositoryName);
+        coreSession = CoreInstance.openCoreSession(directory.getDescriptor().getRepositoryName());
         schemaIdField = directory.getFieldMapper().getBackendField(
                 directory.getIdField());
         schemaPasswordField = directory.getFieldMapper().getBackendField(
