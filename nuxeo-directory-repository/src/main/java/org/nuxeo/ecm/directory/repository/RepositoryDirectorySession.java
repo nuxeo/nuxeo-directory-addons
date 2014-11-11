@@ -107,7 +107,12 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
             throws DirectoryException {
 
         if (UUID_FIELD.equals(directory.getIdField())) {
-            return coreSession.getDocument(new IdRef(id));
+            IdRef ref = new IdRef(id);
+            if (coreSession.exists(ref)) {
+                return coreSession.getDocument(new IdRef(id));
+            } else  {
+                return null;
+            }          
         }
         
         StringBuilder sbQuery = new StringBuilder("SELECT * FROM ");
