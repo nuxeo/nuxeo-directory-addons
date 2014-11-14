@@ -24,8 +24,11 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -34,6 +37,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.DocumentModel;
+import org.nuxeo.ecm.core.api.DocumentModelList;
 import org.nuxeo.ecm.directory.BaseSession;
 import org.nuxeo.ecm.directory.Directory;
 import org.nuxeo.ecm.directory.DirectoryException;
@@ -44,6 +48,7 @@ import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
 import org.nuxeo.runtime.test.runner.RuntimeHarness;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
@@ -188,14 +193,17 @@ public class TestRepositoryDirectory {
 
     @Test
     public void queryWithFilter() {
-        // TODO Auto-generated method stub
-        //
-    }
+        Map<String, Serializable> usernamefilter = ImmutableMap.<String, Serializable> builder() //
+        .put("username", RepositoryDirectoryInit.DOC_ID_USER1) //
+        .build();
 
-    @Test
-    public void getReferences() {
-        // TODO Auto-generated method stub
-        //
+        DocumentModelList users = dirSession.query(usernamefilter);
+        assertEquals(1, users.size());
+
+        Set<String> fulltext = new HashSet<>();
+        fulltext.add("username");
+        users = dirSession.query(usernamefilter, fulltext);
+        assertEquals(1, users.size());
     }
 
 }

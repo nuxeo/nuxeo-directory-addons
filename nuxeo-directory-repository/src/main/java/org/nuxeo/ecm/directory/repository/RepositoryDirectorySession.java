@@ -18,6 +18,7 @@
 package org.nuxeo.ecm.directory.repository;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -43,13 +44,18 @@ import org.nuxeo.ecm.directory.api.DirectoryService;
 import org.nuxeo.ecm.directory.repository.intercept.DirectorySessionWrapper;
 import org.nuxeo.ecm.directory.repository.intercept.WrappableDirectorySession;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Collections2;
+
 /**
  * Session class for directory on repository
- * 
+ *
  *
  * @since 5.9.6
  */
-public class RepositoryDirectorySession extends BaseSession implements WrappableDirectorySession {
+public class RepositoryDirectorySession extends BaseSession implements
+        WrappableDirectorySession {
 
     final protected DirectoryService directoryService;
 
@@ -68,14 +74,14 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
     final protected String docType;
 
     protected static final String UUID_FIELD = "ecm:uuid";
-    
+
     private final static Log log = LogFactory.getLog(RepositoryDirectorySession.class);
 
     protected DirectorySessionWrapper wrapper;
-    
+
     public RepositoryDirectorySession(RepositoryDirectory repositoryDirectory) {
         directoryService = RepositoryDirectoryFactory.getDirectoryService();
-        this.directory = repositoryDirectory;
+        directory = repositoryDirectory;
         schemaName = directory.getSchema();
         coreSession = CoreInstance.openCoreSession(directory.getDescriptor().getRepositoryName());
         schemaIdField = directory.getFieldMapper().getBackendField(
@@ -88,20 +94,19 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
         // init wrapper
         wrapper = directory.getDescriptor().getWrapper();
         wrapper.init(this, repositoryDirectory);
-    }    
+    }
 
     @Override
     public DocumentModel getEntry(String id) throws DirectoryException {
         return getEntry(id, false);
     }
-    
 
     @Override
     public DocumentModel getEntry(String id, boolean fetchReferences)
             throws DirectoryException {
         return wrapper.getEntry(id, fetchReferences);
-    }    
-    
+    }
+
     @Override
     public DocumentModel doGetEntry(String id, boolean fetchReferences)
             throws DirectoryException {
@@ -110,11 +115,11 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
             IdRef ref = new IdRef(id);
             if (coreSession.exists(ref)) {
                 return coreSession.getDocument(new IdRef(id));
-            } else  {
+            } else {
                 return null;
-            }          
+            }
         }
-        
+
         StringBuilder sbQuery = new StringBuilder("SELECT * FROM ");
         sbQuery.append(docType);
         sbQuery.append(" WHERE ");
@@ -172,9 +177,9 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
                     directory.name));
             return null;
         }
-        // TODO : deal with auto-versionning 
+        // TODO : deal with auto-versionning
         // TODO : deal with encrypted password
-        // TODO : deal with references 
+        // TODO : deal with references
         Map<String, Object> properties = new HashMap<String, Object>();
         List<String> createdRefs = new LinkedList<String>();
         for (String fieldId : fieldMap.keySet()) {
@@ -205,7 +210,6 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
         }
         return docModel;
     }
-
 
     @Override
     public void updateEntry(DocumentModel docModel) throws ClientException,
@@ -289,7 +293,7 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
             DirectoryException {
         wrapper.deleteEntry(id);
     }
-    
+
     @Override
     public void doDeleteEntry(String id) throws ClientException,
             DirectoryException {
@@ -303,8 +307,9 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
                         "Can not update entry with a null id ");
             } else {
                 DocumentModel docModel = getEntry(id);
-                if (docModel != null)
+                if (docModel != null) {
                     coreSession.removeDocument(docModel.getRef());
+                }
             }
         }
     }
@@ -362,74 +367,83 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
         return getPrefixedFieldName(backendFieldId);
     }
 
-
     @Override
     public DocumentModelList query(Map<String, Serializable> filter,
             Set<String> fulltext, Map<String, String> orderBy,
             boolean fetchReferences, int limit, int offset)
             throws ClientException, DirectoryException {
-        return wrapper.query(filter, fulltext, orderBy, fetchReferences, limit, offset);
-    }    
-    
+        return wrapper.query(filter, fulltext, orderBy, fetchReferences, limit,
+                offset);
+    }
+
     @Override
-    public DocumentModelList doQuery(Map<String, Serializable> filter,
-            Set<String> fulltext, Map<String, String> orderBy,
+    public DocumentModelList doQuery(final Map<String, Serializable> filter,
+            final Set<String> fulltext, Map<String, String> orderBy,
             boolean fetchReferences, int limit, int offset)
             throws ClientException, DirectoryException {
         StringBuilder sbQuery = new StringBuilder("SELECT * FROM ");
         sbQuery.append(docType);
         // TODO deal with fetch ref
-        if (!filter.isEmpty() || !fulltext.isEmpty() || (createPath!=null && !createPath.isEmpty())) {
+        if (!filter.isEmpty() || !fulltext.isEmpty()
+                || (createPath != null && !createPath.isEmpty())) {
             sbQuery.append(" WHERE ");
         }
         int i = 1;
+        boolean hasFilter = false;
         for (String filterKey : filter.keySet()) {
-
-            sbQuery.append(getMappedPrefixedFieldName(filterKey));
-            sbQuery.append(" = ");
-            sbQuery.append("'");
-            sbQuery.append(filter.get(filterKey));
-            sbQuery.append("'");
-            if (i < filter.size()) {
-                sbQuery.append(" AND ");
-                i++;
+            if (!fulltext.contains(filterKey)) {
+                sbQuery.append(getMappedPrefixedFieldName(filterKey));
+                sbQuery.append(" = ");
+                sbQuery.append("'");
+                sbQuery.append(filter.get(filterKey));
+                sbQuery.append("'");
+                if (i < filter.size()) {
+                    sbQuery.append(" AND ");
+                    i++;
+                }
+                hasFilter = true;
             }
 
         }
-        if (filter.size() > 0 && fulltext.size() > 0) {
+        if (hasFilter && filter.size() > 0 && fulltext.size() > 0) {
             sbQuery.append(" AND ");
         }
         if (fulltext.size() > 0) {
+
+            Collection<String> fullTextValues = Collections2.transform(fulltext, new Function<String,String>() {
+
+                @Override
+                public String apply(String key) {
+                    return (String) filter.get(key);
+                }
+
+            });
             sbQuery.append("ecm:fulltext");
             sbQuery.append(" = ");
             sbQuery.append("'");
-            for (String fullTextKey : fulltext) {
-                sbQuery.append(fullTextKey);
-                sbQuery.append(" ");
-            }
+            sbQuery.append(Joiner.on(" ").join(fullTextValues));
             sbQuery.append("'");
         }
-        
-        if ((createPath!=null && !createPath.isEmpty())) {
+
+        if ((createPath != null && !createPath.isEmpty())) {
             if (filter.size() > 0 || fulltext.size() > 0) {
                 sbQuery.append(" AND ");
             }
             sbQuery.append(" ecm:path STARTSWITH '");
             sbQuery.append(createPath);
-            sbQuery.append("'");             
+            sbQuery.append("'");
         }
-        
+
         // Filter facetFilter = new FacetFilter(FacetNames.VERSIONABLE, true);
-        
-        DocumentModelList resultsDoc = coreSession.query(sbQuery.toString(), null, new Long(limit),
-                new Long(offset), false);
-        
-        if(isReadOnly())
-        {
+
+        DocumentModelList resultsDoc = coreSession.query(sbQuery.toString(),
+                null, new Long(limit), new Long(offset), false);
+
+        if (isReadOnly()) {
             for (DocumentModel documentModel : resultsDoc) {
                 BaseSession.setReadOnlyEntry(documentModel);
             }
-        }        
+        }
         return resultsDoc;
 
     }
