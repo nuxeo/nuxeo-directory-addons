@@ -38,7 +38,7 @@ import org.nuxeo.ecm.core.api.IdRef;
 import org.nuxeo.ecm.core.schema.types.Field;
 import org.nuxeo.ecm.directory.BaseSession;
 import org.nuxeo.ecm.directory.DirectoryException;
-import org.nuxeo.ecm.directory.PasswordHelper;
+import org.nuxeo.ecm.directory.digest.PasswordHelper;
 import org.nuxeo.ecm.directory.Reference;
 import org.nuxeo.ecm.directory.api.DirectoryService;
 import org.nuxeo.ecm.directory.repository.intercept.DirectorySessionWrapper;
