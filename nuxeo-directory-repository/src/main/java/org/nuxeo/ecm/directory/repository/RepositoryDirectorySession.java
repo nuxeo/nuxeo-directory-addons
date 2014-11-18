@@ -114,7 +114,8 @@ public class RepositoryDirectorySession extends BaseSession implements
         if (UUID_FIELD.equals(directory.getIdField())) {
             IdRef ref = new IdRef(id);
             if (coreSession.exists(ref)) {
-                return coreSession.getDocument(new IdRef(id));
+                DocumentModel document = coreSession.getDocument(new IdRef(id));
+                return docType.equals(document.getType()) ? document : null;
             } else {
                 return null;
             }
