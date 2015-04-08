@@ -31,7 +31,7 @@ import org.nuxeo.runtime.model.ComponentContext;
 import org.nuxeo.runtime.model.DefaultComponent;
 import org.nuxeo.runtime.model.Extension;
 /**
- * Factory implementation for directory on repository  
+ * Factory implementation for directory on repository
  *
  * @since 5.9.6
  */
@@ -98,9 +98,9 @@ DirectoryFactory {
             }
         }
     }
-    
+
     @Override
-    public void applicationStarted(ComponentContext context) throws Exception {
+    public void applicationStarted(ComponentContext context) {
         directories.startAll();
     }
 

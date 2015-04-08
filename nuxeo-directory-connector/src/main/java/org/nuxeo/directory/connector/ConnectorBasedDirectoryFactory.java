@@ -61,7 +61,7 @@ public class ConnectorBasedDirectoryFactory extends DefaultComponent implements
     }
 
     @Override
-    public void applicationStarted(ComponentContext context) throws Exception {
+    public void applicationStarted(ComponentContext context) {
         if (Framework.isTestModeSet()) {
             // when testing, DatabaseHelper init hasn't occurred yet,
             // so keep to lazy initialization

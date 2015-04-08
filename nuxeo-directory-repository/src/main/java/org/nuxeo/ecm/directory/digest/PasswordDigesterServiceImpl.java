@@ -37,9 +37,7 @@ public class PasswordDigesterServiceImpl extends DefaultComponent implements Pas
     Map<String, PasswordDigester> digesters = new ConcurrentHashMap<>();
 
     @Override
-    public void registerContribution(Object contribution,
-            String extensionPoint, ComponentInstance contributor)
-            throws Exception {
+    public void registerContribution(Object contribution, String extensionPoint, ComponentInstance contributor) {
         if(DIGESTER_XP_NAME.equals(extensionPoint)) {
             PasswordDigesterDescriptor pdd = (PasswordDigesterDescriptor) contribution;
 
@@ -54,9 +52,7 @@ public class PasswordDigesterServiceImpl extends DefaultComponent implements Pas
     }
 
     @Override
-    public void unregisterContribution(Object contribution,
-            String extensionPoint, ComponentInstance contributor)
-            throws Exception {
+    public void unregisterContribution(Object contribution, String extensionPoint, ComponentInstance contributor) {
         if(DIGESTER_XP_NAME.equals(extensionPoint)) {
             PasswordDigesterDescriptor pdd = (PasswordDigesterDescriptor) contribution;
             if(digesters.containsKey(pdd.name)) {

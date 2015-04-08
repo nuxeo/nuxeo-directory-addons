@@ -42,7 +42,7 @@ import org.nuxeo.runtime.api.Framework;
 
 /**
  * Implementation class of directory on top of a repository
- * 
+ *
  *
  * @since 5.9.6
  */
@@ -70,9 +70,9 @@ public class RepositoryDirectory extends AbstractDirectory {
     }
 
     public void start() {
-        
+
         UnrestrictedSessionRunner directoryInitializer = new UnrestrictedSessionRunner(descriptor.getRepositoryName()) {
-            
+
             @Override
             public void run() throws ClientException {
                 String createPath = descriptor.createPath;
@@ -115,24 +115,24 @@ public class RepositoryDirectory extends AbstractDirectory {
                             }
                             session.save();
 
-                        } catch (ClientException e) {                    
+                        } catch (ClientException e) {
                             throw new DirectoryException(
                                     String.format(
                                             "The root folder '%s' can not be created under '%s' for the directory '%s' on the repository '%s',"
                                                     + " please make sure you have set the right path or that the path exist",
                                             createFolder, parentFolder, name,
                                             descriptor.getRepositoryName()), e);
-                        } 
-                    } 
+                        }
+                    }
 
                 } else {
                     log.info(String.format(
                             "Root folder '%s' has been found for the directory '%s' on the repository '%s', ACL will not be set",
                             createPath, name, descriptor.getRepositoryName()));
                 }
-                
+
             }
-        };        
+        };
         directoryInitializer.runUnrestricted();
     }
 
@@ -199,10 +199,5 @@ public class RepositoryDirectory extends AbstractDirectory {
         addSession(session);
         return session;
     }
-
-    protected void addSession(RepositoryDirectorySession session) {
-        sessions.add(session);
-    }
-
 
 }

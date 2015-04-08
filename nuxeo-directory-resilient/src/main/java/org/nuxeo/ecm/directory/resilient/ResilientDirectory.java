@@ -227,10 +227,6 @@ public class ResilientDirectory extends AbstractDirectory {
         return session;
     }
 
-    protected void addSession(ResilientDirectorySession session) {
-        sessions.add(session);
-    }
-
     @Override
     public Reference getReference(String referenceFieldName) {
         return new ResilientReference(this, referenceFieldName);
