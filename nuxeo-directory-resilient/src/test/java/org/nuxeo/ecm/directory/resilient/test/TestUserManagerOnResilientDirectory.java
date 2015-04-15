@@ -21,6 +21,8 @@ package org.nuxeo.ecm.directory.resilient.test;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -32,44 +34,26 @@ import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.ecm.directory.api.DirectoryService;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.runtime.api.Framework;
+import org.nuxeo.runtime.test.runner.Deploy;
+import org.nuxeo.runtime.test.runner.LocalDeploy;
 
 /**
  * @author Florent Guillaume
  * @author Maxime Hilaire
  */
+@Deploy({ "org.nuxeo.ecm.platform.usermanager", //
+        "org.nuxeo.ecm.platform.usermanager.api", //
+})
+@LocalDeploy({ "org.nuxeo.ecm.directory.resilient.tests:resilient-ldap-sql-directories-config.xml",
+        "org.nuxeo.ecm.directory.resilient.tests:test-contrib-usermanager-config.xml", })
 public class TestUserManagerOnResilientDirectory extends LDAPDirectoryTestCase {
 
-    private static final String TEST_BUNDLE = "org.nuxeo.ecm.directory.resilient.tests";
-
-    DirectoryService directoryService;
-
+    @Inject
     private UserManager userManager;
 
     private String username1 = "user1";
 
     private String password1 = "secret";
-
-    @Override
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-
-        deployBundle("org.nuxeo.ecm.platform.usermanager");
-        deployBundle("org.nuxeo.ecm.platform.usermanager.api");
-
-        // Bundle to be tested
-        deployBundle("org.nuxeo.ecm.directory.resilient");
-
-        // Config for the tested bundle
-        deployContrib(TEST_BUNDLE, "resilient-ldap-sql-directories-config.xml");
-        deployContrib(TEST_BUNDLE, "test-contrib-usermanager-config.xml");
-
-        // mem dir factory
-        directoryService = Framework.getLocalService(DirectoryService.class);
-
-        userManager = Framework.getLocalService(UserManager.class);
-
-    }
 
     @Override
     @After

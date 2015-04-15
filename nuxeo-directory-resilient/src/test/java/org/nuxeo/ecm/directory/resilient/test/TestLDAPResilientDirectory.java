@@ -27,30 +27,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.directory.Session;
-import org.nuxeo.ecm.directory.api.DirectoryService;
 import org.nuxeo.ecm.directory.ldap.LDAPDirectory;
 import org.nuxeo.ecm.directory.resilient.ResilientDirectory;
 import org.nuxeo.ecm.directory.resilient.ResilientDirectorySession;
 import org.nuxeo.ecm.directory.sql.SQLDirectory;
-import org.nuxeo.runtime.api.Framework;
+import org.nuxeo.runtime.test.runner.LocalDeploy;
 
 /**
  * @author Florent Guillaume
  * @author Maxime Hilaire
  */
 // @Ignore("Setup issue : LdapDirectory is not deployed")
+@LocalDeploy("org.nuxeo.ecm.directory.resilient.tests:resilient-ldap-sql-directories-config.xml")
 public class TestLDAPResilientDirectory extends LDAPDirectoryTestCase {
-
-    private static final String TEST_BUNDLE = "org.nuxeo.ecm.directory.resilient.tests";
-
-    DirectoryService directoryService;
 
     ResilientDirectory resilientUserDir;
 
@@ -76,20 +70,8 @@ public class TestLDAPResilientDirectory extends LDAPDirectoryTestCase {
 
     private ResilientDirectory resilientGroupDir;
 
-    @Override
     @Before
-    public void setUp() throws Exception {
-        super.setUp();
-
-        // mem dir factory
-        directoryService = Framework.getLocalService(DirectoryService.class);
-
-        // Bundle to be tested
-        deployBundle("org.nuxeo.ecm.directory.resilient");
-
-        // Config for the tested bundle
-        deployContrib(TEST_BUNDLE, "resilient-ldap-sql-directories-config.xml");
-
+    public void setUpResilient() throws Exception {
         // the USER resilient directory
         resilientUserDir = (ResilientDirectory) directoryService.getDirectory("resilientUserDirectory");
         resUserDirSession = (ResilientDirectorySession) resilientUserDir.getSession();
@@ -110,12 +92,6 @@ public class TestLDAPResilientDirectory extends LDAPDirectoryTestCase {
         sqlGroupDir = (SQLDirectory) (directoryService.getDirectory("sqlGroupDirectory"));
         sqlGroupSession = sqlGroupDir.getSession();
 
-    }
-
-    @Override
-    @After
-    public void tearDown() throws Exception {
-        super.tearDown();
     }
 
     @Test
