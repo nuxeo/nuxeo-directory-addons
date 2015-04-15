@@ -24,7 +24,6 @@ import org.nuxeo.runtime.api.Framework;
  */
 public class PasswordHelper {
 
-
     /**
      * Checks if a password is already hashed.
      *
@@ -33,7 +32,7 @@ public class PasswordHelper {
      */
     public static boolean isHashed(String password) {
         String name = getDigesterService().getDigesterNameFromHash(password);
-        if(name == null) {
+        if (name == null) {
             return false;
         }
         try {
@@ -49,11 +48,9 @@ public class PasswordHelper {
     }
 
     /**
-     * Returns the hashed string for a password according to a given hashing
-     * algorithm.
+     * Returns the hashed string for a password according to a given hashing algorithm.
      *
-     * @param algorithm the algorithm, {@link #SSHA} or {@link #SMD5}, or
-     *            {@code null} to not hash
+     * @param algorithm the algorithm, {@link #SSHA} or {@link #SMD5}, or {@code null} to not hash
      * @param password the password
      * @return the hashed password
      */
@@ -62,12 +59,10 @@ public class PasswordHelper {
             return password;
         }
 
-        PasswordDigester digester = getDigesterService().getPasswordDigester(
-                algorithm);
+        PasswordDigester digester = getDigesterService().getPasswordDigester(algorithm);
         return digester.hashPassword(password);
 
     }
-
 
     /**
      * Verify a password against a hashed password.

@@ -14,8 +14,7 @@ import org.nuxeo.directory.connector.EntryConnector;
 import org.nuxeo.directory.connector.InMemorySearchHelper;
 import org.nuxeo.ecm.core.api.ClientException;
 
-public class DummyTestConnector extends AbstractEntryConnector
-        implements EntryConnector {
+public class DummyTestConnector extends AbstractEntryConnector implements EntryConnector {
 
     protected Map<String, String> params;
 
@@ -51,11 +50,9 @@ public class DummyTestConnector extends AbstractEntryConnector
     }
 
     @Override
-    public List<String> queryEntryIds(Map<String, Serializable> filter,
-            Set<String> fulltext) {
+    public List<String> queryEntryIds(Map<String, Serializable> filter, Set<String> fulltext) {
         return searchHelper.queryEntryIds(filter, fulltext);
     }
-
 
     public boolean hasEntry(String id) throws ClientException {
         return params.keySet().contains(id);

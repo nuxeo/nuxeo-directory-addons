@@ -32,15 +32,13 @@ public class TestConnectorDirectory extends NXRuntimeTestCase {
         deployBundle("org.nuxeo.ecm.directory.api");
         deployBundle("org.nuxeo.ecm.directory");
         deployBundle("org.nuxeo.ecm.directory.types.contrib");
-        deployContrib("org.nuxeo.directory.connector",
-                "OSGI-INF/connectorbased-directory-framework.xml");
+        deployContrib("org.nuxeo.directory.connector", "OSGI-INF/connectorbased-directory-framework.xml");
     }
 
     @Test
     public void testContrib() throws Exception {
 
-        deployContrib("org.nuxeo.directory.connector.test",
-                "OSGI-INF/testContrib.xml");
+        deployContrib("org.nuxeo.directory.connector.test", "OSGI-INF/testContrib.xml");
 
         DirectoryService ds = Framework.getLocalService(DirectoryService.class);
         assertNotNull(ds);
@@ -92,8 +90,7 @@ public class TestConnectorDirectory extends NXRuntimeTestCase {
     @Test
     public void testJsonDirectoryConnectorContrib() throws Exception {
 
-        deployContrib("org.nuxeo.directory.connector.test",
-                "OSGI-INF/testJsonDirectoryConnectorContrib.xml");
+        deployContrib("org.nuxeo.directory.connector.test", "OSGI-INF/testJsonDirectoryConnectorContrib.xml");
         DirectoryService ds = Framework.getLocalService(DirectoryService.class);
         assertNotNull(ds);
 
@@ -115,13 +112,11 @@ public class TestConnectorDirectory extends NXRuntimeTestCase {
 
     }
 
-
     @Test
     @Ignore("Service is down ?")
     public void testNasaDirectoryConnectorContrib() throws Exception {
 
-        deployContrib("org.nuxeo.directory.connector.test",
-                "OSGI-INF/testJsonDirectoryConnectorContrib.xml");
+        deployContrib("org.nuxeo.directory.connector.test", "OSGI-INF/testJsonDirectoryConnectorContrib.xml");
         DirectoryService ds = Framework.getLocalService(DirectoryService.class);
         assertNotNull(ds);
 
@@ -146,8 +141,7 @@ public class TestConnectorDirectory extends NXRuntimeTestCase {
     @Ignore("Service is down ?")
     public void testNasaDSDirectoryConnectorContrib() throws Exception {
 
-        deployContrib("org.nuxeo.directory.connector.test",
-                "OSGI-INF/testJsonDirectoryConnectorContrib.xml");
+        deployContrib("org.nuxeo.directory.connector.test", "OSGI-INF/testJsonDirectoryConnectorContrib.xml");
         DirectoryService ds = Framework.getLocalService(DirectoryService.class);
         assertNotNull(ds);
 
@@ -159,14 +153,12 @@ public class TestConnectorDirectory extends NXRuntimeTestCase {
         Session session = d.getSession();
         assertNotNull(session);
 
-
         Map<String, Serializable> filter = new HashMap<>();
         filter.put("category", "322");
 
         DocumentModelList entries = session.query(filter);
         assertNotNull(entries);
         assertEquals(10, entries.totalSize());
-
 
         DocumentModel entry = session.getEntry("707");
         assertNotNull(entry);

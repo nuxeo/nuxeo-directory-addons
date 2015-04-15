@@ -10,14 +10,12 @@ import org.nuxeo.ecm.directory.DirectoryException;
  * Abstract base class to Connector implementations
  *
  * @author tiry
- *
  */
 public abstract class AbstractEntryConnector implements EntryConnector {
 
     protected ConnectorBasedDirectoryDescriptor descriptor;
 
-    public boolean authenticate(String username, String password)
-            throws DirectoryException {
+    public boolean authenticate(String username, String password) throws DirectoryException {
 
         Map<String, Object> map = getEntryMap(username);
         if (map == null) {

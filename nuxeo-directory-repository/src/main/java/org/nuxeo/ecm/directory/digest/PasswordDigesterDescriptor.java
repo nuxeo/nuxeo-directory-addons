@@ -24,8 +24,6 @@ import org.nuxeo.common.xmap.annotation.XNodeMap;
 import org.nuxeo.common.xmap.annotation.XObject;
 
 /**
- *
- *
  * @since 7.1
  */
 @XObject("digester")
@@ -34,10 +32,8 @@ public class PasswordDigesterDescriptor {
     @XNode("@name")
     String name;
 
-
     @XNode("@enabled")
     boolean enabled = true;
-
 
     @XNode("@class")
     Class<PasswordDigester> digesterKlass;
@@ -58,7 +54,8 @@ public class PasswordDigesterDescriptor {
 
     @Override
     public String toString() {
-        return String.format("Digester(%s)[class=%s,enabled=%s]", name, digesterKlass.getName(), enabled ? "true" : "false");
+        return String.format("Digester(%s)[class=%s,enabled=%s]", name, digesterKlass.getName(), enabled ? "true"
+                : "false");
     }
 
 }

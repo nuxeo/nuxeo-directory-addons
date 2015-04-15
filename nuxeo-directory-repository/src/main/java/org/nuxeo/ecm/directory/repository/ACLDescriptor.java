@@ -23,7 +23,6 @@ import org.nuxeo.common.xmap.annotation.XObject;
 /**
  * ACL descriptor
  * 
- *
  * @since 5.9.6
  */
 @XObject(value = "acl")
@@ -31,12 +30,11 @@ public class ACLDescriptor implements Cloneable {
 
     @XNode("@userOrGroupName")
     public String userOrGroupName;
-    
+
     @XNode("@privilege")
     public String privilege;
-    
+
     @XNode("@granted")
     public boolean granted = false;
-    
 
 }

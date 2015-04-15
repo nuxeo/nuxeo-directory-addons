@@ -37,8 +37,7 @@ import org.nuxeo.runtime.model.Extension;
  * @author Florent Guillaume
  * @author Maxime Hilaire
  */
-public class ResilientDirectoryFactory extends DefaultComponent implements
-        DirectoryFactory {
+public class ResilientDirectoryFactory extends DefaultComponent implements DirectoryFactory {
 
     private static final String NAME = "org.nuxeo.ecm.directory.resilient.ResilientDirectoryFactory";
 
@@ -69,8 +68,7 @@ public class ResilientDirectoryFactory extends DefaultComponent implements
     }
 
     public static DirectoryService getDirectoryService() {
-        directoryService = (DirectoryService) Framework.getRuntime().getComponent(
-                DirectoryService.NAME);
+        directoryService = (DirectoryService) Framework.getRuntime().getComponent(DirectoryService.NAME);
         if (directoryService == null) {
             directoryService = Framework.getLocalService(DirectoryService.class);
             if (directoryService == null) {
@@ -102,8 +100,7 @@ public class ResilientDirectoryFactory extends DefaultComponent implements
     }
 
     @Override
-    public void unregisterExtension(Extension extension)
-            throws DirectoryException {
+    public void unregisterExtension(Extension extension) throws DirectoryException {
         Object[] contribs = extension.getContributions();
         DirectoryService dirService = getDirectoryService();
         for (Object contrib : contribs) {

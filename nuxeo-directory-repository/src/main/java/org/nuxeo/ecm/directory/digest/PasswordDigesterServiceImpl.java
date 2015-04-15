@@ -25,8 +25,6 @@ import org.nuxeo.runtime.model.ComponentInstance;
 import org.nuxeo.runtime.model.DefaultComponent;
 
 /**
- *
- *
  * @since 7.1
  */
 public class PasswordDigesterServiceImpl extends DefaultComponent implements PasswordDigesterService {
@@ -34,17 +32,17 @@ public class PasswordDigesterServiceImpl extends DefaultComponent implements Pas
     private static final Pattern HASH_PATTERN = Pattern.compile("^\\{(.*)\\}(.*)$");
 
     private static final String DIGESTER_XP_NAME = "digester";
+
     Map<String, PasswordDigester> digesters = new ConcurrentHashMap<>();
 
     @Override
     public void registerContribution(Object contribution, String extensionPoint, ComponentInstance contributor) {
-        if(DIGESTER_XP_NAME.equals(extensionPoint)) {
+        if (DIGESTER_XP_NAME.equals(extensionPoint)) {
             PasswordDigesterDescriptor pdd = (PasswordDigesterDescriptor) contribution;
 
-
-            if(pdd.enabled) {
+            if (pdd.enabled) {
                 digesters.put(pdd.name, pdd.buildDigester());
-            } else if(digesters.containsKey(pdd.name)) {
+            } else if (digesters.containsKey(pdd.name)) {
                 digesters.remove(pdd.name);
             }
 
@@ -53,29 +51,26 @@ public class PasswordDigesterServiceImpl extends DefaultComponent implements Pas
 
     @Override
     public void unregisterContribution(Object contribution, String extensionPoint, ComponentInstance contributor) {
-        if(DIGESTER_XP_NAME.equals(extensionPoint)) {
+        if (DIGESTER_XP_NAME.equals(extensionPoint)) {
             PasswordDigesterDescriptor pdd = (PasswordDigesterDescriptor) contribution;
-            if(digesters.containsKey(pdd.name)) {
+            if (digesters.containsKey(pdd.name)) {
                 digesters.remove(pdd.name);
             }
         }
     }
 
     @Override
-    public PasswordDigester getPasswordDigester(String name)
-            throws UnknownAlgorithmException {
-       if(digesters.containsKey(name)) {
-           return digesters.get(name);
-       } else {
-           throw new UnknownAlgorithmException();
-       }
+    public PasswordDigester getPasswordDigester(String name) throws UnknownAlgorithmException {
+        if (digesters.containsKey(name)) {
+            return digesters.get(name);
+        } else {
+            throw new UnknownAlgorithmException();
+        }
     }
-
 
     /**
      * @param hashedPassword
      * @return
-     *
      */
     @Override
     public String getDigesterNameFromHash(String hashedPassword) {
@@ -86,6 +81,5 @@ public class PasswordDigesterServiceImpl extends DefaultComponent implements Pas
             return null;
         }
     }
-
 
 }

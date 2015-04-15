@@ -19,12 +19,9 @@ package org.nuxeo.ecm.directory.digest;
 import java.util.Map;
 
 /**
- *
- *
  * @since 7.1
  */
 public interface PasswordDigester {
-
 
     public String getName();
 

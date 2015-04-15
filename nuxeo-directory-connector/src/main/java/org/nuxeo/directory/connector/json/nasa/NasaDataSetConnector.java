@@ -15,7 +15,7 @@ public class NasaDataSetConnector extends BaseJSONDirectoryConnector {
 
     @Override
     public boolean hasEntry(String id) throws ClientException {
-        return getEntryMap(id)!=null;
+        return getEntryMap(id) != null;
     }
 
     @Override
@@ -40,8 +40,7 @@ public class NasaDataSetConnector extends BaseJSONDirectoryConnector {
     }
 
     @Override
-    public List<String> queryEntryIds(Map<String, Serializable> filter,
-            Set<String> fulltext) {
+    public List<String> queryEntryIds(Map<String, Serializable> filter, Set<String> fulltext) {
 
         if (filter.containsKey("category")) {
             String getDataSetUrl = params.get("url") + "get_category_datasets/?id=" + filter.get("category");

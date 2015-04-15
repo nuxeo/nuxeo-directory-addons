@@ -12,26 +12,19 @@ import org.nuxeo.ecm.directory.repository.RepositoryDirectory;
 
 public interface DirectorySessionWrapper {
 
-    void init(WrappableDirectorySession session,
-            RepositoryDirectory repositoryDirectory);
+    void init(WrappableDirectorySession session, RepositoryDirectory repositoryDirectory);
 
-    DocumentModel getEntry(String id, boolean fetchReferences)
-            throws DirectoryException;
+    DocumentModel getEntry(String id, boolean fetchReferences) throws DirectoryException;
 
-    DocumentModel createEntry(Map<String, Object> fieldMap)
-            throws ClientException, DirectoryException;
+    DocumentModel createEntry(Map<String, Object> fieldMap) throws ClientException, DirectoryException;
 
-    void updateEntry(DocumentModel docModel) throws ClientException,
-            DirectoryException;
+    void updateEntry(DocumentModel docModel) throws ClientException, DirectoryException;
 
     void deleteEntry(String id) throws ClientException;
 
-    DocumentModelList query(Map<String, Serializable> filter,
-            Set<String> fulltext, Map<String, String> orderBy,
-            boolean fetchReferences, int limit, int offset)
-            throws ClientException, DirectoryException;
+    DocumentModelList query(Map<String, Serializable> filter, Set<String> fulltext, Map<String, String> orderBy,
+            boolean fetchReferences, int limit, int offset) throws ClientException, DirectoryException;
 
-    boolean authenticate(String username, String password)
-            throws ClientException;
+    boolean authenticate(String username, String password) throws ClientException;
 
 }

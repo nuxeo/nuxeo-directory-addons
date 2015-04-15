@@ -32,12 +32,10 @@ import org.nuxeo.runtime.test.runner.RuntimeFeature;
 import com.google.inject.Inject;
 
 /**
- *
- *
  * @since 7.1
  */
 @RunWith(FeaturesRunner.class)
-@Deploy({ "org.nuxeo.ecm.directory", "org.nuxeo.ecm.directory.api","org.nuxeo.ecm.directory.repository" })
+@Deploy({ "org.nuxeo.ecm.directory", "org.nuxeo.ecm.directory.api", "org.nuxeo.ecm.directory.repository" })
 @Features(RuntimeFeature.class)
 @LocalDeploy("org.nuxeo.ecm.directory.repository:remove-digester-contrib.xml")
 public class PasswordDigesterServiceTest {
@@ -57,13 +55,12 @@ public class PasswordDigesterServiceTest {
         assertTrue(digester.hashPassword("abcd").startsWith("{SSHA}"));
     }
 
-    @Test(expected=UnknownAlgorithmException.class)
+    @Test(expected = UnknownAlgorithmException.class)
     public void itThrowsAnExceptionForAnUnknownAlgorithm() throws Exception {
         ds.getPasswordDigester("unknownAlgorithm");
     }
 
-
-    @Test(expected=UnknownAlgorithmException.class)
+    @Test(expected = UnknownAlgorithmException.class)
     public void itIsPossibleToDisableAnAlgorithm() throws Exception {
         ds.getPasswordDigester("PBKDF2Hmac256");
     }
@@ -71,8 +68,7 @@ public class PasswordDigesterServiceTest {
     @Test
     public void digesterMayVerifyAPassword() throws Exception {
         PasswordDigester digester = ds.getPasswordDigester("SSHA");
-        assertTrue(digester.verifyPassword("abcd",
-                "{SSHA}WPvqVeSt0Mr2llICYmAX9+pjtPH271eznDHvrw=="));
+        assertTrue(digester.verifyPassword("abcd", "{SSHA}WPvqVeSt0Mr2llICYmAX9+pjtPH271eznDHvrw=="));
     }
 
 }

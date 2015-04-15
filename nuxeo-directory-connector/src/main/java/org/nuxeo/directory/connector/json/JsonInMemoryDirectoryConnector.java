@@ -18,8 +18,7 @@ import org.nuxeo.directory.connector.EntryConnector;
 import org.nuxeo.directory.connector.InMemorySearchHelper;
 import org.nuxeo.ecm.core.api.ClientException;
 
-public class JsonInMemoryDirectoryConnector extends BaseJSONDirectoryConnector
-        implements EntryConnector {
+public class JsonInMemoryDirectoryConnector extends BaseJSONDirectoryConnector implements EntryConnector {
 
     public ArrayList<HashMap<String, Object>> results;
 
@@ -98,8 +97,7 @@ public class JsonInMemoryDirectoryConnector extends BaseJSONDirectoryConnector
     }
 
     @Override
-    public List<String> queryEntryIds(Map<String, Serializable> filter,
-            Set<String> fulltext) {
+    public List<String> queryEntryIds(Map<String, Serializable> filter, Set<String> fulltext) {
         return searchHelper.queryEntryIds(filter, fulltext);
     }
 

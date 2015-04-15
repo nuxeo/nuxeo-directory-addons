@@ -35,14 +35,13 @@ import org.nuxeo.runtime.api.Framework;
 /**
  * Directory on top of repository descriptor
  * 
- *
  * @since 5.9.6
  */
 @XObject(value = "directory")
 public class RepositoryDirectoryDescriptor implements Cloneable {
 
     protected static final Log log = LogFactory.getLog(RepositoryDirectoryDescriptor.class);
-    
+
     @XNode("@name")
     public String name;
 
@@ -78,7 +77,7 @@ public class RepositoryDirectoryDescriptor implements Cloneable {
 
     @XNode("canCreateRootFolder")
     public boolean canCreateRootFolder = true;
-    
+
     @XNodeList(value = "references/repositoryDirectoryReference", type = RepositoryDirectoryReference[].class, componentType = RepositoryDirectoryReference.class)
     private RepositoryDirectoryReference[] repositoryDirectoryReference;
 
@@ -97,7 +96,7 @@ public class RepositoryDirectoryDescriptor implements Cloneable {
     protected Class<? extends DirectorySessionWrapper> wrapperClass;
 
     protected DirectorySessionWrapper wrapper = null;
-    
+
     @Override
     public RepositoryDirectoryDescriptor clone() {
         RepositoryDirectoryDescriptor clone = new RepositoryDirectoryDescriptor();
@@ -122,12 +121,12 @@ public class RepositoryDirectoryDescriptor implements Cloneable {
     }
 
     public String getRepositoryName() {
-        if (repositoryName==null || repositoryName.isEmpty()) { 
+        if (repositoryName == null || repositoryName.isEmpty()) {
             repositoryName = Framework.getService(RepositoryManager.class).getDefaultRepositoryName();
         }
         return repositoryName;
     }
-    
+
     public void merge(RepositoryDirectoryDescriptor other) {
         merge(other, false);
     }
@@ -174,11 +173,9 @@ public class RepositoryDirectoryDescriptor implements Cloneable {
             if (acls == null) {
                 acls = other.acls;
             } else {
-                ACLDescriptor[] otherAcls = new ACLDescriptor[acls.length
-                        + other.acls.length];
+                ACLDescriptor[] otherAcls = new ACLDescriptor[acls.length + other.acls.length];
                 System.arraycopy(acls, 0, otherAcls, 0, acls.length);
-                System.arraycopy(other.acls, 0, otherAcls, acls.length,
-                        other.acls.length);
+                System.arraycopy(other.acls, 0, otherAcls, acls.length, other.acls.length);
                 acls = otherAcls;
             }
         }
@@ -187,7 +184,7 @@ public class RepositoryDirectoryDescriptor implements Cloneable {
     public void init() {
         repositoryDirectory = new RepositoryDirectory(this);
     }
-    
+
     public void start() {
         repositoryDirectory.start();
     }
@@ -199,19 +196,19 @@ public class RepositoryDirectoryDescriptor implements Cloneable {
         }
     }
 
-    public DirectorySessionWrapper getWrapper() {        
-        if (wrapper==null) {
-            if (wrapperClass!=null) {
+    public DirectorySessionWrapper getWrapper() {
+        if (wrapper == null) {
+            if (wrapperClass != null) {
                 try {
                     wrapper = wrapperClass.newInstance();
                 } catch (Exception e) {
                     log.error("Unable to create Wrapper class " + wrapperClass.getCanonicalName(), e);
                 }
             }
-            if (wrapper==null) {
+            if (wrapper == null) {
                 wrapper = new SimpleForward();
             }
-        }        
-        return wrapper;        
+        }
+        return wrapper;
     }
 }

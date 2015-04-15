@@ -30,24 +30,20 @@ import org.nuxeo.ecm.core.api.DocumentModel;
 public class TestUserRepositoryDirectory extends TestRepositoryDirectory {
 
     protected LoginContext lc;
-    
+
     @Override
     public void setUp() throws Exception {
-        lc = RepositoryDirectoryFeature.loginAs(
-                RepositoryDirectoryFeature.USER1_NAME,
+        lc = RepositoryDirectoryFeature.loginAs(RepositoryDirectoryFeature.USER1_NAME,
                 RepositoryDirectoryFeature.USER1_NAME);
         dirSession = repoDir.getSession();
     }
-    
-    
-   
 
     @After
     public void tearDown() throws Exception {
         dirSession.close();
         lc.logout();
     }
-    
+
     @Test
     public void testGetEntry() throws Exception {
         DocumentModel entry;

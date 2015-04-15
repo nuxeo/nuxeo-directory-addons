@@ -47,15 +47,13 @@ import com.google.inject.Inject;
 /**
  * @author Florent Guillaume
  * @author Maxime Hilaire
- *
  */
 
 @RunWith(FeaturesRunner.class)
 @Features(CoreFeature.class)
 @RepositoryConfig(init = DefaultRepositoryInit.class)
-@Deploy({ "org.nuxeo.ecm.directory.api", "org.nuxeo.ecm.directory",
-        "org.nuxeo.ecm.core.schema", "org.nuxeo.ecm.directory.types.contrib",
-        "org.nuxeo.ecm.directory.resilient" })
+@Deploy({ "org.nuxeo.ecm.directory.api", "org.nuxeo.ecm.directory", "org.nuxeo.ecm.core.schema",
+        "org.nuxeo.ecm.directory.types.contrib", "org.nuxeo.ecm.directory.resilient" })
 public class TestResilientReadOnlyDirectory {
 
     private static final String TEST_BUNDLE = "org.nuxeo.ecm.directory.resilient.tests";
@@ -81,21 +79,17 @@ public class TestResilientReadOnlyDirectory {
         memoryDirectoryFactory = new MemoryDirectoryFactory();
         directoryService.registerDirectory("memdirs", memoryDirectoryFactory);
 
-        Set<String> schema1Set = new HashSet<String>(Arrays.asList("uid",
-                "foo", "bar"));
+        Set<String> schema1Set = new HashSet<String>(Arrays.asList("uid", "foo", "bar"));
 
-        memdir3 = new MemoryDirectory("dir3", "schema1", schema1Set, "uid",
-                "foo");
+        memdir3 = new MemoryDirectory("dir3", "schema1", schema1Set, "uid", "foo");
         memoryDirectoryFactory.registerDirectory(memdir3);
 
-        memdir4 = new MemoryDirectory("dir4", "schema1", schema1Set, "uid",
-                "foo");
+        memdir4 = new MemoryDirectory("dir4", "schema1", schema1Set, "uid", "foo");
         memdir4.setReadOnly(true);
         memoryDirectoryFactory.registerDirectory(memdir4);
 
         // Deploy resilient contrib
-        harness.deployContrib(TEST_BUNDLE,
-                "resilient-memory-read-only-directories-config.xml");
+        harness.deployContrib(TEST_BUNDLE, "resilient-memory-read-only-directories-config.xml");
 
     }
 

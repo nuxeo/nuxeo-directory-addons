@@ -45,8 +45,7 @@ import org.nuxeo.runtime.api.Framework;
 /**
  * Directory session aggregating entries from different sources.
  * <p>
- * Each source can build an entry aggregating fields from one or several
- * directories.
+ * Each source can build an entry aggregating fields from one or several directories.
  *
  * @author Florent Guillaume
  * @author Anahide Tchertchian
@@ -93,8 +92,7 @@ public class ResilientDirectorySession extends BaseSession {
 
         Session session;
 
-        SubDirectoryInfo(String dirName, String dirSchemaName, String idField,
-                String passwordField) {
+        SubDirectoryInfo(String dirName, String dirSchemaName, String idField, String passwordField) {
             this.dirName = dirName;
             this.dirSchemaName = dirSchemaName;
             this.idField = idField;
@@ -115,8 +113,7 @@ public class ResilientDirectorySession extends BaseSession {
     }
 
     private void init() throws DirectoryException {
-        if (masterSubDirectoryInfo == null
-                || (slaveSubDirectoryInfos == null || slaveSubDirectoryInfos.size() == 0)) {
+        if (masterSubDirectoryInfo == null || (slaveSubDirectoryInfos == null || slaveSubDirectoryInfos.size() == 0)) {
             recomputeSubDirectoryInfos();
         }
     }
@@ -126,8 +123,7 @@ public class ResilientDirectorySession extends BaseSession {
      */
     private void recomputeSubDirectoryInfos() throws DirectoryException {
 
-        List<SubDirectoryInfo> newSlaveSubDirectoryInfos = new ArrayList<SubDirectoryInfo>(
-                2);
+        List<SubDirectoryInfo> newSlaveSubDirectoryInfos = new ArrayList<SubDirectoryInfo>(2);
         for (SubDirectoryDescriptor subDir : descriptor.subDirectories) {
 
             final String dirName = subDir.name;
@@ -136,8 +132,7 @@ public class ResilientDirectorySession extends BaseSession {
             final String dirIdField = directoryService.getDirectoryIdField(dirName);
             final String dirPwdField = directoryService.getDirectoryPasswordField(dirName);
 
-            SubDirectoryInfo subDirectoryInfo = new SubDirectoryInfo(dirName,
-                    dirSchemaName, dirIdField, dirPwdField);
+            SubDirectoryInfo subDirectoryInfo = new SubDirectoryInfo(dirName, dirSchemaName, dirIdField, dirPwdField);
 
             if (subDir.isMaster()) {
                 if (masterSubDirectoryInfo == null) {
@@ -176,17 +171,14 @@ public class ResilientDirectorySession extends BaseSession {
     }
 
     /**
-     * Close a source without throwing exception to let the parent caller deal
-     * with the exception returned
+     * Close a source without throwing exception to let the parent caller deal with the exception returned
      *
      * @param SubDirectoryInfo
      * @param exc
      * @return An exception or null if none
-     *
      * @since 5.9
      */
-    private DirectoryException closeSource(SubDirectoryInfo subDirectoryInfo,
-            DirectoryException exc) {
+    private DirectoryException closeSource(SubDirectoryInfo subDirectoryInfo, DirectoryException exc) {
         Session session = subDirectoryInfo.session;
         subDirectoryInfo.session = null;
         if (session != null) {
@@ -199,8 +191,7 @@ public class ResilientDirectorySession extends BaseSession {
                     exc = e;
                 } else {
                     // we can't reraise both, log this one
-                    log.error("Error closing directory "
-                            + subDirectoryInfo.dirName, e);
+                    log.error("Error closing directory " + subDirectoryInfo.dirName, e);
                 }
             }
         }
@@ -243,10 +234,8 @@ public class ResilientDirectorySession extends BaseSession {
             init();
             return masterSubDirectoryInfo.getSession().isReadOnly();
         } catch (ClientException e) {
-            log.warn(
-                    String.format(
-                            "Unable to get the read-only value of the master directory '%s'",
-                            masterSubDirectoryInfo.dirName), e);
+            log.warn(String.format("Unable to get the read-only value of the master directory '%s'",
+                    masterSubDirectoryInfo.dirName), e);
             // If we are not able to know if the master is in read-only, do not
             // allow to add values into slaves
             return true;
@@ -254,22 +243,16 @@ public class ResilientDirectorySession extends BaseSession {
     }
 
     /**
-     * The method try to create/update the entry if master has it, else delete
-     * it from slave If any error, but log warn messages, the aim is not to lock
-     * operation when slave are not availale The stuff will be done another time
-     * The method works on entry ID (mean the idField is the same on master and
-     * slave) and slave don't use auto-increment feature (checked in
-     * ResilientDirectory constructor)
+     * The method try to create/update the entry if master has it, else delete it from slave If any error, but log warn
+     * messages, the aim is not to lock operation when slave are not availale The stuff will be done another time The
+     * method works on entry ID (mean the idField is the same on master and slave) and slave don't use auto-increment
+     * feature (checked in ResilientDirectory constructor)
      *
      * @param entryId The id of the entry
-     * @param fieldMap The list of properties to set in addition of the master
-     *            one. Can be null when not needed
-     * @param masterHasEntry True if the master get it, else false. If flase the
-     *            entry will be reomved on slave
-     *
+     * @param fieldMap The list of properties to set in addition of the master one. Can be null when not needed
+     * @param masterHasEntry True if the master get it, else false. If flase the entry will be reomved on slave
      */
-    private void updateMasterOnSlaves(String entryId,
-            Map<String, Object> fieldMap, boolean masterHasEntry) {
+    private void updateMasterOnSlaves(String entryId, Map<String, Object> fieldMap, boolean masterHasEntry) {
         // if master has entry, update entry on slave, else if it does not exist
         // on slave create it
         // If the master does not have this entry anymore delete it from slave
@@ -280,17 +263,15 @@ public class ResilientDirectorySession extends BaseSession {
                 docModel = masterSubDirectoryInfo.getSession().getEntry(entryId);
 
             } catch (ClientException e) {
-                log.warn(
-                        String.format(
-                                "Unable to get the entry id %s on master directory '%s'  while updating slave directory",
-                                entryId, masterSubDirectoryInfo.dirName), e);
+                log.warn(String.format(
+                        "Unable to get the entry id %s on master directory '%s'  while updating slave directory",
+                        entryId, masterSubDirectoryInfo.dirName), e);
             }
             if (docModel != null) {
                 for (SubDirectoryInfo subDirInfo : slaveSubDirectoryInfos) {
                     try {
                         if (subDirInfo.getSession().hasEntry(entryId)) {
-                            final DocumentModel entry = BaseSession.createEntryModel(
-                                    null, schemaName, entryId, null);
+                            final DocumentModel entry = BaseSession.createEntryModel(null, schemaName, entryId, null);
                             // Do not set dataModel values with constructor to
                             // force fields dirty
 
@@ -304,8 +285,7 @@ public class ResilientDirectorySession extends BaseSession {
                                 masterProps.putAll(fieldMap);
                             } else {
                                 if (getPasswordField() != null) {
-                                    Field passwordField = directory.getSchemaFieldMap().get(
-                                            getPasswordField());
+                                    Field passwordField = directory.getSchemaFieldMap().get(getPasswordField());
                                     if (masterProps.containsKey(passwordField.getName().getPrefixedName())) {
                                         if (masterProps.get(passwordField.getName().getPrefixedName()) == null) {
                                             // The password should be null only
@@ -335,16 +315,13 @@ public class ResilientDirectorySession extends BaseSession {
                                 prefixProps.putAll(fieldMap);
                             }
 
-
                             subDirInfo.getSession().createEntry(prefixProps);
                         }
                     }
 
                     catch (ClientException e) {
-                        log.warn(
-                                String.format(
-                                        "Unable to update the slave directory %s on entry id %s",
-                                        subDirInfo.dirName, entryId), e);
+                        log.warn(String.format("Unable to update the slave directory %s on entry id %s",
+                                subDirInfo.dirName, entryId), e);
                     }
                 }
             } else {
@@ -361,10 +338,8 @@ public class ResilientDirectorySession extends BaseSession {
                 }
 
                 catch (ClientException e) {
-                    log.warn(
-                            String.format(
-                                    "Unable to delete the slave directory %s on entry id %s",
-                                    subDirInfo.dirName, entryId), e);
+                    log.warn(String.format("Unable to delete the slave directory %s on entry id %s",
+                            subDirInfo.dirName, entryId), e);
                 }
             }
         }
@@ -383,14 +358,12 @@ public class ResilientDirectorySession extends BaseSession {
     }
 
     @Override
-    public boolean authenticate(String username, String password)
-            throws ClientException {
+    public boolean authenticate(String username, String password) throws ClientException {
         init();
 
         // First try to authenticate against the master
         try {
-            boolean authenticated = masterSubDirectoryInfo.getSession().authenticate(
-                    username, password);
+            boolean authenticated = masterSubDirectoryInfo.getSession().authenticate(username, password);
             HashMap<String, Object> fieldMap = new HashMap<String, Object>();
 
             fieldMap.put(getIdField(), username);
@@ -399,17 +372,14 @@ public class ResilientDirectorySession extends BaseSession {
             updateMasterOnSlaves(username, fieldMap, authenticated);
             return authenticated;
         } catch (DirectoryException e) {
-            log.warn(
-                    String.format(
-                            "Unable to authenticate the user '%s' against the master directory '%s', will fallback on slave",
-                            username, masterSubDirectoryInfo.dirName), e);
+            log.warn(String.format(
+                    "Unable to authenticate the user '%s' against the master directory '%s', will fallback on slave",
+                    username, masterSubDirectoryInfo.dirName), e);
         }
 
         // If the master is KO, fallback on slave and try to authenticate
         for (SubDirectoryInfo dirInfo : slaveSubDirectoryInfos) {
-            log.info(String.format(
-                    "Trying to authenticate against slave directory %s",
-                    dirInfo.dirName));
+            log.info(String.format("Trying to authenticate against slave directory %s", dirInfo.dirName));
             if (dirInfo.getSession().authenticate(username, password)) {
                 return true;
             }
@@ -433,8 +403,7 @@ public class ResilientDirectorySession extends BaseSession {
      * @throws DirectoryException
      *
      */
-    public DocumentModel getEntry(String id, boolean fetchReferences)
-            throws DirectoryException {
+    public DocumentModel getEntry(String id, boolean fetchReferences) throws DirectoryException {
         init();
 
         // Try to get the entry in the master first
@@ -444,13 +413,10 @@ public class ResilientDirectorySession extends BaseSession {
         boolean errorOccurs = false;
         DocumentModel entry = null;
         try {
-            entry = masterSubDirectoryInfo.getSession().getEntry(id,
-                    fetchReferences);
+            entry = masterSubDirectoryInfo.getSession().getEntry(id, fetchReferences);
         } catch (DirectoryException e) {
-            log.warn(
-                    String.format(
-                            "Unable to get the entry id '%s' in the directory '%s', will fallback on slave ",
-                            id, masterSubDirectoryInfo.dirName), e);
+            log.warn(String.format("Unable to get the entry id '%s' in the directory '%s', will fallback on slave ",
+                    id, masterSubDirectoryInfo.dirName), e);
             errorOccurs = true;
         }
 
@@ -461,11 +427,8 @@ public class ResilientDirectorySession extends BaseSession {
         } else if (entry == null && errorOccurs) {
             // Try to get the entry from slaves
             for (SubDirectoryInfo subDirectoryInfo : slaveSubDirectoryInfos) {
-                log.info(String.format(
-                        "Trying to get entry %s on slave directory %s",
-                        id, subDirectoryInfo.dirName));
-                entry = subDirectoryInfo.getSession().getEntry(id,
-                        fetchReferences);
+                log.info(String.format("Trying to get entry %s on slave directory %s", id, subDirectoryInfo.dirName));
+                entry = subDirectoryInfo.getSession().getEntry(id, fetchReferences);
                 if (isReadOnly()) {
                     // set readonly the returned entry if the master directory
                     // is in read-only
@@ -483,15 +446,12 @@ public class ResilientDirectorySession extends BaseSession {
     }
 
     /**
-     * Method used for quer and getEntries method This method may raise
-     * performance issue Find a smarter way of update Use a cron job that deal
-     * with asynchronous update
+     * Method used for quer and getEntries method This method may raise performance issue Find a smarter way of update
+     * Use a cron job that deal with asynchronous update
      *
      * @param masterResults The up-to-date list of results from master
-     *
      */
-    private void bulkUpdateMasterOnSlave(DocumentModelList masterResults,
-            DocumentModelList slaveResults) {
+    private void bulkUpdateMasterOnSlave(DocumentModelList masterResults, DocumentModelList slaveResults) {
 
         // Create/update entries in slave
         for (DocumentModel docModel : masterResults) {
@@ -511,13 +471,11 @@ public class ResilientDirectorySession extends BaseSession {
 
     @Override
     public DocumentModelList getEntries() throws ClientException {
-        throw new UnsupportedOperationException(
-                "Get entries may be deprecated !");
+        throw new UnsupportedOperationException("Get entries may be deprecated !");
     }
 
     @Override
-    public DocumentModel createEntry(Map<String, Object> fieldMap)
-            throws ClientException {
+    public DocumentModel createEntry(Map<String, Object> fieldMap) throws ClientException {
         init();
 
         if (isReadOnly()) {
@@ -525,16 +483,14 @@ public class ResilientDirectorySession extends BaseSession {
         }
 
         Field schemaField = directory.getSchemaFieldMap().get(schemaIdField);
-        
+
         final Object rawid = fieldMap.get(schemaField.getName().getPrefixedName());
         if (rawid == null) {
-            throw new DirectoryException(String.format(
-                    "Entry is missing id field '%s'", schemaIdField));
+            throw new DirectoryException(String.format("Entry is missing id field '%s'", schemaIdField));
         }
         final String id = String.valueOf(rawid); // XXX allow longs too
 
-        final DocumentModel entry = BaseSession.createEntryModel(null,
-                schemaName, id, null);
+        final DocumentModel entry = BaseSession.createEntryModel(null, schemaName, id, null);
         // Do not set dataModel values with constructor to force fields dirty
         entry.getDataModel(schemaName).setMap(fieldMap);
 
@@ -561,8 +517,7 @@ public class ResilientDirectorySession extends BaseSession {
     }
 
     @Override
-    public void deleteEntry(String id, Map<String, String> map)
-            throws DirectoryException {
+    public void deleteEntry(String id, Map<String, String> map) throws DirectoryException {
         log.warn("Calling deleteEntry extended on resilient directory");
         try {
             deleteEntry(id);
@@ -583,48 +538,41 @@ public class ResilientDirectorySession extends BaseSession {
         // Do not fallback if update on master has failed.
         // The master source must stay the most up-to-date source
         masterSubDirectoryInfo.getSession().updateEntry(docModel);
-        updateMasterOnSlaves(docModel.getId(),
-                docModel.getProperties(schemaName), true);
+        updateMasterOnSlaves(docModel.getId(), docModel.getProperties(schemaName), true);
 
     }
 
     @Override
-    public DocumentModelList query(Map<String, Serializable> filter)
-            throws ClientException {
+    public DocumentModelList query(Map<String, Serializable> filter) throws ClientException {
         return query(filter, Collections.<String> emptySet());
     }
 
     @Override
-    public DocumentModelList query(Map<String, Serializable> filter,
-            Set<String> fulltext) throws ClientException {
+    public DocumentModelList query(Map<String, Serializable> filter, Set<String> fulltext) throws ClientException {
         return query(filter, fulltext, Collections.<String, String> emptyMap());
     }
 
     @Override
     @SuppressWarnings("boxing")
-    public DocumentModelList query(Map<String, Serializable> filter,
-            Set<String> fulltext, Map<String, String> orderBy)
+    public DocumentModelList query(Map<String, Serializable> filter, Set<String> fulltext, Map<String, String> orderBy)
             throws ClientException {
         return query(filter, fulltext, orderBy, false);
     }
 
     @Override
-    public DocumentModelList query(Map<String, Serializable> filter,
-            Set<String> fulltext, Map<String, String> orderBy,
+    public DocumentModelList query(Map<String, Serializable> filter, Set<String> fulltext, Map<String, String> orderBy,
             boolean fetchReferences) throws ClientException {
         init();
 
         // list of entries
         final DocumentModelList results = new DocumentModelListImpl();
         try {
-            results.addAll(masterSubDirectoryInfo.getSession().query(filter,
-                    fulltext, orderBy, fetchReferences));
+            results.addAll(masterSubDirectoryInfo.getSession().query(filter, fulltext, orderBy, fetchReferences));
             DocumentModelList slaveResults = null;
 
             for (SubDirectoryInfo subDirectoryInfo : slaveSubDirectoryInfos) {
                 try {
-                    slaveResults = subDirectoryInfo.getSession().query(filter,
-                            fulltext, orderBy, fetchReferences);
+                    slaveResults = subDirectoryInfo.getSession().query(filter, fulltext, orderBy, fetchReferences);
 
                     // XXX : Should we update all entries on all directories ??
                     // Performance issue ...
@@ -635,28 +583,24 @@ public class ResilientDirectorySession extends BaseSession {
                     log.warn(
                             String.format(
                                     "Resilient directory '%s' : Unable to query entries on slave directory '%s'for synchronization",
-                                    descriptor.name,
-                                    masterSubDirectoryInfo.dirName), exc);
+                                    descriptor.name, masterSubDirectoryInfo.dirName), exc);
                 }
             }
         } catch (ClientException e) {
-            log.warn(
-                    String.format(
-                            "Resilient directory '%s' : Unable to query entries on master directory '%s', fallback on slaves",
-                            descriptor.name, masterSubDirectoryInfo.dirName), e);
+            log.warn(String.format(
+                    "Resilient directory '%s' : Unable to query entries on master directory '%s', fallback on slaves",
+                    descriptor.name, masterSubDirectoryInfo.dirName), e);
 
             // Try to get the entry from slaves
             for (SubDirectoryInfo subDirectoryInfo : slaveSubDirectoryInfos) {
                 try {
-                    results.addAll(subDirectoryInfo.getSession().query(filter,
-                            fulltext, orderBy, fetchReferences));
+                    results.addAll(subDirectoryInfo.getSession().query(filter, fulltext, orderBy, fetchReferences));
                     break;
                 } catch (ClientException exc) {
                     log.warn(
                             String.format(
                                     "Resilient directory '%s' : Unable to query entries on slave directory '%s', fallback on another slave if it exists",
-                                    descriptor.name,
-                                    masterSubDirectoryInfo.dirName), e);
+                                    descriptor.name, masterSubDirectoryInfo.dirName), e);
                 }
             }
 
@@ -673,15 +617,13 @@ public class ResilientDirectorySession extends BaseSession {
     }
 
     @Override
-    public List<String> getProjection(Map<String, Serializable> filter,
-            String columnName) throws ClientException {
-        return getProjection(filter, Collections.<String> emptySet(),
-                columnName);
+    public List<String> getProjection(Map<String, Serializable> filter, String columnName) throws ClientException {
+        return getProjection(filter, Collections.<String> emptySet(), columnName);
     }
 
     @Override
-    public List<String> getProjection(Map<String, Serializable> filter,
-            Set<String> fulltext, String columnName) throws ClientException {
+    public List<String> getProjection(Map<String, Serializable> filter, Set<String> fulltext, String columnName)
+            throws ClientException {
 
         final DocumentModelList entries = query(filter, fulltext);
         final List<String> results = new ArrayList<String>(entries.size());
@@ -697,8 +639,7 @@ public class ResilientDirectorySession extends BaseSession {
     }
 
     @Override
-    public DocumentModel createEntry(DocumentModel entry)
-            throws ClientException {
+    public DocumentModel createEntry(DocumentModel entry) throws ClientException {
         Map<String, Object> fieldMap = entry.getProperties(schemaName);
         return createEntry(fieldMap);
     }
@@ -707,15 +648,13 @@ public class ResilientDirectorySession extends BaseSession {
     public boolean hasEntry(String id) throws ClientException {
         init();
         try {
-            boolean masterHasEntry = masterSubDirectoryInfo.getSession().hasEntry(
-                    id);
+            boolean masterHasEntry = masterSubDirectoryInfo.getSession().hasEntry(id);
             updateMasterOnSlaves(id, null, masterHasEntry);
             return masterHasEntry;
         } catch (DirectoryException e) {
-            log.warn(
-                    String.format(
-                            "Unable to check if master directory '%s' has entry id '%s', fallback check on slaves ...",
-                            masterSubDirectoryInfo.dirName, id), e);
+            log.warn(String.format(
+                    "Unable to check if master directory '%s' has entry id '%s', fallback check on slaves ...",
+                    masterSubDirectoryInfo.dirName, id), e);
             return hasEntryOnSlave(id);
         }
     }

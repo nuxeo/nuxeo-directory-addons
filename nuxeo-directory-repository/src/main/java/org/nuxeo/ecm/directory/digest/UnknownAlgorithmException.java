@@ -19,8 +19,6 @@ package org.nuxeo.ecm.directory.digest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- *
- *
  * @since 7.1
  */
 public class UnknownAlgorithmException extends RuntimeException {

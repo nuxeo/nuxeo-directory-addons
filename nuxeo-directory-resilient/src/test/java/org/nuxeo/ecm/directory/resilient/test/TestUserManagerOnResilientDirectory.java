@@ -36,7 +36,6 @@ import org.nuxeo.runtime.api.Framework;
 /**
  * @author Florent Guillaume
  * @author Maxime Hilaire
- *
  */
 public class TestUserManagerOnResilientDirectory extends LDAPDirectoryTestCase {
 
@@ -47,6 +46,7 @@ public class TestUserManagerOnResilientDirectory extends LDAPDirectoryTestCase {
     private UserManager userManager;
 
     private String username1 = "user1";
+
     private String password1 = "secret";
 
     @Override
@@ -60,7 +60,6 @@ public class TestUserManagerOnResilientDirectory extends LDAPDirectoryTestCase {
         // Bundle to be tested
         deployBundle("org.nuxeo.ecm.directory.resilient");
 
-
         // Config for the tested bundle
         deployContrib(TEST_BUNDLE, "resilient-ldap-sql-directories-config.xml");
         deployContrib(TEST_BUNDLE, "test-contrib-usermanager-config.xml");
@@ -68,11 +67,7 @@ public class TestUserManagerOnResilientDirectory extends LDAPDirectoryTestCase {
         // mem dir factory
         directoryService = Framework.getLocalService(DirectoryService.class);
 
-
-
         userManager = Framework.getLocalService(UserManager.class);
-
-
 
     }
 
@@ -83,10 +78,8 @@ public class TestUserManagerOnResilientDirectory extends LDAPDirectoryTestCase {
     }
 
     @Test
-    public void testCreateUpdateUser()
-    {
-        if(USE_EXTERNAL_TEST_LDAP_SERVER)
-        {
+    public void testCreateUpdateUser() {
+        if (USE_EXTERNAL_TEST_LDAP_SERVER) {
             String testUsername = "John";
             String testGroup = "johnsGroup";
 
@@ -99,10 +92,8 @@ public class TestUserManagerOnResilientDirectory extends LDAPDirectoryTestCase {
             groupModel = userManager.createGroup(groupModel);
 
             // Check entry parameters
-            Assert.assertNotNull("Expected the user to exist",
-                    userManager.getPrincipal(testUsername));
-            Assert.assertNotNull("Expected the group to exist",
-                    userManager.getGroup(testGroup));
+            Assert.assertNotNull("Expected the user to exist", userManager.getPrincipal(testUsername));
+            Assert.assertNotNull("Expected the group to exist", userManager.getGroup(testGroup));
 
             // Add user to group
             AddUserToGroup(testUsername, testGroup);
@@ -112,39 +103,34 @@ public class TestUserManagerOnResilientDirectory extends LDAPDirectoryTestCase {
             boolean result = user.isMemberOf(testGroup);
 
             // Check result
-            Assert.assertEquals("Expected the user to be added to the group", true,
-                    result);
-            
+            Assert.assertEquals("Expected the user to be added to the group", true, result);
+
             String testFirstName = testUsername + "-updated";
-            
+
             userModel.setProperty("user", "firstName", testFirstName);
             userManager.updateUser(userModel);
-            
-            
+
             DocumentModel newGroupModel = userManager.getBareGroupModel();
-            newGroupModel.setProperty("group", "groupname", testGroup+"2");
+            newGroupModel.setProperty("group", "groupname", testGroup + "2");
             userManager.createGroup(newGroupModel);
-            
+
             // Add user to group
-            AddUserToGroup(testUsername, testGroup+"2");
+            AddUserToGroup(testUsername, testGroup + "2");
 
             // Get result
             user = userManager.getPrincipal(testUsername);
             result = user.isMemberOf(testGroup);
-            result = user.isMemberOf(testGroup+"2");
+            result = user.isMemberOf(testGroup + "2");
 
             // Check result
-            Assert.assertEquals("Expected the user to be added to the new group and the updated group", true,
-                    result);
-            
+            Assert.assertEquals("Expected the user to be added to the new group and the updated group", true, result);
+
         }
     }
-    
+
     @Test
-    public void TestCreateUserAndGroup() throws ClientException
-    {
-        if(USE_EXTERNAL_TEST_LDAP_SERVER)
-        {
+    public void TestCreateUserAndGroup() throws ClientException {
+        if (USE_EXTERNAL_TEST_LDAP_SERVER) {
             String testUsername = "John";
             String testGroup = "johnsGroup";
 
@@ -157,10 +143,8 @@ public class TestUserManagerOnResilientDirectory extends LDAPDirectoryTestCase {
             userManager.createGroup(groupModel);
 
             // Check entry parameters
-            Assert.assertNotNull("Expected the user to exist",
-                    userManager.getPrincipal(testUsername));
-            Assert.assertNotNull("Expected the group to exist",
-                    userManager.getGroup(testGroup));
+            Assert.assertNotNull("Expected the user to exist", userManager.getPrincipal(testUsername));
+            Assert.assertNotNull("Expected the group to exist", userManager.getGroup(testGroup));
 
             // Add user to group
             AddUserToGroup(testUsername, testGroup);
@@ -170,13 +154,11 @@ public class TestUserManagerOnResilientDirectory extends LDAPDirectoryTestCase {
             boolean result = user.isMemberOf(testGroup);
 
             // Check result
-            Assert.assertEquals("Expected the user to be added to the group", true,
-                    result);
+            Assert.assertEquals("Expected the user to be added to the group", true, result);
         }
     }
 
-    private void AddUserToGroup(String username, String group) throws ClientException
-    {
+    private void AddUserToGroup(String username, String group) throws ClientException {
         // Get user
         NuxeoPrincipal user = userManager.getPrincipal(username);
 
@@ -188,37 +170,30 @@ public class TestUserManagerOnResilientDirectory extends LDAPDirectoryTestCase {
         String groupsFieldName = "groups";
 
         DocumentModel userDoc = userManager.getUserModel(username);
-        List<String> userGroups = (List<String>) userDoc.getProperty(
-                userSchemaName, groupsFieldName);
+        List<String> userGroups = (List<String>) userDoc.getProperty(userSchemaName, groupsFieldName);
         userGroups.add(group);
         userDoc.setProperty(userSchemaName, groupsFieldName, userGroups);
         userManager.updateUser(userDoc);
     }
 
     @Test
-    public void TestAuthenticate() throws Exception
-    {
-        if(USE_EXTERNAL_TEST_LDAP_SERVER)
-        {
+    public void TestAuthenticate() throws Exception {
+        if (USE_EXTERNAL_TEST_LDAP_SERVER) {
             Assert.assertNotNull(userManager.authenticate(username1, password1));
-            //Shutdown manually your LDAP server to test fallback against authenticate
+            // Shutdown manually your LDAP server to test fallback against authenticate
             Assert.assertNotNull(userManager.authenticate(username1, password1));
         }
     }
 
     @Test
-    public void TestFallback() throws Exception
-    {
-        //Get
+    public void TestFallback() throws Exception {
+        // Get
         NuxeoPrincipal userPrincip = userManager.getPrincipal(username1);
         shutdownLdapServer();
         NuxeoPrincipal userPrincipFall = userManager.getPrincipal(username1);
         Assert.assertEquals(userPrincip, userPrincipFall);
 
     }
-
-
-
 
     // Only for LDAP fallback test purpose
     protected void shutdownLdapServer() {

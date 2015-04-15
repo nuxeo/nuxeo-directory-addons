@@ -44,9 +44,8 @@ import org.nuxeo.runtime.api.Framework;
 /**
  * @author Florent Guillaume
  * @author Maxime Hilaire
- *
  */
-//@Ignore("Setup issue : LdapDirectory is not deployed")
+// @Ignore("Setup issue : LdapDirectory is not deployed")
 public class TestLDAPResilientDirectory extends LDAPDirectoryTestCase {
 
     private static final String TEST_BUNDLE = "org.nuxeo.ecm.directory.resilient.tests";
@@ -137,11 +136,9 @@ public class TestLDAPResilientDirectory extends LDAPDirectoryTestCase {
         DocumentModel entry = resUserDirSession.getEntry("user1");
         assertNotNull(entry);
 
-        Map<String, Object> propsLDAP = ldapUserSession.getEntry("user1").getProperties(
-                "user");
+        Map<String, Object> propsLDAP = ldapUserSession.getEntry("user1").getProperties("user");
         shutdownLdapServer();
-        Map<String, Object> propsSQL = resUserDirSession.getEntry("user1").getProperties(
-                "user");
+        Map<String, Object> propsSQL = resUserDirSession.getEntry("user1").getProperties("user");
         assertEquals(propsLDAP, propsSQL);
 
     }
@@ -151,14 +148,12 @@ public class TestLDAPResilientDirectory extends LDAPDirectoryTestCase {
         if (USE_EXTERNAL_TEST_LDAP_SERVER) {
             DocumentModel ldapUser = resUserDirSession.getEntry("user1");
             assertNotNull(ldapUser);
-            List<String> ldapUserGroups = (List<String>) ldapUser.getProperty(
-                    "user", "groups");
+            List<String> ldapUserGroups = (List<String>) ldapUser.getProperty("user", "groups");
             assertNotNull(ldapUserGroups);
 
             DocumentModel sqlUser = sqlUserSession.getEntry("user1");
             assertNotNull(sqlUser);
-            List<String> sqlUserGroups = (List<String>) sqlUser.getProperty(
-                    "user", "groups");
+            List<String> sqlUserGroups = (List<String>) sqlUser.getProperty("user", "groups");
             assertEquals(ldapUserGroups, sqlUserGroups);
 
             DocumentModel ldapGroup = ldapGroupSession.getEntry(sqlUserGroups.get(0));
@@ -168,23 +163,21 @@ public class TestLDAPResilientDirectory extends LDAPDirectoryTestCase {
         }
 
     }
-    
+
     @Test
-    public void testUpdateUser()
-    {
+    public void testUpdateUser() {
         if (USE_EXTERNAL_TEST_LDAP_SERVER) {
             DocumentModel ldapUser = resUserDirSession.getEntry("user1");
             assertNotNull(ldapUser);
-            List<String> ldapUserGroups = (List<String>) ldapUser.getProperty(
-                    "user", "groups");
+            List<String> ldapUserGroups = (List<String>) ldapUser.getProperty("user", "groups");
             assertNotNull(ldapUserGroups);
 
             ldapUser.setProperty("user", "firstName", "user1-updated");
             resUserDirSession.updateEntry(ldapUser);
-            
+
             DocumentModel sqlUser = sqlUserSession.getEntry("user1");
             assertEquals(ldapUser, sqlUser);
-            
+
         }
     }
 

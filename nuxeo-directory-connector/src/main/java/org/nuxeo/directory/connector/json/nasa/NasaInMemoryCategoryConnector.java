@@ -5,8 +5,7 @@ import java.util.Map;
 import org.codehaus.jackson.JsonNode;
 import org.nuxeo.directory.connector.json.JsonInMemoryDirectoryConnector;
 
-public class NasaInMemoryCategoryConnector extends
-        JsonInMemoryDirectoryConnector {
+public class NasaInMemoryCategoryConnector extends JsonInMemoryDirectoryConnector {
 
     @Override
     protected JsonNode extractResult(JsonNode responseAsJson) {

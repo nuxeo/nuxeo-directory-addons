@@ -66,15 +66,13 @@ import com.google.inject.Inject;
 /**
  * @author Florent Guillaume
  * @author Maxime Hilaire
- *
  */
 
 @RunWith(FeaturesRunner.class)
-@Features({TransactionalFeature.class , CoreFeature.class})
+@Features({ TransactionalFeature.class, CoreFeature.class })
 @RepositoryConfig(init = DefaultRepositoryInit.class)
-@Deploy({ "org.nuxeo.ecm.directory.api", "org.nuxeo.ecm.directory",
-        "org.nuxeo.ecm.core.schema", "org.nuxeo.ecm.directory.types.contrib",
-        "org.nuxeo.ecm.directory.resilient" })
+@Deploy({ "org.nuxeo.ecm.directory.api", "org.nuxeo.ecm.directory", "org.nuxeo.ecm.core.schema",
+        "org.nuxeo.ecm.directory.types.contrib", "org.nuxeo.ecm.directory.resilient" })
 public class TestResilientDirectory {
 
     private static final String TEST_BUNDLE = "org.nuxeo.ecm.directory.resilient.tests";
@@ -109,8 +107,7 @@ public class TestResilientDirectory {
         Map<String, Object> e;
 
         // Define the schema used for queries
-        Set<String> schema1Set = new HashSet<String>(Arrays.asList("uid",
-                "foo", "bar"));
+        Set<String> schema1Set = new HashSet<String>(Arrays.asList("uid", "foo", "bar"));
 
         // dir 1
         // Define here the in-memory directory as :
@@ -121,8 +118,7 @@ public class TestResilientDirectory {
         // <passwordField>foo</passwordField>
         // </directory>
 
-        memdir1 = new MemoryDirectory("dir1", "schema1", schema1Set, "uid",
-                "foo");
+        memdir1 = new MemoryDirectory("dir1", "schema1", schema1Set, "uid", "foo");
         memoryDirectoryFactory.registerDirectory(memdir1);
 
         Session dir1 = memdir1.getSession();
@@ -139,8 +135,7 @@ public class TestResilientDirectory {
         dir1.createEntry(e);
 
         // dir 2
-        memdir2 = new MemoryDirectory("dir2", "schema1", schema1Set, "uid",
-                "foo");
+        memdir2 = new MemoryDirectory("dir2", "schema1", schema1Set, "uid", "foo");
         memoryDirectoryFactory.registerDirectory(memdir2);
 
         Session dir2 = memdir2.getSession();
@@ -154,8 +149,7 @@ public class TestResilientDirectory {
         // deployBundle("org.nuxeo.ecm.directory.resilient");
 
         // Config for the tested bundle
-        harness.deployContrib(TEST_BUNDLE,
-                "resilient-memory-directories-config.xml");
+        harness.deployContrib(TEST_BUNDLE, "resilient-memory-directories-config.xml");
 
         // the resilient directory
         resilientDir = (ResilientDirectory) directoryService.getDirectory("resilient");
@@ -396,8 +390,7 @@ public class TestResilientDirectory {
     @Test
     public void testCreateFromModel() throws Exception {
         String schema = "schema1";
-        DocumentModel entry = BaseSession.createEntryModel(null, schema, null,
-                null);
+        DocumentModel entry = BaseSession.createEntryModel(null, schema, null, null);
         entry.setProperty("schema1", "uid", "yo");
 
         assertNull(dir.getEntry("yo"));

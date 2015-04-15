@@ -52,8 +52,7 @@ public class ConnectorBasedDirectory extends AbstractDirectory {
 
     protected ConnectorBasedDirectoryDescriptor descriptor;
 
-    public ConnectorBasedDirectory(ConnectorBasedDirectoryDescriptor descriptor)
-            throws DirectoryException {
+    public ConnectorBasedDirectory(ConnectorBasedDirectoryDescriptor descriptor) throws DirectoryException {
         super(descriptor.getName());
         this.descriptor = descriptor;
         this.schemaName = descriptor.getSchemaName();
@@ -64,8 +63,7 @@ public class ConnectorBasedDirectory extends AbstractDirectory {
         SchemaManager sm = Framework.getLocalService(SchemaManager.class);
         Schema sch = sm.getSchema(descriptor.getSchemaName());
         if (sch == null) {
-            throw new DirectoryException("Unknown schema : "
-                    + descriptor.getSchemaName());
+            throw new DirectoryException("Unknown schema : " + descriptor.getSchemaName());
         }
         Collection<Field> fields = sch.getFields();
         for (Field f : fields) {
@@ -75,8 +73,7 @@ public class ConnectorBasedDirectory extends AbstractDirectory {
         try {
             addReferences(descriptor.getInverseReferences());
         } catch (ClientException e) {
-            log.error("Error during Connector based Directory initialization",
-                    e);
+            log.error("Error during Connector based Directory initialization", e);
         }
     }
 
@@ -102,8 +99,7 @@ public class ConnectorBasedDirectory extends AbstractDirectory {
 
     public Session getSession() {
         if (session == null) {
-            session = new ConnectorBasedDirectorySession(this,
-                    descriptor.getConnector());
+            session = new ConnectorBasedDirectorySession(this, descriptor.getConnector());
         }
         return session;
     }

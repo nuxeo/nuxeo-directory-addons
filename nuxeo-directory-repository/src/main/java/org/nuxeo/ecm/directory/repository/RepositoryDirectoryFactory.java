@@ -30,13 +30,13 @@ import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.model.ComponentContext;
 import org.nuxeo.runtime.model.DefaultComponent;
 import org.nuxeo.runtime.model.Extension;
+
 /**
  * Factory implementation for directory on repository
  *
  * @since 5.9.6
  */
-public class RepositoryDirectoryFactory extends DefaultComponent implements
-DirectoryFactory {
+public class RepositoryDirectoryFactory extends DefaultComponent implements DirectoryFactory {
 
     public static final String NAME = "org.nuxeo.ecm.directory.repository.RepositoryDirectoryFactory";
 
@@ -67,8 +67,7 @@ DirectoryFactory {
     }
 
     public static DirectoryService getDirectoryService() {
-        directoryService = (DirectoryService) Framework.getRuntime().getComponent(
-                DirectoryService.NAME);
+        directoryService = (DirectoryService) Framework.getRuntime().getComponent(DirectoryService.NAME);
         if (directoryService == null) {
             directoryService = Framework.getLocalService(DirectoryService.class);
             if (directoryService == null) {
@@ -105,8 +104,7 @@ DirectoryFactory {
     }
 
     @Override
-    public void unregisterExtension(Extension extension)
-            throws DirectoryException {
+    public void unregisterExtension(Extension extension) throws DirectoryException {
         Object[] contribs = extension.getContributions();
         DirectoryService dirService = getDirectoryService();
         for (Object contrib : contribs) {
@@ -128,7 +126,5 @@ DirectoryFactory {
     public List<Directory> getDirectories() {
         return new ArrayList<Directory>(directories.getDirectories());
     }
-
-
 
 }

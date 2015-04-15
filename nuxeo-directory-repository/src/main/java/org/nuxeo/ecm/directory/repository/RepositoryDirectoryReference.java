@@ -56,17 +56,13 @@ public class RepositoryDirectoryReference extends AbstractReference {
 
     private static final Log log = LogFactory.getLog(RepositoryDirectoryReference.class);
 
-
     String fieldName;
 
-
-    public void addLinks(String sourceId, List<String> targetIds)
-            throws DirectoryException {
+    public void addLinks(String sourceId, List<String> targetIds) throws DirectoryException {
         throw new UnsupportedOperationException();
     }
 
-    public void addLinks(List<String> sourceIds, String targetId)
-            throws DirectoryException {
+    public void addLinks(List<String> sourceIds, String targetId) throws DirectoryException {
         throw new UnsupportedOperationException();
     }
 
@@ -74,8 +70,7 @@ public class RepositoryDirectoryReference extends AbstractReference {
         List<String> collect(Reference dir) throws DirectoryException;
     }
 
-    protected List<String> doCollect(Collector extractor)
-            throws DirectoryException {
+    protected List<String> doCollect(Collector extractor) throws DirectoryException {
         Set<String> ids = new HashSet<String>();
         Reference ref = getSourceDirectory().getReference(fieldName);
         if (ref != null) {
@@ -90,21 +85,17 @@ public class RepositoryDirectoryReference extends AbstractReference {
         return x;
     }
 
-    public List<String> getSourceIdsForTarget(final String targetId)
-            throws DirectoryException {
+    public List<String> getSourceIdsForTarget(final String targetId) throws DirectoryException {
         return doCollect(new Collector() {
-            public List<String> collect(Reference ref)
-                    throws DirectoryException {
+            public List<String> collect(Reference ref) throws DirectoryException {
                 return ref.getSourceIdsForTarget(targetId);
             }
         });
     }
 
-    public List<String> getTargetIdsForSource(final String sourceId)
-            throws DirectoryException {
+    public List<String> getTargetIdsForSource(final String sourceId) throws DirectoryException {
         return doCollect(new Collector() {
-            public List<String> collect(Reference ref)
-                    throws DirectoryException {
+            public List<String> collect(Reference ref) throws DirectoryException {
                 return ref.getSourceIdsForTarget(sourceId);
             }
         });
@@ -118,13 +109,11 @@ public class RepositoryDirectoryReference extends AbstractReference {
         throw new UnsupportedOperationException();
     }
 
-    public void setSourceIdsForTarget(String targetId, List<String> sourceIds)
-            throws DirectoryException {
+    public void setSourceIdsForTarget(String targetId, List<String> sourceIds) throws DirectoryException {
         throw new UnsupportedOperationException();
     }
 
-    public void setTargetIdsForSource(String sourceId, List<String> targetIds)
-            throws DirectoryException {
+    public void setTargetIdsForSource(String sourceId, List<String> targetIds) throws DirectoryException {
         throw new UnsupportedOperationException();
     }
 

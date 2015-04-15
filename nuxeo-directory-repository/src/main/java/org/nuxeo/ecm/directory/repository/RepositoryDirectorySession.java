@@ -51,11 +51,9 @@ import com.google.common.collect.Collections2;
 /**
  * Session class for directory on repository
  *
- *
  * @since 5.9.6
  */
-public class RepositoryDirectorySession extends BaseSession implements
-        WrappableDirectorySession {
+public class RepositoryDirectorySession extends BaseSession implements WrappableDirectorySession {
 
     final protected DirectoryService directoryService;
 
@@ -84,10 +82,8 @@ public class RepositoryDirectorySession extends BaseSession implements
         directory = repositoryDirectory;
         schemaName = directory.getSchema();
         coreSession = CoreInstance.openCoreSession(directory.getDescriptor().getRepositoryName());
-        schemaIdField = directory.getFieldMapper().getBackendField(
-                directory.getIdField());
-        schemaPasswordField = directory.getFieldMapper().getBackendField(
-                directory.getPasswordField());
+        schemaIdField = directory.getFieldMapper().getBackendField(directory.getIdField());
+        schemaPasswordField = directory.getFieldMapper().getBackendField(directory.getPasswordField());
         docType = directory.getDescriptor().docType;
         createPath = directory.getDescriptor().createPath;
 
@@ -102,14 +98,12 @@ public class RepositoryDirectorySession extends BaseSession implements
     }
 
     @Override
-    public DocumentModel getEntry(String id, boolean fetchReferences)
-            throws DirectoryException {
+    public DocumentModel getEntry(String id, boolean fetchReferences) throws DirectoryException {
         return wrapper.getEntry(id, fetchReferences);
     }
 
     @Override
-    public DocumentModel doGetEntry(String id, boolean fetchReferences)
-            throws DirectoryException {
+    public DocumentModel doGetEntry(String id, boolean fetchReferences) throws DirectoryException {
 
         if (UUID_FIELD.equals(directory.getIdField())) {
             IdRef ref = new IdRef(id);
@@ -148,8 +142,7 @@ public class RepositoryDirectorySession extends BaseSession implements
     }
 
     @Override
-    public DocumentModelList getEntries() throws ClientException,
-            DirectoryException {
+    public DocumentModelList getEntries() throws ClientException, DirectoryException {
         throw new UnsupportedOperationException();
     }
 
@@ -162,20 +155,16 @@ public class RepositoryDirectorySession extends BaseSession implements
     }
 
     @Override
-    public DocumentModel createEntry(Map<String, Object> fieldMap)
-            throws ClientException, DirectoryException {
+    public DocumentModel createEntry(Map<String, Object> fieldMap) throws ClientException, DirectoryException {
         return wrapper.createEntry(fieldMap);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public DocumentModel doCreateEntry(Map<String, Object> fieldMap)
-            throws ClientException, DirectoryException {
+    public DocumentModel doCreateEntry(Map<String, Object> fieldMap) throws ClientException, DirectoryException {
 
         if (isReadOnly()) {
-            log.warn(String.format(
-                    "The directory '%s' is in read-only mode, could not create entry.",
-                    directory.name));
+            log.warn(String.format("The directory '%s' is in read-only mode, could not create entry.", directory.name));
             return null;
         }
         // TODO : deal with auto-versionning
@@ -193,55 +182,44 @@ public class RepositoryDirectorySession extends BaseSession implements
 
         final String rawid = (String) properties.get(getPrefixedFieldName(schemaIdField));
         if (rawid == null && (!UUID_FIELD.equals(directory.getIdField()))) {
-            throw new DirectoryException(String.format(
-                    "Entry is missing id field '%s'", schemaIdField));
+            throw new DirectoryException(String.format("Entry is missing id field '%s'", schemaIdField));
         }
 
-        DocumentModel docModel = coreSession.createDocumentModel(createPath,
-                rawid, docType);
+        DocumentModel docModel = coreSession.createDocumentModel(createPath, rawid, docType);
 
         docModel.setProperties(schemaName, properties);
         DocumentModel createdDoc = coreSession.createDocument(docModel);
 
         for (String referenceFieldName : createdRefs) {
             Reference reference = directory.getReference(referenceFieldName);
-            List<String> targetIds = (List<String>) createdDoc.getProperty(
-                    schemaName, referenceFieldName);
+            List<String> targetIds = (List<String>) createdDoc.getProperty(schemaName, referenceFieldName);
             reference.setTargetIdsForSource(docModel.getId(), targetIds);
         }
         return docModel;
     }
 
     @Override
-    public void updateEntry(DocumentModel docModel) throws ClientException,
-            DirectoryException {
+    public void updateEntry(DocumentModel docModel) throws ClientException, DirectoryException {
         wrapper.updateEntry(docModel);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public void doUpdateEntry(DocumentModel docModel) throws ClientException,
-            DirectoryException {
+    public void doUpdateEntry(DocumentModel docModel) throws ClientException, DirectoryException {
         if (isReadOnly()) {
-            log.warn(String.format(
-                    "The directory '%s' is in read-only mode, could not update entry.",
-                    directory.name));
+            log.warn(String.format("The directory '%s' is in read-only mode, could not update entry.", directory.name));
         } else {
 
             if (!isReadOnlyEntry(docModel)) {
 
-                String id = (String) docModel.getProperty(schemaName,
-                        getIdField());
+                String id = (String) docModel.getProperty(schemaName, getIdField());
                 if (id == null) {
-                    throw new DirectoryException(
-                            "Can not update entry with a null id for document ref "
-                                    + docModel.getRef());
+                    throw new DirectoryException("Can not update entry with a null id for document ref "
+                            + docModel.getRef());
                 } else {
                     if (getEntry(id) == null) {
-                        throw new DirectoryException(
-                                String.format(
-                                        "Update entry failed : Entry with id '%s' not found !",
-                                        id));
+                        throw new DirectoryException(String.format(
+                                "Update entry failed : Entry with id '%s' not found !", id));
                     } else {
 
                         DataModel dataModel = docModel.getDataModel(schemaName);
@@ -254,10 +232,7 @@ public class RepositoryDirectorySession extends BaseSession implements
                                 if (directory.isReference(field)) {
                                     updatedRefs.add(field);
                                 } else {
-                                    updatedProps.put(
-                                            schemaField,
-                                            docModel.getProperties(schemaName).get(
-                                                    field));
+                                    updatedProps.put(schemaField, docModel.getProperties(schemaName).get(field));
                                 }
                             }
 
@@ -268,10 +243,8 @@ public class RepositoryDirectorySession extends BaseSession implements
                         // update reference fields
                         for (String referenceFieldName : updatedRefs) {
                             Reference reference = directory.getReference(referenceFieldName);
-                            List<String> targetIds = (List<String>) docModel.getProperty(
-                                    schemaName, referenceFieldName);
-                            reference.setTargetIdsForSource(docModel.getId(),
-                                    targetIds);
+                            List<String> targetIds = (List<String>) docModel.getProperty(schemaName, referenceFieldName);
+                            reference.setTargetIdsForSource(docModel.getId(), targetIds);
                         }
 
                         coreSession.saveDocument(docModel);
@@ -283,29 +256,23 @@ public class RepositoryDirectorySession extends BaseSession implements
     }
 
     @Override
-    public void deleteEntry(DocumentModel docModel) throws ClientException,
-            DirectoryException {
+    public void deleteEntry(DocumentModel docModel) throws ClientException, DirectoryException {
         String id = (String) docModel.getProperty(schemaName, schemaIdField);
         deleteEntry(id);
     }
 
     @Override
-    public void deleteEntry(String id) throws ClientException,
-            DirectoryException {
+    public void deleteEntry(String id) throws ClientException, DirectoryException {
         wrapper.deleteEntry(id);
     }
 
     @Override
-    public void doDeleteEntry(String id) throws ClientException,
-            DirectoryException {
+    public void doDeleteEntry(String id) throws ClientException, DirectoryException {
         if (isReadOnly()) {
-            log.warn(String.format(
-                    "The directory '%s' is in read-only mode, could not delete entry.",
-                    directory.name));
+            log.warn(String.format("The directory '%s' is in read-only mode, could not delete entry.", directory.name));
         } else {
             if (id == null) {
-                throw new DirectoryException(
-                        "Can not update entry with a null id ");
+                throw new DirectoryException("Can not update entry with a null id ");
             } else {
                 DocumentModel docModel = getEntry(id);
                 if (docModel != null) {
@@ -316,12 +283,9 @@ public class RepositoryDirectorySession extends BaseSession implements
     }
 
     @Override
-    public void deleteEntry(String id, Map<String, String> map)
-            throws ClientException, DirectoryException {
+    public void deleteEntry(String id, Map<String, String> map) throws ClientException, DirectoryException {
         if (isReadOnly()) {
-            log.warn(String.format(
-                    "The directory '%s' is in read-only mode, could not delete entry.",
-                    directory.name));
+            log.warn(String.format("The directory '%s' is in read-only mode, could not delete entry.", directory.name));
         }
 
         Map<String, Serializable> props = new HashMap<String, Serializable>(map);
@@ -334,59 +298,49 @@ public class RepositoryDirectorySession extends BaseSession implements
             }
             deleteEntry(docList.get(0));
         } else {
-            throw new DirectoryException(String.format(
-                    "Delete entry failed : Entry with id '%s' not found !", id));
+            throw new DirectoryException(String.format("Delete entry failed : Entry with id '%s' not found !", id));
         }
 
     }
 
     @Override
-    public DocumentModelList query(Map<String, Serializable> filter)
-            throws ClientException {
+    public DocumentModelList query(Map<String, Serializable> filter) throws ClientException {
         Set<String> emptySet = Collections.emptySet();
         return query(filter, emptySet);
     }
 
     @Override
-    public DocumentModelList query(Map<String, Serializable> filter,
-            Set<String> fulltext, Map<String, String> orderBy)
+    public DocumentModelList query(Map<String, Serializable> filter, Set<String> fulltext, Map<String, String> orderBy)
             throws ClientException {
         // XXX not fetch references by default: breaks current behavior
         return query(filter, fulltext, orderBy, false);
     }
 
     @Override
-    public DocumentModelList query(Map<String, Serializable> filter,
-            Set<String> fulltext, Map<String, String> orderBy,
+    public DocumentModelList query(Map<String, Serializable> filter, Set<String> fulltext, Map<String, String> orderBy,
             boolean fetchReferences) throws ClientException {
         return query(filter, fulltext, orderBy, fetchReferences, 0, 0);
     }
 
     protected String getMappedPrefixedFieldName(String fieldName) {
-        String backendFieldId = directory.getFieldMapper().getBackendField(
-                fieldName);
+        String backendFieldId = directory.getFieldMapper().getBackendField(fieldName);
         return getPrefixedFieldName(backendFieldId);
     }
 
     @Override
-    public DocumentModelList query(Map<String, Serializable> filter,
-            Set<String> fulltext, Map<String, String> orderBy,
-            boolean fetchReferences, int limit, int offset)
-            throws ClientException, DirectoryException {
-        return wrapper.query(filter, fulltext, orderBy, fetchReferences, limit,
-                offset);
+    public DocumentModelList query(Map<String, Serializable> filter, Set<String> fulltext, Map<String, String> orderBy,
+            boolean fetchReferences, int limit, int offset) throws ClientException, DirectoryException {
+        return wrapper.query(filter, fulltext, orderBy, fetchReferences, limit, offset);
     }
 
     @Override
-    public DocumentModelList doQuery(final Map<String, Serializable> filter,
-            final Set<String> fulltext, Map<String, String> orderBy,
-            boolean fetchReferences, int limit, int offset)
-            throws ClientException, DirectoryException {
+    public DocumentModelList doQuery(final Map<String, Serializable> filter, final Set<String> fulltext,
+            Map<String, String> orderBy, boolean fetchReferences, int limit, int offset) throws ClientException,
+            DirectoryException {
         StringBuilder sbQuery = new StringBuilder("SELECT * FROM ");
         sbQuery.append(docType);
         // TODO deal with fetch ref
-        if (!filter.isEmpty() || !fulltext.isEmpty()
-                || (createPath != null && !createPath.isEmpty())) {
+        if (!filter.isEmpty() || !fulltext.isEmpty() || (createPath != null && !createPath.isEmpty())) {
             sbQuery.append(" WHERE ");
         }
         int i = 1;
@@ -411,7 +365,7 @@ public class RepositoryDirectorySession extends BaseSession implements
         }
         if (fulltext.size() > 0) {
 
-            Collection<String> fullTextValues = Collections2.transform(fulltext, new Function<String,String>() {
+            Collection<String> fullTextValues = Collections2.transform(fulltext, new Function<String, String>() {
 
                 @Override
                 public String apply(String key) {
@@ -437,8 +391,8 @@ public class RepositoryDirectorySession extends BaseSession implements
 
         // Filter facetFilter = new FacetFilter(FacetNames.VERSIONABLE, true);
 
-        DocumentModelList resultsDoc = coreSession.query(sbQuery.toString(),
-                null, new Long(limit), new Long(offset), false);
+        DocumentModelList resultsDoc = coreSession.query(sbQuery.toString(), null, new Long(limit), new Long(offset),
+                false);
 
         if (isReadOnly()) {
             for (DocumentModel documentModel : resultsDoc) {
@@ -450,8 +404,8 @@ public class RepositoryDirectorySession extends BaseSession implements
     }
 
     @Override
-    public DocumentModelList query(Map<String, Serializable> filter,
-            Set<String> fulltext) throws ClientException, DirectoryException {
+    public DocumentModelList query(Map<String, Serializable> filter, Set<String> fulltext) throws ClientException,
+            DirectoryException {
         return query(filter, fulltext, new HashMap<String, String>());
     }
 
@@ -462,16 +416,7 @@ public class RepositoryDirectorySession extends BaseSession implements
     }
 
     @Override
-    public List<String> getProjection(Map<String, Serializable> filter,
-            String columnName) throws ClientException, DirectoryException {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public List<String> getProjection(Map<String, Serializable> filter,
-            Set<String> fulltext, String columnName) throws ClientException,
+    public List<String> getProjection(Map<String, Serializable> filter, String columnName) throws ClientException,
             DirectoryException {
         // TODO Auto-generated method stub
         // return null;
@@ -479,20 +424,25 @@ public class RepositoryDirectorySession extends BaseSession implements
     }
 
     @Override
-    public boolean authenticate(String username, String password)
-            throws ClientException {
+    public List<String> getProjection(Map<String, Serializable> filter, Set<String> fulltext, String columnName)
+            throws ClientException, DirectoryException {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean authenticate(String username, String password) throws ClientException {
         return wrapper.authenticate(username, password);
     }
 
     @Override
-    public boolean doAuthenticate(String username, String password)
-            throws ClientException {
+    public boolean doAuthenticate(String username, String password) throws ClientException {
         DocumentModel entry = getEntry(username);
         if (entry == null) {
             return false;
         }
-        String storedPassword = (String) entry.getProperty(schemaName,
-                schemaPasswordField);
+        String storedPassword = (String) entry.getProperty(schemaName, schemaPasswordField);
         return PasswordHelper.verifyPassword(password, storedPassword);
     }
 
@@ -522,8 +472,7 @@ public class RepositoryDirectorySession extends BaseSession implements
     }
 
     @Override
-    public DocumentModel createEntry(DocumentModel entry)
-            throws ClientException {
+    public DocumentModel createEntry(DocumentModel entry) throws ClientException {
         Map<String, Object> fieldMap = entry.getProperties(schemaName);
         return createEntry(fieldMap);
     }

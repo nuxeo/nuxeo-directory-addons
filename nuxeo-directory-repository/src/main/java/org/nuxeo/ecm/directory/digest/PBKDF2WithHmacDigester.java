@@ -25,8 +25,6 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
 /**
- *
- *
  * @since 7.1
  */
 public class PBKDF2WithHmacDigester extends SaltedDigester {
@@ -39,8 +37,7 @@ public class PBKDF2WithHmacDigester extends SaltedDigester {
     protected byte[] generateDigest(String password, byte[] salt) {
         char[] passwordChars = password.toCharArray();
 
-        PBEKeySpec spec = new PBEKeySpec(passwordChars, salt,
-                numberOfIterations, keyLength);
+        PBEKeySpec spec = new PBEKeySpec(passwordChars, salt, numberOfIterations, keyLength);
         try {
             SecretKeyFactory key = SecretKeyFactory.getInstance(algorithm);
             return key.generateSecret(spec).getEncoded();

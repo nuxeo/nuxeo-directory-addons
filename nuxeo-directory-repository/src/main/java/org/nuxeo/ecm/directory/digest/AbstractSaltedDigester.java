@@ -25,8 +25,6 @@ import org.nuxeo.common.utils.Base64;
 import org.nuxeo.runtime.api.Framework;
 
 /**
- *
- *
  * @since 7.1
  */
 public abstract class AbstractSaltedDigester implements PasswordDigester {
@@ -66,13 +64,11 @@ public abstract class AbstractSaltedDigester implements PasswordDigester {
      * @param password
      * @param salt
      * @return
-     *
      * @since 7.1
      */
     abstract protected byte[] generateDigest(String password, byte[] salt);
 
     /**
-     *
      * @since 7.1
      */
     protected Integer getSaltLength() {
@@ -84,7 +80,6 @@ public abstract class AbstractSaltedDigester implements PasswordDigester {
      *
      * @param method
      * @return
-     *
      * @since 7.1
      */
     private static byte[] generateSalt(Integer saltLength) {
@@ -96,14 +91,12 @@ public abstract class AbstractSaltedDigester implements PasswordDigester {
     }
 
     /**
-     * Return a base64 encoded representation of the hashed password. Something
-     * like {SSHA}sdfqlagmv23fefazef==
+     * Return a base64 encoded representation of the hashed password. Something like {SSHA}sdfqlagmv23fefazef==
      *
      * @param method
      * @param salt
      * @param hash
      * @return
-     *
      * @since 7.1
      */
     private String encodeSaltAndHash(byte[] salt, byte[] hash) {
@@ -150,7 +143,7 @@ public abstract class AbstractSaltedDigester implements PasswordDigester {
         }
         int lengthOfHashInBytes = bytes.length - saltLength;
 
-        //needs hash + at least two bytes of salt
+        // needs hash + at least two bytes of salt
         if (lengthOfHashInBytes <= 2) {
             return false;
         }

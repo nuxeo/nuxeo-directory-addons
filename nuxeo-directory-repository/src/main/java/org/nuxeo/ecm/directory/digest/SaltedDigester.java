@@ -25,11 +25,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- *
- *
  * @since 7.1
  */
-public class SaltedDigester extends AbstractSaltedDigester  {
+public class SaltedDigester extends AbstractSaltedDigester {
 
     protected String algorithm;
 
@@ -49,8 +47,6 @@ public class SaltedDigester extends AbstractSaltedDigester  {
         }
     }
 
-
-
     @Override
     public void setParams(Map<String, String> params) {
         super.setParams(params);
@@ -62,7 +58,5 @@ public class SaltedDigester extends AbstractSaltedDigester  {
             }
         }
     }
-
-
 
 }

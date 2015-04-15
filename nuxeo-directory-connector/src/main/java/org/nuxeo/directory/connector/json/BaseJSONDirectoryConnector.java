@@ -18,11 +18,12 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
-public abstract class BaseJSONDirectoryConnector extends
-        AbstractEntryConnector {
+public abstract class BaseJSONDirectoryConnector extends AbstractEntryConnector {
 
     protected Client client;
+
     protected Map<String, String> params;
+
     protected ObjectMapper objectMapper = null;
 
     protected static final Log log = LogFactory.getLog(BaseJSONDirectoryConnector.class);
@@ -32,34 +33,30 @@ public abstract class BaseJSONDirectoryConnector extends
     }
 
     protected ObjectMapper getMapper() {
-        if (objectMapper==null) {
+        if (objectMapper == null) {
             objectMapper = new ObjectMapper();
         }
         return objectMapper;
     }
 
     protected Map<String, Object> readAsMap(JsonNode node) throws IOException {
-        MapType type = getMapper().getTypeFactory().constructMapType(
-                Map.class, String.class, Object.class);        
+        MapType type = getMapper().getTypeFactory().constructMapType(Map.class, String.class, Object.class);
         return getMapper().readValue(node, type);
     }
 
     protected JsonNode call(String url) {
         WebResource webResource = client.resource(url);
-        ClientResponse response = webResource.accept("application/json").get(
-                ClientResponse.class);
+        ClientResponse response = webResource.accept("application/json").get(ClientResponse.class);
 
         if (response.getStatus() != 200) {
-            throw new ClientRuntimeException(
-                    "Failed to call remote service : HTTP error code : "
-                            + response.getStatus());
+            throw new ClientRuntimeException("Failed to call remote service : HTTP error code : "
+                    + response.getStatus());
         }
 
         try {
             return getMapper().readTree(response.getEntityInputStream());
         } catch (Exception e) {
-            throw new ClientRuntimeException(
-                    "Erroe while reading JSON response", e);
+            throw new ClientRuntimeException("Erroe while reading JSON response", e);
         }
 
     }

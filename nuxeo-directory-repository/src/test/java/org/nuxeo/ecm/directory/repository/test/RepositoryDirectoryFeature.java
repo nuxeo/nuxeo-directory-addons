@@ -45,15 +45,11 @@ import com.google.inject.Provider;
 import com.google.inject.name.Names;
 
 @Features({ TransactionalFeature.class, CoreFeature.class })
-@RepositoryConfig(init = RepositoryDirectoryInit.class , cleanup = Granularity.CLASS )
-@Deploy({ "org.nuxeo.ecm.directory.api", "org.nuxeo.ecm.directory",
-        "org.nuxeo.ecm.directory.sql", "org.nuxeo.ecm.core.schema",
-        "org.nuxeo.ecm.directory.types.contrib",
-        "org.nuxeo.ecm.platform.usermanager",
-        "org.nuxeo.ecm.platform.usermanager.api",
-        "org.nuxeo.ecm.directory.repository" })
-@LocalDeploy({
-        "org.nuxeo.ecm.directory.types.contrib:schemas-config.xml",
+@RepositoryConfig(init = RepositoryDirectoryInit.class, cleanup = Granularity.CLASS)
+@Deploy({ "org.nuxeo.ecm.directory.api", "org.nuxeo.ecm.directory", "org.nuxeo.ecm.directory.sql",
+        "org.nuxeo.ecm.core.schema", "org.nuxeo.ecm.directory.types.contrib", "org.nuxeo.ecm.platform.usermanager",
+        "org.nuxeo.ecm.platform.usermanager.api", "org.nuxeo.ecm.directory.repository" })
+@LocalDeploy({ "org.nuxeo.ecm.directory.types.contrib:schemas-config.xml",
         "org.nuxeo.ecm.directory.repository.config.tests:login-config.xml",
         "org.nuxeo.ecm.directory.repository.config.tests:test-sql-directories-config.xml",
         "org.nuxeo.ecm.directory.repository.config.tests:test-contrib-usermanager-config.xml",
@@ -70,13 +66,12 @@ public class RepositoryDirectoryFeature extends SimpleFeature {
     protected CoreSession coreSession;
 
     protected static final Log log = LogFactory.getLog(RepositoryDirectoryFeature.class);
-    
+
     @Override
     public void initialize(FeaturesRunner runner) throws Exception {
         // Use granularity class to avoid cleaning the bootstrapped folder of
         // the bundle between test method
-        runner.getFeature(CoreFeature.class).getRepository().setGranularity(
-                Granularity.CLASS);
+        runner.getFeature(CoreFeature.class).getRepository().setGranularity(Granularity.CLASS);
     }
 
     @Override
@@ -85,30 +80,27 @@ public class RepositoryDirectoryFeature extends SimpleFeature {
     }
 
     protected void bindDirectory(Binder binder, final String name) {
-        binder.bind(Directory.class).annotatedWith(Names.named(name)).toProvider(
-                new Provider<Directory>() {
-                    Directory dir;
-                    @Override
-                    public Directory get() {
-                        if (dir==null) {
-                            DirectoryService ds = Framework.getService(DirectoryService.class);
-                            dir = ds.getDirectory(name);
-                            if (dir==null) {
-                                log.error("Unable to find Directory " + name);
-                            }
-                        }
-                        return dir;
+        binder.bind(Directory.class).annotatedWith(Names.named(name)).toProvider(new Provider<Directory>() {
+            Directory dir;
+
+            @Override
+            public Directory get() {
+                if (dir == null) {
+                    DirectoryService ds = Framework.getService(DirectoryService.class);
+                    dir = ds.getDirectory(name);
+                    if (dir == null) {
+                        log.error("Unable to find Directory " + name);
                     }
-                });
+                }
+                return dir;
+            }
+        });
     }
 
-    protected static LoginContext loginAs(String username, String password)
-            throws Exception {
-        Principal user = Framework.getService(UserManager.class).authenticate(
-                username, password);
+    protected static LoginContext loginAs(String username, String password) throws Exception {
+        Principal user = Framework.getService(UserManager.class).authenticate(username, password);
         LoginContext logContext = Framework.login(username, password);
-        ClientLoginModule.getThreadLocalLogin().push(user,
-                password.toCharArray(), logContext.getSubject());
+        ClientLoginModule.getThreadLocalLogin().push(user, password.toCharArray(), logContext.getSubject());
         return logContext;
     }
 

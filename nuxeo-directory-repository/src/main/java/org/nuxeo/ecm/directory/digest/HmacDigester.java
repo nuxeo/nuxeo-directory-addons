@@ -24,8 +24,6 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- *
- *
  * @since 7.1
  */
 public class HmacDigester extends SaltedDigester {
@@ -41,8 +39,7 @@ public class HmacDigester extends SaltedDigester {
             return mac.doFinal(password.getBytes("UTF-8"));
         } catch (NoSuchAlgorithmException e) {
             throw new UnknownAlgorithmException(e);
-        } catch (InvalidKeyException | IllegalStateException
-                | UnsupportedEncodingException e) {
+        } catch (InvalidKeyException | IllegalStateException | UnsupportedEncodingException e) {
             throw new RuntimeException("Unable to compute hash for password", e);
         }
     }

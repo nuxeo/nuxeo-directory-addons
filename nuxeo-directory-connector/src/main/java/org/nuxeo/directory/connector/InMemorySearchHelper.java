@@ -8,15 +8,11 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 /**
- * This is a helper class that provides a simplistic implementation of the directory search API using a full in memory search.
- *
- * This can be useful for testing service that does not support any
- * search feature.
- *
- * However, please note that this can not scale !
+ * This is a helper class that provides a simplistic implementation of the directory search API using a full in memory
+ * search. This can be useful for testing service that does not support any search feature. However, please note that
+ * this can not scale !
  *
  * @author <a href="mailto:tdelprat@nuxeo.com">Tiry</a>
- *
  */
 public class InMemorySearchHelper {
 
@@ -26,8 +22,7 @@ public class InMemorySearchHelper {
         this.connector = connector;
     }
 
-    public List<String> queryEntryIds(Map<String, Serializable> filter,
-            Set<String> fulltext) {
+    public List<String> queryEntryIds(Map<String, Serializable> filter, Set<String> fulltext) {
 
         List<String> ids = new ArrayList<String>();
 
@@ -45,8 +40,7 @@ public class InMemorySearchHelper {
                     }
                 } else {
                     if (fulltext != null && fulltext.contains(fieldName)) {
-                        if (!value.toString().toLowerCase().startsWith(
-                                expected.toString().toLowerCase())) {
+                        if (!value.toString().toLowerCase().startsWith(expected.toString().toLowerCase())) {
                             continue data_loop;
                         }
                     } else {
@@ -61,6 +55,5 @@ public class InMemorySearchHelper {
         }
         return ids;
     }
-
 
 }

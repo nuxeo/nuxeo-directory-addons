@@ -40,7 +40,6 @@ import org.nuxeo.runtime.api.Framework;
 /**
  * @author Florent Guillaume
  * @author Maxime Hilaire
- *
  */
 public class ResilientDirectory extends AbstractDirectory {
 
@@ -54,19 +53,16 @@ public class ResilientDirectory extends AbstractDirectory {
 
     private Map<String, Field> schemaFieldMap;
 
-    public ResilientDirectory(ResilientDirectoryDescriptor descriptor)
-            throws ClientException {
+    public ResilientDirectory(ResilientDirectoryDescriptor descriptor) throws ClientException {
         super(descriptor.name);
         this.descriptor = descriptor;
 
     }
 
-    private boolean checkSlaveSubDirectory(String masterSchemaName)
-            throws ClientException {
+    private boolean checkSlaveSubDirectory(String masterSchemaName) throws ClientException {
         boolean slaveFound = false;
         for (SubDirectoryDescriptor sub : descriptor.subDirectories) {
-            Directory subDir = ResilientDirectoryFactory.getDirectoryService().getDirectory(
-                    sub.name);
+            Directory subDir = ResilientDirectoryFactory.getDirectoryService().getDirectory(sub.name);
             if (subDir == null) {
                 throw new DirectoryException(
                         String.format(
@@ -80,11 +76,9 @@ public class ResilientDirectory extends AbstractDirectory {
                     throw new DirectoryException(
                             String.format(
                                     "ResilientDirectory '%s' reference a slave directory '%s' that has not the same schema than the master schema %s!",
-                                    descriptor.name, subDir.getName(),
-                                    masterSchemaName));
+                                    descriptor.name, subDir.getName(), masterSchemaName));
                 } else if (!subDir.getIdField().equalsIgnoreCase(idField)
-                        && !subDir.getPasswordField().equalsIgnoreCase(
-                                passwordField)) {
+                        && !subDir.getPasswordField().equalsIgnoreCase(passwordField)) {
                     throw new DirectoryException(
                             String.format(
                                     "ResilientDirectory '%s' reference a slave directory '%s' that has not the same idField/passwordField than the master !",
@@ -92,10 +86,9 @@ public class ResilientDirectory extends AbstractDirectory {
                 }
 
                 else if (subDir.getSession().isReadOnly()) {
-                    throw new DirectoryException(
-                            String.format(
-                                    "ResilientDirectory '%s' reference a slave directory '%s' that is in read-only mode !",
-                                    descriptor.name, subDir.getName()));
+                    throw new DirectoryException(String.format(
+                            "ResilientDirectory '%s' reference a slave directory '%s' that is in read-only mode !",
+                            descriptor.name, subDir.getName()));
                 } else if (subDir instanceof SQLDirectory) {
                     if (((SQLDirectory) subDir).getConfig().autoincrementIdField) {
                         throw new DirectoryException(
@@ -119,8 +112,7 @@ public class ResilientDirectory extends AbstractDirectory {
         // Find the master subdirectory and init resilient directory from the
         // master
         for (SubDirectoryDescriptor sub : descriptor.subDirectories) {
-            Directory dir = Framework.getLocalService(DirectoryService.class).getDirectory(
-                    sub.name);
+            Directory dir = Framework.getLocalService(DirectoryService.class).getDirectory(sub.name);
             if (sub.isMaster() && masterSchemaName == null) {
                 if (dir != null) {
                     schemaName = dir.getSchema();
@@ -129,20 +121,16 @@ public class ResilientDirectory extends AbstractDirectory {
                     SchemaManager sm = Framework.getLocalService(SchemaManager.class);
                     Schema sch = sm.getSchema(schemaName);
                     if (sch == null) {
-                        throw new DirectoryException(
-                                String.format(
-                                        "Unknown schema '%s' for master subdirectory '%s' ",
-                                        schemaName, dir.getName()));
+                        throw new DirectoryException(String.format("Unknown schema '%s' for master subdirectory '%s' ",
+                                schemaName, dir.getName()));
                     }
                     final Set<String> sourceFields = new HashSet<String>();
                     for (Field f : sch.getFields()) {
                         sourceFields.add(f.getName().getLocalName());
                     }
                     if (!sourceFields.contains(idField)) {
-                        throw new DirectoryException(
-                                String.format(
-                                        "Directory '%s' schema '%s' has no id field '%s'",
-                                        dir.getName(), schemaName, idField));
+                        throw new DirectoryException(String.format("Directory '%s' schema '%s' has no id field '%s'",
+                                dir.getName(), schemaName, idField));
                     }
                     schemaFieldMap = new HashMap<String, Field>();
                     for (Field f : sch.getFields()) {
@@ -153,27 +141,21 @@ public class ResilientDirectory extends AbstractDirectory {
                     masterSchemaName = schemaName;
 
                 } else {
-                    throw new DirectoryException(String.format(
-                            "Unknown directory '%s' !", sub.name));
+                    throw new DirectoryException(String.format("Unknown directory '%s' !", sub.name));
                 }
             } else if (sub.isMaster() && masterSchemaName != null) {
-                throw new DirectoryException(
-                        String.format(
-                                "Directory '%s' subdir '%s' "
-                                        + "define a master source but another one exist !",
-                                descriptor.name, sub.name));
+                throw new DirectoryException(String.format("Directory '%s' subdir '%s' "
+                        + "define a master source but another one exist !", descriptor.name, sub.name));
             }
 
         }
         // At this point we must have found a master
         if (masterSchemaName == null) {
-            throw new DirectoryException(String.format(
-                    "Resilient Directory '%s' has no master source !",
+            throw new DirectoryException(String.format("Resilient Directory '%s' has no master source !",
                     descriptor.name));
         } else {
             if (!checkSlaveSubDirectory(masterSchemaName)) {
-                throw new DirectoryException(String.format(
-                        "Resilient Directory '%s' has no slave source !",
+                throw new DirectoryException(String.format("Resilient Directory '%s' has no slave source !",
                         descriptor.name));
 
             }
@@ -237,8 +219,7 @@ public class ResilientDirectory extends AbstractDirectory {
         getCache().invalidateAll();
         // and also invalidates the cache from the source directories
         for (SubDirectoryDescriptor sub : descriptor.subDirectories) {
-            Directory dir = ResilientDirectoryFactory.getDirectoryService().getDirectory(
-                    sub.name);
+            Directory dir = ResilientDirectoryFactory.getDirectoryService().getDirectory(sub.name);
             if (dir != null) {
                 dir.invalidateDirectoryCache();
             }

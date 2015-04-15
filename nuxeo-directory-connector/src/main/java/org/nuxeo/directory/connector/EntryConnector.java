@@ -10,8 +10,7 @@ import org.nuxeo.ecm.directory.DirectoryException;
 
 public interface EntryConnector {
 
-    boolean authenticate(String username, String password)
-            throws DirectoryException;
+    boolean authenticate(String username, String password) throws DirectoryException;
 
     boolean hasEntry(String id) throws ClientException;
 
@@ -19,8 +18,7 @@ public interface EntryConnector {
 
     List<String> getEntryIds();
 
-    List<String> queryEntryIds(Map<String, Serializable> filter,
-            Set<String> fulltext);
+    List<String> queryEntryIds(Map<String, Serializable> filter, Set<String> fulltext);
 
     void close();
 

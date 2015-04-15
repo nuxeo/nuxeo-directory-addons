@@ -51,10 +51,7 @@ import org.nuxeo.ecm.directory.ldap.ContextProvider;
 
 /**
  * XXX duplicated from nuxeo-platform-directory-ldap-tests until this test jar is fixed
- * 
- * https://jira.nuxeo.com/browse/NXP-15828
- * 
- * An embedded LDAP test server, complete with test data for running the unit
+ * https://jira.nuxeo.com/browse/NXP-15828 An embedded LDAP test server, complete with test data for running the unit
  * tests against.
  *
  * @author Luke Taylor
@@ -230,13 +227,10 @@ public class MockLdapServer implements ContextProvider {
         Properties env = new Properties();
 
         env.setProperty(Context.PROVIDER_URL, BASE_DN);
-        env.setProperty(Context.INITIAL_CONTEXT_FACTORY,
-                CoreContextFactory.class.getName());
+        env.setProperty(Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName());
         env.setProperty(Context.SECURITY_AUTHENTICATION, "simple");
-        env.setProperty(Context.SECURITY_PRINCIPAL,
-                PartitionNexus.ADMIN_PRINCIPAL);
-        env.setProperty(Context.SECURITY_CREDENTIALS,
-                PartitionNexus.ADMIN_PASSWORD);
+        env.setProperty(Context.SECURITY_PRINCIPAL, PartitionNexus.ADMIN_PRINCIPAL);
+        env.setProperty(Context.SECURITY_CREDENTIALS, PartitionNexus.ADMIN_PASSWORD);
 
         try {
             initConfiguration();
@@ -249,15 +243,14 @@ public class MockLdapServer implements ContextProvider {
 
     public void shutdownLdapServer() {
 
-        Hashtable<String, Object> env = new Hashtable<>( new ShutdownConfiguration().toJndiEnvironment() );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
-        env.put( Context.PROVIDER_URL, BASE_DN );
+        Hashtable<String, Object> env = new Hashtable<>(new ShutdownConfiguration().toJndiEnvironment());
+        env.put(Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName());
+        env.put(Context.PROVIDER_URL, BASE_DN);
 
         try {
             new InitialLdapContext(env, null);
         } catch (Exception e) {
-            throw new ServerSystemPreferenceException(
-                    "Failed to shutdown ldap server.", e);
+            throw new ServerSystemPreferenceException("Failed to shutdown ldap server.", e);
         }
     }
 }

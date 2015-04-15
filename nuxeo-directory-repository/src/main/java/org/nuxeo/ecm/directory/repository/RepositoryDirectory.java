@@ -43,7 +43,6 @@ import org.nuxeo.runtime.api.Framework;
 /**
  * Implementation class of directory on top of a repository
  *
- *
  * @since 5.9.6
  */
 public class RepositoryDirectory extends AbstractDirectory {
@@ -54,16 +53,14 @@ public class RepositoryDirectory extends AbstractDirectory {
 
     protected final Schema schema;
 
-    public RepositoryDirectory(RepositoryDirectoryDescriptor descriptor)
-            throws ClientException {
+    public RepositoryDirectory(RepositoryDirectoryDescriptor descriptor) throws ClientException {
         super(descriptor.name);
         this.descriptor = descriptor;
         SchemaManager sm = Framework.getLocalService(SchemaManager.class);
         schema = sm.getSchema(descriptor.schemaName);
         fieldMapper = new DirectoryFieldMapper(descriptor.fieldMapping);
         if (schema == null) {
-            throw new DirectoryException(String.format(
-                    "Unknown schema '%s' for directory '%s' ",
+            throw new DirectoryException(String.format("Unknown schema '%s' for directory '%s' ",
                     descriptor.schemaName, name));
         }
 
@@ -89,21 +86,19 @@ public class RepositoryDirectory extends AbstractDirectory {
 
                 if (rootFolder == null) {
 
-                    String parentFolder = descriptor.createPath.substring(0,
-                            createPath.lastIndexOf("/"));
+                    String parentFolder = descriptor.createPath.substring(0, createPath.lastIndexOf("/"));
                     if (createPath.lastIndexOf("/") == 0) {
                         parentFolder = "/";
                     }
-                    String createFolder = descriptor.createPath.substring(
-                            createPath.lastIndexOf("/") + 1, createPath.length());
+                    String createFolder = descriptor.createPath.substring(createPath.lastIndexOf("/") + 1,
+                            createPath.length());
 
                     log.info(String.format(
                             "Root folder '%s' has not been found for the directory '%s' on the repository '%s', will create it with given ACL",
                             createPath, name, descriptor.getRepositoryName()));
                     if (descriptor.canCreateRootFolder) {
                         try {
-                            DocumentModel doc = session.createDocumentModel(
-                                    parentFolder, createFolder, "Folder");
+                            DocumentModel doc = session.createDocumentModel(parentFolder, createFolder, "Folder");
                             doc.setProperty("dublincore", "title", createFolder);
                             session.createDocument(doc);
                             // Set ACL from descriptor
@@ -116,12 +111,10 @@ public class RepositoryDirectory extends AbstractDirectory {
                             session.save();
 
                         } catch (ClientException e) {
-                            throw new DirectoryException(
-                                    String.format(
-                                            "The root folder '%s' can not be created under '%s' for the directory '%s' on the repository '%s',"
-                                                    + " please make sure you have set the right path or that the path exist",
-                                            createFolder, parentFolder, name,
-                                            descriptor.getRepositoryName()), e);
+                            throw new DirectoryException(String.format(
+                                    "The root folder '%s' can not be created under '%s' for the directory '%s' on the repository '%s',"
+                                            + " please make sure you have set the right path or that the path exist",
+                                    createFolder, parentFolder, name, descriptor.getRepositoryName()), e);
                         }
                     }
 
@@ -136,8 +129,7 @@ public class RepositoryDirectory extends AbstractDirectory {
         directoryInitializer.runUnrestricted();
     }
 
-    protected DocumentModel setACL(DocumentModel rootFolder,
-            String userOrGroupName, String privilege, boolean granted) {
+    protected DocumentModel setACL(DocumentModel rootFolder, String userOrGroupName, String privilege, boolean granted) {
         ACP acp = rootFolder.getACP();
         ACL localACL = acp.getOrCreateACL();
         localACL.add(new ACE(userOrGroupName, privilege, granted));
@@ -146,8 +138,7 @@ public class RepositoryDirectory extends AbstractDirectory {
         if (log.isDebugEnabled()) {
             log.debug(String.format(
                     "Set ACL on root folder '%s' : userOrGroupName = '%s', privilege = '%s' , granted = '%s' ",
-                    rootFolder.getPathAsString(), userOrGroupName, privilege,
-                    granted));
+                    rootFolder.getPathAsString(), userOrGroupName, privilege, granted));
         }
 
         return rootFolder.getCoreSession().saveDocument(rootFolder);
@@ -175,8 +166,7 @@ public class RepositoryDirectory extends AbstractDirectory {
     public Field getField(String name) throws DirectoryException {
         Field field = schema.getField(name);
         if (field == null) {
-            throw new DirectoryException(String.format(
-                    "Field '%s' does not exist in the schema '%s'", name,
+            throw new DirectoryException(String.format("Field '%s' does not exist in the schema '%s'", name,
                     schema.getName()));
         }
         return field;
@@ -194,8 +184,7 @@ public class RepositoryDirectory extends AbstractDirectory {
 
     @Override
     public Session getSession() throws DirectoryException {
-        RepositoryDirectorySession session = new RepositoryDirectorySession(
-                this);
+        RepositoryDirectorySession session = new RepositoryDirectorySession(this);
         addSession(session);
         return session;
     }

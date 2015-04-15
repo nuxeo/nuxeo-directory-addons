@@ -82,11 +82,10 @@ public class TestRepositoryDirectoryWrapper {
 
     @Test
     public void testGetEntries() throws Exception {
-        
-        Assert.assertNotNull(dirSession.getEntry(RepositoryDirectoryInit.DOC_ID_USER1));        
+
+        Assert.assertNotNull(dirSession.getEntry(RepositoryDirectoryInit.DOC_ID_USER1));
         Assert.assertNull(dirSession.getEntry("bad-id"));
         Assert.assertNotNull(dirSession.getEntry("dummy"));
     }
-
 
 }

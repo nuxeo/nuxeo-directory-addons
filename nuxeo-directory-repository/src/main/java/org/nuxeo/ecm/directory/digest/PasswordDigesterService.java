@@ -17,12 +17,9 @@
 package org.nuxeo.ecm.directory.digest;
 
 /**
- *
- *
  * @since 7.1
  */
 public interface PasswordDigesterService {
-
 
     PasswordDigester getPasswordDigester(String name) throws UnknownAlgorithmException;
 

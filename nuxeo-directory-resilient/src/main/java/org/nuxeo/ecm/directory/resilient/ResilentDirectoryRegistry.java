@@ -32,8 +32,7 @@ import org.nuxeo.runtime.model.ContributionFragmentRegistry;
 /**
  * @since 5.6
  */
-public class ResilentDirectoryRegistry extends
-        ContributionFragmentRegistry<ResilientDirectoryDescriptor> {
+public class ResilentDirectoryRegistry extends ContributionFragmentRegistry<ResilientDirectoryDescriptor> {
 
     private static final Log log = LogFactory.getLog(ResilentDirectoryRegistry.class);
 
@@ -48,8 +47,7 @@ public class ResilentDirectoryRegistry extends
     }
 
     @Override
-    public void contributionUpdated(String id,
-            ResilientDirectoryDescriptor descriptor,
+    public void contributionUpdated(String id, ResilientDirectoryDescriptor descriptor,
             ResilientDirectoryDescriptor newOrigContrib) {
         String name = descriptor.name;
         if (descriptor.remove) {
@@ -72,16 +70,14 @@ public class ResilentDirectoryRegistry extends
     }
 
     @Override
-    public void contributionRemoved(String id,
-            ResilientDirectoryDescriptor origContrib) {
+    public void contributionRemoved(String id, ResilientDirectoryDescriptor origContrib) {
         descriptors.remove(id);
         Directory dir = directories.remove(origContrib.name);
         if (dir != null) {
             try {
                 dir.shutdown();
             } catch (DirectoryException e) {
-                log.error(String.format(
-                        "Error while shutting down directory '%s'", id), e);
+                log.error(String.format("Error while shutting down directory '%s'", id), e);
             }
         }
         log.info("Directory removed: " + id);

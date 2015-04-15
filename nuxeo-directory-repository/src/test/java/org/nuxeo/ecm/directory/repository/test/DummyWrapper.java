@@ -5,17 +5,15 @@ import org.nuxeo.ecm.directory.DirectoryException;
 import org.nuxeo.ecm.directory.repository.intercept.DirectorySessionWrapper;
 import org.nuxeo.ecm.directory.repository.intercept.SimpleForward;
 
-public class DummyWrapper extends SimpleForward implements
-        DirectorySessionWrapper {
+public class DummyWrapper extends SimpleForward implements DirectorySessionWrapper {
 
     @Override
-    public DocumentModel getEntry(String id, boolean fetchReferences)
-            throws DirectoryException {
+    public DocumentModel getEntry(String id, boolean fetchReferences) throws DirectoryException {
 
         if ("dummy".equals(id)) {
             id = RepositoryDirectoryInit.DOC_ID_USER1;
         }
-        
+
         return super.getEntry(id, fetchReferences);
     }
 

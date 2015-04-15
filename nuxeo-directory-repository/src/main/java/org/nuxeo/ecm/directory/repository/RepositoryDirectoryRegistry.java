@@ -30,12 +30,11 @@ import org.nuxeo.ecm.directory.DirectoryException;
 import org.nuxeo.runtime.model.ContributionFragmentRegistry;
 
 /**
- * Registry of directory 
+ * Registry of directory
  *
  * @since 5.9.6
  */
-public class RepositoryDirectoryRegistry extends
-        ContributionFragmentRegistry<RepositoryDirectoryDescriptor> {
+public class RepositoryDirectoryRegistry extends ContributionFragmentRegistry<RepositoryDirectoryDescriptor> {
 
     private static final Log log = LogFactory.getLog(RepositoryDirectoryRegistry.class);
 
@@ -47,8 +46,7 @@ public class RepositoryDirectoryRegistry extends
     }
 
     @Override
-    public void contributionUpdated(String id,
-            RepositoryDirectoryDescriptor contrib,
+    public void contributionUpdated(String id, RepositoryDirectoryDescriptor contrib,
             RepositoryDirectoryDescriptor newOrigContrib) {
         String name = contrib.name;
         if (contrib.remove) {
@@ -65,8 +63,7 @@ public class RepositoryDirectoryRegistry extends
     }
 
     @Override
-    public void contributionRemoved(String id,
-            RepositoryDirectoryDescriptor origContrib) {
+    public void contributionRemoved(String id, RepositoryDirectoryDescriptor origContrib) {
         RepositoryDirectoryDescriptor desc = descriptors.get(id);
         if (desc != null) {
             try {
@@ -74,25 +71,20 @@ public class RepositoryDirectoryRegistry extends
                 desc.stop();
                 log.info("Directory removed: " + id);
             } catch (DirectoryException e) {
-                log.error(String.format(
-                        "Error while shutting down directory '%s'", id), e);
+                log.error(String.format("Error while shutting down directory '%s'", id), e);
             }
         } else {
-            log.warn(String.format(
-                    "Could not find repository directory descriptor '%s' to be removed",
-                    id));
+            log.warn(String.format("Could not find repository directory descriptor '%s' to be removed", id));
         }
     }
 
     @Override
-    public RepositoryDirectoryDescriptor clone(
-            RepositoryDirectoryDescriptor orig) {
+    public RepositoryDirectoryDescriptor clone(RepositoryDirectoryDescriptor orig) {
         return orig.clone();
     }
 
     @Override
-    public void merge(RepositoryDirectoryDescriptor src,
-            RepositoryDirectoryDescriptor dst) {
+    public void merge(RepositoryDirectoryDescriptor src, RepositoryDirectoryDescriptor dst) {
         boolean remove = src.remove;
         // keep old remove info: if old contribution was removed, new one
         // should replace the old one completely
@@ -109,7 +101,7 @@ public class RepositoryDirectoryRegistry extends
         }
         return null;
     }
-    
+
     public void startAll() {
         for (RepositoryDirectoryDescriptor desc : descriptors.values()) {
             desc.start();

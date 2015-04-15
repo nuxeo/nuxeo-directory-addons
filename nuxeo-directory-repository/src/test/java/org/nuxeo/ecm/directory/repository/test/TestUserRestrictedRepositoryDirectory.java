@@ -46,11 +46,10 @@ public class TestUserRestrictedRepositoryDirectory {
     protected Session dirRestrictedSession = null;
 
     protected LoginContext lc;
-    
+
     @Before
     public void setUp() throws Exception {
-        lc = RepositoryDirectoryFeature.loginAs(
-                RepositoryDirectoryFeature.USER2_NAME,
+        lc = RepositoryDirectoryFeature.loginAs(RepositoryDirectoryFeature.USER2_NAME,
                 RepositoryDirectoryFeature.USER2_NAME);
         dirRestrictedSession = repoDir.getSession();
     }
@@ -65,8 +64,7 @@ public class TestUserRestrictedRepositoryDirectory {
     public void testGetEntry() throws Exception {
         DocumentModel entry;
         entry = dirRestrictedSession.getEntry(RepositoryDirectoryInit.DOC_ID_USER2);
-        assertEquals("foo2",
-                entry.getPropertyValue(TestRepositoryDirectory.FOO_FIELD));
+        assertEquals("foo2", entry.getPropertyValue(TestRepositoryDirectory.FOO_FIELD));
         entry = dirRestrictedSession.getEntry("no-such-entry");
         assertNull(entry);
         entry = dirRestrictedSession.getEntry(RepositoryDirectoryInit.DOC_ID_USER1);

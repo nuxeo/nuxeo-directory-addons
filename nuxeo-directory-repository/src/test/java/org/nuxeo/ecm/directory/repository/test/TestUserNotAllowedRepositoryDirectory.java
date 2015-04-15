@@ -45,11 +45,10 @@ public class TestUserNotAllowedRepositoryDirectory {
     protected Session dirNotAllowedSession = null;
 
     protected LoginContext lc;
-    
+
     @Before
     public void setUp() throws Exception {
-        lc=RepositoryDirectoryFeature.loginAs(
-                RepositoryDirectoryFeature.USER3_NAME,
+        lc = RepositoryDirectoryFeature.loginAs(RepositoryDirectoryFeature.USER3_NAME,
                 RepositoryDirectoryFeature.USER3_NAME);
         dirNotAllowedSession = repoDir.getSession();
     }

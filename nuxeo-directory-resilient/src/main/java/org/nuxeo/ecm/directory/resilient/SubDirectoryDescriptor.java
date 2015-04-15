@@ -39,9 +39,10 @@ public class SubDirectoryDescriptor {
         return String.format("{subdirectory name=%s ", name);
     }
 
-    boolean isMaster(){
+    boolean isMaster() {
         return Boolean.parseBoolean(master);
     }
+
     /**
      * @since 5.6
      */

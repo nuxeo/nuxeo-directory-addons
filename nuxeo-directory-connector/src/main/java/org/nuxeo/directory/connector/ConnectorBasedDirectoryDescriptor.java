@@ -92,5 +92,4 @@ public class ConnectorBasedDirectoryDescriptor implements Serializable {
         return mapping;
     }
 
-
 }

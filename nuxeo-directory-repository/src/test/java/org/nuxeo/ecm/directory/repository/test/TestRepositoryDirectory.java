@@ -136,11 +136,9 @@ public class TestRepositoryDirectory {
 
     @Test
     public void testAuthenticate() throws Exception {
-        Assert.assertTrue(dirSession.authenticate(
-                RepositoryDirectoryInit.DOC_ID_USER1,
+        Assert.assertTrue(dirSession.authenticate(RepositoryDirectoryInit.DOC_ID_USER1,
                 RepositoryDirectoryInit.DOC_PWD_USER1));
-        Assert.assertFalse(dirSession.authenticate(
-                RepositoryDirectoryInit.DOC_ID_USER1, "bad-pwd"));
+        Assert.assertFalse(dirSession.authenticate(RepositoryDirectoryInit.DOC_ID_USER1, "bad-pwd"));
         Assert.assertFalse(dirSession.authenticate("bad-id", "haha"));
     }
 
@@ -171,8 +169,7 @@ public class TestRepositoryDirectory {
     @Test
     @Ignore
     public void testCreateFromModel() throws Exception {
-        DocumentModel entry = BaseSession.createEntryModel(null, SCHEMA_NAME,
-                null, null);
+        DocumentModel entry = BaseSession.createEntryModel(null, SCHEMA_NAME, null, null);
         String id = "newId";
         entry.setPropertyValue(UID_FIELD, id);
 
@@ -182,8 +179,7 @@ public class TestRepositoryDirectory {
         assertNotNull(dirSession.getEntry(id));
 
         // create one with existing same id, must fail
-        entry.setProperty(USER_SCHEMA_NAME, USERNAME_FIELD,
-                RepositoryDirectoryInit.DOC_ID_USER1);
+        entry.setProperty(USER_SCHEMA_NAME, USERNAME_FIELD, RepositoryDirectoryInit.DOC_ID_USER1);
         try {
             entry = dirSession.createEntry(entry);
             fail("Should raise an error, entry already exists");

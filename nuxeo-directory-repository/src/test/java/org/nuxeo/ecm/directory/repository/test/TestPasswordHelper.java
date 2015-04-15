@@ -28,35 +28,28 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
 import org.nuxeo.runtime.test.runner.RuntimeFeature;
 
 @RunWith(FeaturesRunner.class)
-@Deploy({ "org.nuxeo.ecm.directory", "org.nuxeo.ecm.directory.api",
-        "org.nuxeo.ecm.directory.repository" })
+@Deploy({ "org.nuxeo.ecm.directory", "org.nuxeo.ecm.directory.api", "org.nuxeo.ecm.directory.repository" })
 @Features(RuntimeFeature.class)
 public class TestPasswordHelper {
 
     @Test
     public void testVerify() {
         assertTrue(PasswordHelper.verifyPassword("abcd", "abcd"));
-        assertTrue(PasswordHelper.verifyPassword("abcd",
-                "{SSHA}WPvqVeSt0Mr2llICYmAX9+pjtPH271eznDHvrw=="));
-        assertTrue(PasswordHelper.verifyPassword("abcd",
-                "{SMD5}/wZ7JQUARlCBq4JFHI57AfbvV7OcMe+v"));
+        assertTrue(PasswordHelper.verifyPassword("abcd", "{SSHA}WPvqVeSt0Mr2llICYmAX9+pjtPH271eznDHvrw=="));
+        assertTrue(PasswordHelper.verifyPassword("abcd", "{SMD5}/wZ7JQUARlCBq4JFHI57AfbvV7OcMe+v"));
         assertFalse(PasswordHelper.verifyPassword("1234", "abcd"));
-        assertFalse(PasswordHelper.verifyPassword("1234",
-                "{SSHA}WPvqVeSt0Mr2llICYmAX9+pjtPH271eznDHvrw=="));
-        assertFalse(PasswordHelper.verifyPassword("1234",
-                "{SMD5}/wZ7JQUARlCBq4JFHI57AfbvV7OcMe+v"));
+        assertFalse(PasswordHelper.verifyPassword("1234", "{SSHA}WPvqVeSt0Mr2llICYmAX9+pjtPH271eznDHvrw=="));
+        assertFalse(PasswordHelper.verifyPassword("1234", "{SMD5}/wZ7JQUARlCBq4JFHI57AfbvV7OcMe+v"));
         assertFalse(PasswordHelper.verifyPassword(" abcd", "abcd"));
         assertFalse(PasswordHelper.verifyPassword("abcd", "{SSHA}WPvqVeS"));
         assertFalse(PasswordHelper.verifyPassword("abcd", "{SSHA}/wZ7JQUAR"));
         assertFalse(PasswordHelper.verifyPassword("abcd", "{SSHA}WXYZ"));
-        assertFalse(PasswordHelper.verifyPassword("abcd",
-                "{SSHA}WPvqVeSt0Mr2llICYmAX9+pjtPH271eznDHvrwfghijkl"));
+        assertFalse(PasswordHelper.verifyPassword("abcd", "{SSHA}WPvqVeSt0Mr2llICYmAX9+pjtPH271eznDHvrwfghijkl"));
         assertFalse(PasswordHelper.verifyPassword("abcd", "{SSHA}/wZ7JQUARlC*"));
 
         assertTrue(PasswordHelper.verifyPassword("abcdéf",
                 "{PBKDF2HmacSHA1}UdzRLXPJ8UcV6+FfyLG5PvxxV9qKcCNqZHYEW1b1Ppw0jrpN1pI38Q=="));
-        assertFalse(PasswordHelper.verifyPassword("abcdéf",
-                "{PBKDF2HmacSHA1}Bla=="));
+        assertFalse(PasswordHelper.verifyPassword("abcdéf", "{PBKDF2HmacSHA1}Bla=="));
     }
 
     @Test

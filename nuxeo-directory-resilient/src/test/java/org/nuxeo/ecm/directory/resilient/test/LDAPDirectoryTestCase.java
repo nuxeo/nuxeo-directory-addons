@@ -77,15 +77,12 @@ public abstract class LDAPDirectoryTestCase extends SQLRepositoryTestCase {
     // http://www.ldap.org.br/modules/ldap/files/files///dyngroup.schema
     public static final boolean HAS_DYNGROUP_SCHEMA = false;
 
-
     // These variables are changed in subclasses
     public String EXTERNAL_SERVER_SETUP = "TestDirectoriesWithExternalOpenLDAP.xml";
 
     public String INTERNAL_SERVER_SETUP = "TestDirectoriesWithInternalApacheDS.xml";
 
     private DirectoryService directoryService;
-
-
 
     public List<String> getLdifFiles() {
         List<String> ldifFiles = new ArrayList<String>();
@@ -103,30 +100,23 @@ public abstract class LDAPDirectoryTestCase extends SQLRepositoryTestCase {
         deployBundle("org.nuxeo.ecm.core.schema");
         deployBundle("org.nuxeo.ecm.directory");
         deployBundle("org.nuxeo.ecm.directory.sql");
-        
-        
+
         // setup the client environment
         deployBundle("org.nuxeo.ecm.directory.ldap");
 
         deployBundle("org.nuxeo.ecm.directory.resilient");
         deployBundle("org.nuxeo.ecm.directory.resilient.tests");
-                      
 
         directoryService = Framework.getLocalService(DirectoryService.class);
-        
-        
-        deployTestContrib("org.nuxeo.ecm.directory.resilient.tests",
-                "ldap-schema.xml");
 
-        deployTestContrib("org.nuxeo.ecm.directory.resilient.tests",
-                "sql-directories-config.xml");
+        deployTestContrib("org.nuxeo.ecm.directory.resilient.tests", "ldap-schema.xml");
+
+        deployTestContrib("org.nuxeo.ecm.directory.resilient.tests", "sql-directories-config.xml");
         if (USE_EXTERNAL_TEST_LDAP_SERVER) {
-            deployTestContrib("org.nuxeo.ecm.directory.resilient.tests",
-                    EXTERNAL_SERVER_SETUP);
-        } else {                               
-            deployTestContrib("org.nuxeo.ecm.directory.resilient.tests",
-                    INTERNAL_SERVER_SETUP);
-            
+            deployTestContrib("org.nuxeo.ecm.directory.resilient.tests", EXTERNAL_SERVER_SETUP);
+        } else {
+            deployTestContrib("org.nuxeo.ecm.directory.resilient.tests", INTERNAL_SERVER_SETUP);
+
             Assert.assertNotNull(getLDAPDirectory("ldapUserDirectory"));
             server = new MockLdapServer(new File(Framework.getRuntime().getHome(), "ldap"));
             getLDAPDirectory("ldapUserDirectory").setTestServer(server);
@@ -147,8 +137,7 @@ public abstract class LDAPDirectoryTestCase extends SQLRepositoryTestCase {
     public void tearDown() throws Exception {
         try {
             if (USE_EXTERNAL_TEST_LDAP_SERVER) {
-                LDAPSession session = (LDAPSession) getLDAPDirectory(
-                        "ldapUserDirectory").getSession();
+                LDAPSession session = (LDAPSession) getLDAPDirectory("ldapUserDirectory").getSession();
                 try {
                     DirContext ctx = session.getContext();
                     destroyRecursively("ou=people,dc=example,dc=com", ctx, -1);
@@ -176,39 +165,33 @@ public abstract class LDAPDirectoryTestCase extends SQLRepositoryTestCase {
 
     protected static void loadDataFromLdif(String ldif, DirContext ctx) {
         List<LdifLoadFilter> filters = new ArrayList<LdifLoadFilter>();
-        LdifFileLoader loader = new LdifFileLoader(ctx, new File(ldif),
-                filters, Thread.currentThread().getContextClassLoader());
+        LdifFileLoader loader = new LdifFileLoader(ctx, new File(ldif), filters,
+                Thread.currentThread().getContextClassLoader());
         loader.execute();
     }
 
-    protected void destroyRecursively(String dn, DirContext ctx, int limit)
-            throws NamingException {
+    protected void destroyRecursively(String dn, DirContext ctx, int limit) throws NamingException {
         if (limit == 0) {
             log.warn("Reach recursion limit, stopping deletion at" + dn);
             return;
         }
         SearchControls scts = new SearchControls();
         scts.setSearchScope(SearchControls.ONELEVEL_SCOPE);
-        String providerUrl = (String) ctx.getEnvironment().get(
-                Context.PROVIDER_URL);
-        NamingEnumeration<SearchResult> children = ctx.search(dn,
-                "(objectClass=*)", scts);
+        String providerUrl = (String) ctx.getEnvironment().get(Context.PROVIDER_URL);
+        NamingEnumeration<SearchResult> children = ctx.search(dn, "(objectClass=*)", scts);
         try {
             while (children.hasMore()) {
                 SearchResult child = children.next();
                 String subDn = child.getName();
-                if (!USE_EXTERNAL_TEST_LDAP_SERVER
-                        && subDn.endsWith(providerUrl)) {
-                    subDn = subDn.substring(0,
-                            subDn.length() - providerUrl.length() - 1);
+                if (!USE_EXTERNAL_TEST_LDAP_SERVER && subDn.endsWith(providerUrl)) {
+                    subDn = subDn.substring(0, subDn.length() - providerUrl.length() - 1);
                 } else {
                     subDn = subDn + ',' + dn;
                 }
                 destroyRecursively(subDn, ctx, limit);
             }
         } catch (SizeLimitExceededException e) {
-            log.warn("SizeLimitExceededException: trying again on partial results "
-                    + dn);
+            log.warn("SizeLimitExceededException: trying again on partial results " + dn);
             if (limit == -1) {
                 limit = 100;
             }
@@ -217,15 +200,13 @@ public abstract class LDAPDirectoryTestCase extends SQLRepositoryTestCase {
         ctx.destroySubcontext(dn);
     }
 
-    public LDAPDirectory getLDAPDirectory(String name)
-            throws DirectoryException {
+    public LDAPDirectory getLDAPDirectory(String name) throws DirectoryException {
 
         return (LDAPDirectory) directoryService.getDirectory(name);
     }
 
     /**
-     * Method to create a X509 certificate used to test the creation and the
-     * update of an entry in the ldap.
+     * Method to create a X509 certificate used to test the creation and the update of an entry in the ldap.
      *
      * @return A X509 certificate
      * @throws CertificateException
@@ -233,21 +214,17 @@ public abstract class LDAPDirectoryTestCase extends SQLRepositoryTestCase {
      * @throws InvalidKeyException
      * @throws SignatureException
      * @throws IllegalStateException
-     *
      * @since 5.9.3
      */
-    protected X509Certificate createCertificate(String dnNameStr)
-            throws NoSuchAlgorithmException, CertificateException,
-            InvalidKeyException, IllegalStateException, SignatureException {
+    protected X509Certificate createCertificate(String dnNameStr) throws NoSuchAlgorithmException,
+            CertificateException, InvalidKeyException, IllegalStateException, SignatureException {
         X509Certificate cert = null;
 
         // Parameters used to define the certificate
         // yesterday
-        Date validityBeginDate = new Date(System.currentTimeMillis() - 24 * 60
-                * 60 * 1000);
+        Date validityBeginDate = new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000);
         // in 2 years
-        Date validityEndDate = new Date(System.currentTimeMillis() + 2 * 365
-                * 24 * 60 * 60 * 1000);
+        Date validityEndDate = new Date(System.currentTimeMillis() + 2 * 365 * 24 * 60 * 60 * 1000);
 
         // Generate the key pair
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");

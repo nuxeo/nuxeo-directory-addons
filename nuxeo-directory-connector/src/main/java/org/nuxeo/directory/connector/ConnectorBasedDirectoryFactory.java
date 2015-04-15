@@ -19,10 +19,8 @@ import org.nuxeo.runtime.model.Extension;
 
 /**
  * @author tiry
- *
  */
-public class ConnectorBasedDirectoryFactory extends DefaultComponent implements
-        DirectoryFactory {
+public class ConnectorBasedDirectoryFactory extends DefaultComponent implements DirectoryFactory {
 
     public static final ComponentName NAME = new ComponentName(
             "org.nuxeo.directory.connector.ConnectorBasedDirectoryFactory");
@@ -55,7 +53,6 @@ public class ConnectorBasedDirectoryFactory extends DefaultComponent implements
         return directories.get(name);
     }
 
-
     public List<Directory> getDirectories() {
         return new ArrayList<Directory>(directories.values());
     }
@@ -67,8 +64,8 @@ public class ConnectorBasedDirectoryFactory extends DefaultComponent implements
             // so keep to lazy initialization
             return;
         }
-        if (pendingDirectories.size()>0) {
-            for (ConnectorBasedDirectoryDescriptor descriptor: pendingDirectories) {
+        if (pendingDirectories.size() > 0) {
+            for (ConnectorBasedDirectoryDescriptor descriptor : pendingDirectories) {
                 try {
                     log.info("Register lazy directory " + descriptor.getName());
                     registerDirectory(descriptor);
@@ -110,6 +107,5 @@ public class ConnectorBasedDirectoryFactory extends DefaultComponent implements
             dir.shutdown();
         }
     }
-
 
 }
