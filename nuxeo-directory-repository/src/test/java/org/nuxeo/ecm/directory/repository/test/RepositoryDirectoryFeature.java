@@ -45,7 +45,7 @@ import com.google.inject.Provider;
 import com.google.inject.name.Names;
 
 @Features({ TransactionalFeature.class, CoreFeature.class })
-@RepositoryConfig(init = RepositoryDirectoryInit.class, cleanup = Granularity.CLASS)
+@RepositoryConfig(init = RepositoryDirectoryInit.class, cleanup = Granularity.METHOD)
 @Deploy({ "org.nuxeo.ecm.directory.api", "org.nuxeo.ecm.directory", "org.nuxeo.ecm.directory.sql",
         "org.nuxeo.ecm.core.schema", "org.nuxeo.ecm.directory.types.contrib", "org.nuxeo.ecm.platform.usermanager",
         "org.nuxeo.ecm.platform.usermanager.api", "org.nuxeo.ecm.directory.repository" })
