@@ -14,7 +14,7 @@ import org.nuxeo.ecm.core.api.ClientException;
 public class NasaDataSetConnector extends BaseJSONDirectoryConnector {
 
     @Override
-    public boolean hasEntry(String id) throws ClientException {
+    public boolean hasEntry(String id) {
         return getEntryMap(id) != null;
     }
 

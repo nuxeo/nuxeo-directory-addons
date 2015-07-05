@@ -12,7 +12,7 @@ public interface EntryConnector {
 
     boolean authenticate(String username, String password) throws DirectoryException;
 
-    boolean hasEntry(String id) throws ClientException;
+    boolean hasEntry(String id);
 
     Map<String, Object> getEntryMap(String id);
 

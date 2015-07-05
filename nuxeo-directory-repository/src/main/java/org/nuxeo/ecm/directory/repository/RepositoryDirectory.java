@@ -53,7 +53,7 @@ public class RepositoryDirectory extends AbstractDirectory {
 
     protected final Schema schema;
 
-    public RepositoryDirectory(RepositoryDirectoryDescriptor descriptor) throws ClientException {
+    public RepositoryDirectory(RepositoryDirectoryDescriptor descriptor) {
         super(descriptor.name);
         this.descriptor = descriptor;
         SchemaManager sm = Framework.getLocalService(SchemaManager.class);
@@ -71,7 +71,7 @@ public class RepositoryDirectory extends AbstractDirectory {
         UnrestrictedSessionRunner directoryInitializer = new UnrestrictedSessionRunner(descriptor.getRepositoryName()) {
 
             @Override
-            public void run() throws ClientException {
+            public void run() {
                 String createPath = descriptor.createPath;
 
                 DocumentModel rootFolder = null;

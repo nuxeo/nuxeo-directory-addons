@@ -50,7 +50,7 @@ public class RepositoryDirectoryInit implements RepositoryInit {
     public static String USERS_UNRESTRICTED_PATH = ROOT_FOLDER_PATH + "/test/" + USERS_UNRESTRICTED_FOLDER;
 
     @Override
-    public void populate(CoreSession session) throws ClientException {
+    public void populate(CoreSession session) {
         // RootFolder should have been bootstrapped by the directory on repository bundle
         DocumentModel doc = session.createDocumentModel(ROOT_FOLDER_PATH, "test", "Workspace");
         doc.setProperty("dublincore", "title", "test");

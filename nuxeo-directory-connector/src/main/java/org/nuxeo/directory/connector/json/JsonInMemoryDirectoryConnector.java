@@ -77,7 +77,7 @@ public class JsonInMemoryDirectoryConnector extends BaseJSONDirectoryConnector i
         return rc;
     }
 
-    public boolean hasEntry(String id) throws ClientException {
+    public boolean hasEntry(String id) {
         if (results != null) {
             for (int i = 0; i < results.size(); i++) {
                 if (results.get(i).get(idField).equals(id)) {

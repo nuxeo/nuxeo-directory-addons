@@ -220,7 +220,6 @@ public class ResilientDirectorySession extends BaseSession {
      *
      * @return The value of the read-only mode of the master directory
      * @throws DirectoryException
-     * @throws ClientException
      *
      */
     public boolean isReadOnly() {
@@ -346,7 +345,7 @@ public class ResilientDirectorySession extends BaseSession {
 
     }
 
-    private boolean hasEntryOnSlave(String id) throws ClientException {
+    private boolean hasEntryOnSlave(String id) {
         init();
         for (SubDirectoryInfo dirInfo : slaveSubDirectoryInfos) {
             Session session = dirInfo.getSession();
@@ -358,7 +357,7 @@ public class ResilientDirectorySession extends BaseSession {
     }
 
     @Override
-    public boolean authenticate(String username, String password) throws ClientException {
+    public boolean authenticate(String username, String password) {
         init();
 
         // First try to authenticate against the master
@@ -470,12 +469,12 @@ public class ResilientDirectorySession extends BaseSession {
     }
 
     @Override
-    public DocumentModelList getEntries() throws ClientException {
+    public DocumentModelList getEntries() {
         throw new UnsupportedOperationException("Get entries may be deprecated !");
     }
 
     @Override
-    public DocumentModel createEntry(Map<String, Object> fieldMap) throws ClientException {
+    public DocumentModel createEntry(Map<String, Object> fieldMap) {
         init();
 
         if (isReadOnly()) {
@@ -503,12 +502,12 @@ public class ResilientDirectorySession extends BaseSession {
     }
 
     @Override
-    public void deleteEntry(DocumentModel docModel) throws ClientException {
+    public void deleteEntry(DocumentModel docModel) {
         deleteEntry(docModel.getId());
     }
 
     @Override
-    public void deleteEntry(String id) throws ClientException {
+    public void deleteEntry(String id) {
         init();
         // If we are removing a entry from the master, update the slave(s)
         // even if the master is in read-only mode
@@ -529,7 +528,7 @@ public class ResilientDirectorySession extends BaseSession {
     }
 
     @Override
-    public void updateEntry(DocumentModel docModel) throws ClientException {
+    public void updateEntry(DocumentModel docModel) {
         init();
         if (isReadOnly() || isReadOnlyEntry(docModel)) {
             return;
@@ -543,25 +542,25 @@ public class ResilientDirectorySession extends BaseSession {
     }
 
     @Override
-    public DocumentModelList query(Map<String, Serializable> filter) throws ClientException {
+    public DocumentModelList query(Map<String, Serializable> filter) {
         return query(filter, Collections.<String> emptySet());
     }
 
     @Override
-    public DocumentModelList query(Map<String, Serializable> filter, Set<String> fulltext) throws ClientException {
+    public DocumentModelList query(Map<String, Serializable> filter, Set<String> fulltext) {
         return query(filter, fulltext, Collections.<String, String> emptyMap());
     }
 
     @Override
     @SuppressWarnings("boxing")
     public DocumentModelList query(Map<String, Serializable> filter, Set<String> fulltext, Map<String, String> orderBy)
-            throws ClientException {
+            {
         return query(filter, fulltext, orderBy, false);
     }
 
     @Override
     public DocumentModelList query(Map<String, Serializable> filter, Set<String> fulltext, Map<String, String> orderBy,
-            boolean fetchReferences) throws ClientException {
+            boolean fetchReferences) {
         init();
 
         // list of entries
@@ -617,13 +616,13 @@ public class ResilientDirectorySession extends BaseSession {
     }
 
     @Override
-    public List<String> getProjection(Map<String, Serializable> filter, String columnName) throws ClientException {
+    public List<String> getProjection(Map<String, Serializable> filter, String columnName) {
         return getProjection(filter, Collections.<String> emptySet(), columnName);
     }
 
     @Override
     public List<String> getProjection(Map<String, Serializable> filter, Set<String> fulltext, String columnName)
-            throws ClientException {
+            {
 
         final DocumentModelList entries = query(filter, fulltext);
         final List<String> results = new ArrayList<String>(entries.size());
@@ -639,13 +638,13 @@ public class ResilientDirectorySession extends BaseSession {
     }
 
     @Override
-    public DocumentModel createEntry(DocumentModel entry) throws ClientException {
+    public DocumentModel createEntry(DocumentModel entry) {
         Map<String, Object> fieldMap = entry.getProperties(schemaName);
         return createEntry(fieldMap);
     }
 
     @Override
-    public boolean hasEntry(String id) throws ClientException {
+    public boolean hasEntry(String id) {
         init();
         try {
             boolean masterHasEntry = masterSubDirectoryInfo.getSession().hasEntry(id);

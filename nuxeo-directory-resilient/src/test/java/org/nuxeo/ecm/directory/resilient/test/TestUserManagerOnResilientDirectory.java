@@ -113,7 +113,7 @@ public class TestUserManagerOnResilientDirectory extends LDAPDirectoryTestCase {
     }
 
     @Test
-    public void TestCreateUserAndGroup() throws ClientException {
+    public void TestCreateUserAndGroup() {
         if (USE_EXTERNAL_TEST_LDAP_SERVER) {
             String testUsername = "John";
             String testGroup = "johnsGroup";
@@ -142,7 +142,7 @@ public class TestUserManagerOnResilientDirectory extends LDAPDirectoryTestCase {
         }
     }
 
-    private void AddUserToGroup(String username, String group) throws ClientException {
+    private void AddUserToGroup(String username, String group) {
         // Get user
         NuxeoPrincipal user = userManager.getPrincipal(username);
 

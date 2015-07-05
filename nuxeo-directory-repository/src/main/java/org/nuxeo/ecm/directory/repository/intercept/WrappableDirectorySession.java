@@ -13,15 +13,15 @@ public interface WrappableDirectorySession {
 
     DocumentModel doGetEntry(String id, boolean fetchReferences) throws DirectoryException;
 
-    DocumentModel doCreateEntry(Map<String, Object> fieldMap) throws ClientException, DirectoryException;
+    DocumentModel doCreateEntry(Map<String, Object> fieldMap) throws DirectoryException;
 
-    void doUpdateEntry(DocumentModel docModel) throws ClientException, DirectoryException;
+    void doUpdateEntry(DocumentModel docModel) throws DirectoryException;
 
-    void doDeleteEntry(String id) throws ClientException;
+    void doDeleteEntry(String id);
 
     DocumentModelList doQuery(Map<String, Serializable> filter, Set<String> fulltext, Map<String, String> orderBy,
-            boolean fetchReferences, int limit, int offset) throws ClientException, DirectoryException;
+            boolean fetchReferences, int limit, int offset) throws DirectoryException;
 
-    boolean doAuthenticate(String username, String password) throws ClientException;
+    boolean doAuthenticate(String username, String password);
 
 }

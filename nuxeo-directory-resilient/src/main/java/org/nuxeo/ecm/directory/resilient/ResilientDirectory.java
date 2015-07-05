@@ -53,13 +53,13 @@ public class ResilientDirectory extends AbstractDirectory {
 
     private Map<String, Field> schemaFieldMap;
 
-    public ResilientDirectory(ResilientDirectoryDescriptor descriptor) throws ClientException {
+    public ResilientDirectory(ResilientDirectoryDescriptor descriptor) {
         super(descriptor.name);
         this.descriptor = descriptor;
 
     }
 
-    private boolean checkSlaveSubDirectory(String masterSchemaName) throws ClientException {
+    private boolean checkSlaveSubDirectory(String masterSchemaName) {
         boolean slaveFound = false;
         for (SubDirectoryDescriptor sub : descriptor.subDirectories) {
             Directory subDir = ResilientDirectoryFactory.getDirectoryService().getDirectory(sub.name);

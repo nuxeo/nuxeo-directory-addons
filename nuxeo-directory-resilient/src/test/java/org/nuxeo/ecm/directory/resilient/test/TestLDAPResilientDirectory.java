@@ -95,7 +95,7 @@ public class TestLDAPResilientDirectory extends LDAPDirectoryTestCase {
     }
 
     @Test
-    public void testCreateEntry() throws ClientException {
+    public void testCreateEntry() {
         if (USE_EXTERNAL_TEST_LDAP_SERVER) {
             HashMap<String, Object> e = new HashMap<String, Object>();
             e.put("usr:username", "myUser");

@@ -16,15 +16,15 @@ public interface DirectorySessionWrapper {
 
     DocumentModel getEntry(String id, boolean fetchReferences) throws DirectoryException;
 
-    DocumentModel createEntry(Map<String, Object> fieldMap) throws ClientException, DirectoryException;
+    DocumentModel createEntry(Map<String, Object> fieldMap) throws DirectoryException;
 
-    void updateEntry(DocumentModel docModel) throws ClientException, DirectoryException;
+    void updateEntry(DocumentModel docModel) throws DirectoryException;
 
-    void deleteEntry(String id) throws ClientException;
+    void deleteEntry(String id);
 
     DocumentModelList query(Map<String, Serializable> filter, Set<String> fulltext, Map<String, String> orderBy,
-            boolean fetchReferences, int limit, int offset) throws ClientException, DirectoryException;
+            boolean fetchReferences, int limit, int offset) throws DirectoryException;
 
-    boolean authenticate(String username, String password) throws ClientException;
+    boolean authenticate(String username, String password);
 
 }

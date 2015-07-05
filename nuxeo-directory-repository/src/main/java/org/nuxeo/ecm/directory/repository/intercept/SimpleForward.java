@@ -28,28 +28,28 @@ public class SimpleForward implements DirectorySessionWrapper {
     }
 
     @Override
-    public DocumentModel createEntry(Map<String, Object> fieldMap) throws ClientException, DirectoryException {
+    public DocumentModel createEntry(Map<String, Object> fieldMap) throws DirectoryException {
         return wrappedSession.doCreateEntry(fieldMap);
     }
 
     @Override
-    public void updateEntry(DocumentModel docModel) throws ClientException, DirectoryException {
+    public void updateEntry(DocumentModel docModel) throws DirectoryException {
         wrappedSession.doUpdateEntry(docModel);
     }
 
     @Override
-    public void deleteEntry(String id) throws ClientException {
+    public void deleteEntry(String id) {
         wrappedSession.doDeleteEntry(id);
     }
 
     @Override
     public DocumentModelList query(Map<String, Serializable> filter, Set<String> fulltext, Map<String, String> orderBy,
-            boolean fetchReferences, int limit, int offset) throws ClientException, DirectoryException {
+            boolean fetchReferences, int limit, int offset) throws DirectoryException {
         return wrappedSession.doQuery(filter, fulltext, orderBy, fetchReferences, limit, offset);
     }
 
     @Override
-    public boolean authenticate(String username, String password) throws ClientException {
+    public boolean authenticate(String username, String password) {
         return wrappedSession.doAuthenticate(username, password);
     }
 

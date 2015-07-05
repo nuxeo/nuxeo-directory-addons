@@ -142,7 +142,7 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
     }
 
     @Override
-    public DocumentModelList getEntries() throws ClientException, DirectoryException {
+    public DocumentModelList getEntries() throws DirectoryException {
         throw new UnsupportedOperationException();
     }
 
@@ -155,13 +155,13 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
     }
 
     @Override
-    public DocumentModel createEntry(Map<String, Object> fieldMap) throws ClientException, DirectoryException {
+    public DocumentModel createEntry(Map<String, Object> fieldMap) throws DirectoryException {
         return wrapper.createEntry(fieldMap);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public DocumentModel doCreateEntry(Map<String, Object> fieldMap) throws ClientException, DirectoryException {
+    public DocumentModel doCreateEntry(Map<String, Object> fieldMap) throws DirectoryException {
 
         if (isReadOnly()) {
             log.warn(String.format("The directory '%s' is in read-only mode, could not create entry.", directory.name));
@@ -199,13 +199,13 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
     }
 
     @Override
-    public void updateEntry(DocumentModel docModel) throws ClientException, DirectoryException {
+    public void updateEntry(DocumentModel docModel) throws DirectoryException {
         wrapper.updateEntry(docModel);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public void doUpdateEntry(DocumentModel docModel) throws ClientException, DirectoryException {
+    public void doUpdateEntry(DocumentModel docModel) throws DirectoryException {
         if (isReadOnly()) {
             log.warn(String.format("The directory '%s' is in read-only mode, could not update entry.", directory.name));
         } else {
@@ -256,18 +256,18 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
     }
 
     @Override
-    public void deleteEntry(DocumentModel docModel) throws ClientException, DirectoryException {
+    public void deleteEntry(DocumentModel docModel) throws DirectoryException {
         String id = (String) docModel.getProperty(schemaName, schemaIdField);
         deleteEntry(id);
     }
 
     @Override
-    public void deleteEntry(String id) throws ClientException, DirectoryException {
+    public void deleteEntry(String id) throws DirectoryException {
         wrapper.deleteEntry(id);
     }
 
     @Override
-    public void doDeleteEntry(String id) throws ClientException, DirectoryException {
+    public void doDeleteEntry(String id) throws DirectoryException {
         if (isReadOnly()) {
             log.warn(String.format("The directory '%s' is in read-only mode, could not delete entry.", directory.name));
         } else {
@@ -283,7 +283,7 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
     }
 
     @Override
-    public void deleteEntry(String id, Map<String, String> map) throws ClientException, DirectoryException {
+    public void deleteEntry(String id, Map<String, String> map) throws DirectoryException {
         if (isReadOnly()) {
             log.warn(String.format("The directory '%s' is in read-only mode, could not delete entry.", directory.name));
         }
@@ -304,21 +304,21 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
     }
 
     @Override
-    public DocumentModelList query(Map<String, Serializable> filter) throws ClientException {
+    public DocumentModelList query(Map<String, Serializable> filter) {
         Set<String> emptySet = Collections.emptySet();
         return query(filter, emptySet);
     }
 
     @Override
     public DocumentModelList query(Map<String, Serializable> filter, Set<String> fulltext, Map<String, String> orderBy)
-            throws ClientException {
+            {
         // XXX not fetch references by default: breaks current behavior
         return query(filter, fulltext, orderBy, false);
     }
 
     @Override
     public DocumentModelList query(Map<String, Serializable> filter, Set<String> fulltext, Map<String, String> orderBy,
-            boolean fetchReferences) throws ClientException {
+            boolean fetchReferences) {
         return query(filter, fulltext, orderBy, fetchReferences, 0, 0);
     }
 
@@ -329,13 +329,13 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
 
     @Override
     public DocumentModelList query(Map<String, Serializable> filter, Set<String> fulltext, Map<String, String> orderBy,
-            boolean fetchReferences, int limit, int offset) throws ClientException, DirectoryException {
+            boolean fetchReferences, int limit, int offset) throws DirectoryException {
         return wrapper.query(filter, fulltext, orderBy, fetchReferences, limit, offset);
     }
 
     @Override
     public DocumentModelList doQuery(final Map<String, Serializable> filter, final Set<String> fulltext,
-            Map<String, String> orderBy, boolean fetchReferences, int limit, int offset) throws ClientException,
+            Map<String, String> orderBy, boolean fetchReferences, int limit, int offset) throws
             DirectoryException {
         StringBuilder sbQuery = new StringBuilder("SELECT * FROM ");
         sbQuery.append(docType);
@@ -404,7 +404,7 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
     }
 
     @Override
-    public DocumentModelList query(Map<String, Serializable> filter, Set<String> fulltext) throws ClientException,
+    public DocumentModelList query(Map<String, Serializable> filter, Set<String> fulltext) throws
             DirectoryException {
         return query(filter, fulltext, new HashMap<String, String>());
     }
@@ -416,7 +416,7 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
     }
 
     @Override
-    public List<String> getProjection(Map<String, Serializable> filter, String columnName) throws ClientException,
+    public List<String> getProjection(Map<String, Serializable> filter, String columnName) throws
             DirectoryException {
         // TODO Auto-generated method stub
         // return null;
@@ -425,19 +425,19 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
 
     @Override
     public List<String> getProjection(Map<String, Serializable> filter, Set<String> fulltext, String columnName)
-            throws ClientException, DirectoryException {
+            throws DirectoryException {
         // TODO Auto-generated method stub
         // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean authenticate(String username, String password) throws ClientException {
+    public boolean authenticate(String username, String password) {
         return wrapper.authenticate(username, password);
     }
 
     @Override
-    public boolean doAuthenticate(String username, String password) throws ClientException {
+    public boolean doAuthenticate(String username, String password) {
         DocumentModel entry = getEntry(username);
         if (entry == null) {
             return false;
@@ -447,32 +447,32 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
     }
 
     @Override
-    public boolean isAuthenticating() throws ClientException {
+    public boolean isAuthenticating() {
         return schemaPasswordField != null;
     }
 
     @Override
-    public String getIdField() throws ClientException {
+    public String getIdField() {
         return directory.getDescriptor().idField;
     }
 
     @Override
-    public String getPasswordField() throws ClientException {
+    public String getPasswordField() {
         return directory.getDescriptor().passwordField;
     }
 
     @Override
-    public boolean isReadOnly() throws ClientException {
+    public boolean isReadOnly() {
         return directory.getDescriptor().readOnly;
     }
 
     @Override
-    public boolean hasEntry(String id) throws ClientException {
+    public boolean hasEntry(String id) {
         return getEntry(id) != null;
     }
 
     @Override
-    public DocumentModel createEntry(DocumentModel entry) throws ClientException {
+    public DocumentModel createEntry(DocumentModel entry) {
         Map<String, Object> fieldMap = entry.getProperties(schemaName);
         return createEntry(fieldMap);
     }

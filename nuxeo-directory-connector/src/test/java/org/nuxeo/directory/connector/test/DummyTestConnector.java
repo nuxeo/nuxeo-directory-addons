@@ -54,7 +54,7 @@ public class DummyTestConnector extends AbstractEntryConnector implements EntryC
         return searchHelper.queryEntryIds(filter, fulltext);
     }
 
-    public boolean hasEntry(String id) throws ClientException {
+    public boolean hasEntry(String id) {
         return params.keySet().contains(id);
     }
 
