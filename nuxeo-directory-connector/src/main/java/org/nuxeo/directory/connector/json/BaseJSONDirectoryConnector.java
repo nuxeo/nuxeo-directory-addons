@@ -12,7 +12,7 @@ import org.codehaus.jackson.map.type.MapType;
 import org.codehaus.jackson.type.TypeReference;
 import org.nuxeo.directory.connector.AbstractEntryConnector;
 import org.nuxeo.directory.connector.ConnectorBasedDirectoryDescriptor;
-import org.nuxeo.ecm.core.api.ClientRuntimeException;
+import org.nuxeo.ecm.core.api.NuxeoException;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -49,14 +49,13 @@ public abstract class BaseJSONDirectoryConnector extends AbstractEntryConnector 
         ClientResponse response = webResource.accept("application/json").get(ClientResponse.class);
 
         if (response.getStatus() != 200) {
-            throw new ClientRuntimeException("Failed to call remote service : HTTP error code : "
-                    + response.getStatus());
+            throw new NuxeoException("Failed to call remote service: HTTP error code: " + response.getStatus());
         }
 
         try {
             return getMapper().readTree(response.getEntityInputStream());
-        } catch (Exception e) {
-            throw new ClientRuntimeException("Erroe while reading JSON response", e);
+        } catch (IOException e) {
+            throw new NuxeoException("Error while reading JSON response", e);
         }
 
     }
