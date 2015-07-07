@@ -169,6 +169,7 @@ public class TestUserManagerOnResilientDirectory extends LDAPDirectoryTestCase {
         }
     }
 
+    @Ignore("NXP-17461")
     @Test
     public void TestFallback() throws Exception {
         // Get

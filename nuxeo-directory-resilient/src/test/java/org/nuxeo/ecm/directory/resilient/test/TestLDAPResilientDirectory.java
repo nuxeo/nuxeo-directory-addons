@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.DocumentModel;
@@ -107,6 +108,7 @@ public class TestLDAPResilientDirectory extends LDAPDirectoryTestCase {
         }
     }
 
+    @Ignore("NXP-17461")
     @Test
     public void testFallbackOnGetEntry() throws Exception {
         DocumentModel entry = resUserDirSession.getEntry("user1");
