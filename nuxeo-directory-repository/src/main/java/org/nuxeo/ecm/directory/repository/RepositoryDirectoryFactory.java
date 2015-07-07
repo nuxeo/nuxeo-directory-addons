@@ -20,8 +20,6 @@ package org.nuxeo.ecm.directory.repository;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.nuxeo.ecm.directory.Directory;
 import org.nuxeo.ecm.directory.DirectoryException;
 import org.nuxeo.ecm.directory.DirectoryFactory;
@@ -39,10 +37,6 @@ import org.nuxeo.runtime.model.Extension;
 public class RepositoryDirectoryFactory extends DefaultComponent implements DirectoryFactory {
 
     public static final String NAME = "org.nuxeo.ecm.directory.repository.RepositoryDirectoryFactory";
-
-    private static final Log log = LogFactory.getLog(RepositoryDirectoryFactory.class);
-
-    private static DirectoryService directoryService;
 
     protected RepositoryDirectoryRegistry directories;
 
@@ -67,18 +61,7 @@ public class RepositoryDirectoryFactory extends DefaultComponent implements Dire
     }
 
     public static DirectoryService getDirectoryService() {
-        directoryService = (DirectoryService) Framework.getRuntime().getComponent(DirectoryService.NAME);
-        if (directoryService == null) {
-            directoryService = Framework.getLocalService(DirectoryService.class);
-            if (directoryService == null) {
-                try {
-                    directoryService = Framework.getService(DirectoryService.class);
-                } catch (Exception e) {
-                    log.error("Can't find Directory Service", e);
-                }
-            }
-        }
-        return directoryService;
+        return Framework.getService(DirectoryService.class);
     }
 
     @Override

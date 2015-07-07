@@ -34,7 +34,7 @@ import org.nuxeo.runtime.api.Framework;
 
 /**
  * Directory on top of repository descriptor
- * 
+ *
  * @since 5.9.6
  */
 @XObject(value = "directory")
@@ -201,7 +201,7 @@ public class RepositoryDirectoryDescriptor implements Cloneable {
             if (wrapperClass != null) {
                 try {
                     wrapper = wrapperClass.newInstance();
-                } catch (Exception e) {
+                } catch (ReflectiveOperationException e) {
                     log.error("Unable to create Wrapper class " + wrapperClass.getCanonicalName(), e);
                 }
             }

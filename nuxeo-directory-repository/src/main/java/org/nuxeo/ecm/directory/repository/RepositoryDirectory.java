@@ -20,7 +20,6 @@ package org.nuxeo.ecm.directory.repository;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.CoreInstance;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
@@ -30,6 +29,7 @@ import org.nuxeo.ecm.core.api.UnrestrictedSessionRunner;
 import org.nuxeo.ecm.core.api.security.ACE;
 import org.nuxeo.ecm.core.api.security.ACL;
 import org.nuxeo.ecm.core.api.security.ACP;
+import org.nuxeo.ecm.core.model.NoSuchDocumentException;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.types.Field;
 import org.nuxeo.ecm.core.schema.types.Schema;
@@ -75,13 +75,9 @@ public class RepositoryDirectory extends AbstractDirectory {
                 String createPath = descriptor.createPath;
 
                 DocumentModel rootFolder = null;
-                try {
-                    DocumentRef rootRef = new PathRef(createPath);
-                    if (session.exists(rootRef)) {
-                        rootFolder = session.getDocument(rootRef);
-                    }
-                } catch (ClientException e) {
-                    log.error("Unable to fetch Root Document", e);
+                DocumentRef rootRef = new PathRef(createPath);
+                if (session.exists(rootRef)) {
+                    rootFolder = session.getDocument(rootRef);
                 }
 
                 if (rootFolder == null) {
@@ -110,7 +106,7 @@ public class RepositoryDirectory extends AbstractDirectory {
                             }
                             session.save();
 
-                        } catch (ClientException e) {
+                        } catch (NoSuchDocumentException e) {
                             throw new DirectoryException(String.format(
                                     "The root folder '%s' can not be created under '%s' for the directory '%s' on the repository '%s',"
                                             + " please make sure you have set the right path or that the path exist",

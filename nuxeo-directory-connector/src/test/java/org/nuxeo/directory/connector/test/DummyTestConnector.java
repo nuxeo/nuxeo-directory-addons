@@ -12,7 +12,6 @@ import org.nuxeo.directory.connector.AbstractEntryConnector;
 import org.nuxeo.directory.connector.ConnectorBasedDirectoryDescriptor;
 import org.nuxeo.directory.connector.EntryConnector;
 import org.nuxeo.directory.connector.InMemorySearchHelper;
-import org.nuxeo.ecm.core.api.ClientException;
 
 public class DummyTestConnector extends AbstractEntryConnector implements EntryConnector {
 

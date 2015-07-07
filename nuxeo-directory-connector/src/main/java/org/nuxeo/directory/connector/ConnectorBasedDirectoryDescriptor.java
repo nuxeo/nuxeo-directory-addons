@@ -61,7 +61,7 @@ public class ConnectorBasedDirectoryDescriptor implements Serializable {
             try {
                 connector = (EntryConnector) connectorClass.newInstance();
                 connector.init(this);
-            } catch (Exception e) {
+            } catch (ReflectiveOperationException e) {
                 log.error("Unable to get connector", e);
             }
         }

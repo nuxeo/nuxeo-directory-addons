@@ -16,7 +16,6 @@ import org.codehaus.jackson.type.TypeReference;
 import org.nuxeo.directory.connector.ConnectorBasedDirectoryDescriptor;
 import org.nuxeo.directory.connector.EntryConnector;
 import org.nuxeo.directory.connector.InMemorySearchHelper;
-import org.nuxeo.ecm.core.api.ClientException;
 
 public class JsonInMemoryDirectoryConnector extends BaseJSONDirectoryConnector implements EntryConnector {
 

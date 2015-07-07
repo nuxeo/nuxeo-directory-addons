@@ -30,10 +30,10 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentModelList;
 import org.nuxeo.ecm.core.api.impl.DocumentModelListImpl;
+import org.nuxeo.ecm.core.query.QueryParseException;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.types.Field;
 import org.nuxeo.ecm.directory.BaseSession;
@@ -229,16 +229,8 @@ public class ResilientDirectorySession extends BaseSession {
         // master, but slave will be replicated in any case
         // So return the value of the master directory, to warn the caller if
         // new entry will be created on master or not
-        try {
-            init();
-            return masterSubDirectoryInfo.getSession().isReadOnly();
-        } catch (ClientException e) {
-            log.warn(String.format("Unable to get the read-only value of the master directory '%s'",
-                    masterSubDirectoryInfo.dirName), e);
-            // If we are not able to know if the master is in read-only, do not
-            // allow to add values into slaves
-            return true;
-        }
+        init();
+        return masterSubDirectoryInfo.getSession().isReadOnly();
     }
 
     /**
@@ -261,7 +253,7 @@ public class ResilientDirectorySession extends BaseSession {
             try {
                 docModel = masterSubDirectoryInfo.getSession().getEntry(entryId);
 
-            } catch (ClientException e) {
+            } catch (DirectoryException e) {
                 log.warn(String.format(
                         "Unable to get the entry id %s on master directory '%s'  while updating slave directory",
                         entryId, masterSubDirectoryInfo.dirName), e);
@@ -318,7 +310,7 @@ public class ResilientDirectorySession extends BaseSession {
                         }
                     }
 
-                    catch (ClientException e) {
+                    catch (DirectoryException e) {
                         log.warn(String.format("Unable to update the slave directory %s on entry id %s",
                                 subDirInfo.dirName, entryId), e);
                     }
@@ -336,7 +328,7 @@ public class ResilientDirectorySession extends BaseSession {
                     }
                 }
 
-                catch (ClientException e) {
+                catch (DirectoryException e) {
                     log.warn(String.format("Unable to delete the slave directory %s on entry id %s",
                             subDirInfo.dirName, entryId), e);
                 }
@@ -518,13 +510,7 @@ public class ResilientDirectorySession extends BaseSession {
     @Override
     public void deleteEntry(String id, Map<String, String> map) throws DirectoryException {
         log.warn("Calling deleteEntry extended on resilient directory");
-        try {
-            deleteEntry(id);
-        } catch (DirectoryException e) {
-            throw e;
-        } catch (ClientException e) {
-            throw new DirectoryException(e);
-        }
+        deleteEntry(id);
     }
 
     @Override
@@ -578,14 +564,14 @@ public class ResilientDirectorySession extends BaseSession {
                     // =>Cron job ? see getEntries for a common solution ?
                     bulkUpdateMasterOnSlave(results, slaveResults);
 
-                } catch (ClientException exc) {
+                } catch (DirectoryException exc) {
                     log.warn(
                             String.format(
                                     "Resilient directory '%s' : Unable to query entries on slave directory '%s'for synchronization",
                                     descriptor.name, masterSubDirectoryInfo.dirName), exc);
                 }
             }
-        } catch (ClientException e) {
+        } catch (DirectoryException e) {
             log.warn(String.format(
                     "Resilient directory '%s' : Unable to query entries on master directory '%s', fallback on slaves",
                     descriptor.name, masterSubDirectoryInfo.dirName), e);
@@ -595,7 +581,7 @@ public class ResilientDirectorySession extends BaseSession {
                 try {
                     results.addAll(subDirectoryInfo.getSession().query(filter, fulltext, orderBy, fetchReferences));
                     break;
-                } catch (ClientException exc) {
+                } catch (DirectoryException exc) {
                     log.warn(
                             String.format(
                                     "Resilient directory '%s' : Unable to query entries on slave directory '%s', fallback on another slave if it exists",

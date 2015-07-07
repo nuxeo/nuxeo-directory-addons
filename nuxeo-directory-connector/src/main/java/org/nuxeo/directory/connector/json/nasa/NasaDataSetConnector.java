@@ -9,7 +9,6 @@ import java.util.Set;
 
 import org.codehaus.jackson.JsonNode;
 import org.nuxeo.directory.connector.json.BaseJSONDirectoryConnector;
-import org.nuxeo.ecm.core.api.ClientException;
 
 public class NasaDataSetConnector extends BaseJSONDirectoryConnector {
 

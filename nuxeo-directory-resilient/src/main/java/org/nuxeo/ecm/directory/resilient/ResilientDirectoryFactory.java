@@ -22,8 +22,6 @@ package org.nuxeo.ecm.directory.resilient;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.nuxeo.ecm.directory.Directory;
 import org.nuxeo.ecm.directory.DirectoryException;
 import org.nuxeo.ecm.directory.DirectoryFactory;
@@ -40,10 +38,6 @@ import org.nuxeo.runtime.model.Extension;
 public class ResilientDirectoryFactory extends DefaultComponent implements DirectoryFactory {
 
     private static final String NAME = "org.nuxeo.ecm.directory.resilient.ResilientDirectoryFactory";
-
-    private static final Log log = LogFactory.getLog(ResilientDirectoryFactory.class);
-
-    private static DirectoryService directoryService;
 
     protected ResilentDirectoryRegistry directories;
 
@@ -68,18 +62,7 @@ public class ResilientDirectoryFactory extends DefaultComponent implements Direc
     }
 
     public static DirectoryService getDirectoryService() {
-        directoryService = (DirectoryService) Framework.getRuntime().getComponent(DirectoryService.NAME);
-        if (directoryService == null) {
-            directoryService = Framework.getLocalService(DirectoryService.class);
-            if (directoryService == null) {
-                try {
-                    directoryService = Framework.getService(DirectoryService.class);
-                } catch (Exception e) {
-                    log.error("Can't find Directory Service", e);
-                }
-            }
-        }
-        return directoryService;
+        return Framework.getService(DirectoryService.class);
     }
 
     @Override

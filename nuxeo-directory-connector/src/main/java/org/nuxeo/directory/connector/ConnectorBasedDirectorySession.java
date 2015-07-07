@@ -9,11 +9,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentModelList;
 import org.nuxeo.ecm.core.api.impl.DocumentModelListImpl;
 import org.nuxeo.ecm.core.api.model.PropertyException;
+import org.nuxeo.ecm.core.api.model.PropertyNotFoundException;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.types.Field;
 import org.nuxeo.ecm.core.schema.types.Schema;
@@ -104,7 +104,7 @@ public class ConnectorBasedDirectorySession extends BaseSession implements Sessi
                     List<String> targetIds = reference.getTargetIdsForSource(entry.getId());
                     try {
                         entry.setProperty(directory.schemaName, reference.getFieldName(), targetIds);
-                    } catch (ClientException e) {
+                    } catch (PropertyNotFoundException e) {
                         throw new DirectoryException(e);
                     }
                 }
@@ -209,7 +209,7 @@ public class ConnectorBasedDirectorySession extends BaseSession implements Sessi
             Object value;
             try {
                 value = doc.getProperty(directory.schemaName, columnName);
-            } catch (ClientException e) {
+            } catch (PropertyNotFoundException e) {
                 throw new DirectoryException(e);
             }
             if (value != null) {

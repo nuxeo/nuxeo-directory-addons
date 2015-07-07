@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.nuxeo.ecm.core.api.ClientException;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.types.Field;
 import org.nuxeo.ecm.core.schema.types.Schema;
@@ -69,12 +68,7 @@ public class ConnectorBasedDirectory extends AbstractDirectory {
         for (Field f : fields) {
             schemaSet.add(f.getName().getLocalName());
         }
-
-        try {
-            addReferences(descriptor.getInverseReferences());
-        } catch (ClientException e) {
-            log.error("Error during Connector based Directory initialization", e);
-        }
+        addReferences(descriptor.getInverseReferences());
     }
 
     public String getName() {
