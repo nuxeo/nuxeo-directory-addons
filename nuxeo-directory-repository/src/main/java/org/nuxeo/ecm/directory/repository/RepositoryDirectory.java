@@ -23,13 +23,13 @@ import org.apache.commons.logging.LogFactory;
 import org.nuxeo.ecm.core.api.CoreInstance;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
+import org.nuxeo.ecm.core.api.DocumentNotFoundException;
 import org.nuxeo.ecm.core.api.DocumentRef;
 import org.nuxeo.ecm.core.api.PathRef;
 import org.nuxeo.ecm.core.api.UnrestrictedSessionRunner;
 import org.nuxeo.ecm.core.api.security.ACE;
 import org.nuxeo.ecm.core.api.security.ACL;
 import org.nuxeo.ecm.core.api.security.ACP;
-import org.nuxeo.ecm.core.model.NoSuchDocumentException;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.types.Field;
 import org.nuxeo.ecm.core.schema.types.Schema;
@@ -106,7 +106,7 @@ public class RepositoryDirectory extends AbstractDirectory {
                             }
                             session.save();
 
-                        } catch (NoSuchDocumentException e) {
+                        } catch (DocumentNotFoundException e) {
                             throw new DirectoryException(String.format(
                                     "The root folder '%s' can not be created under '%s' for the directory '%s' on the repository '%s',"
                                             + " please make sure you have set the right path or that the path exist",
