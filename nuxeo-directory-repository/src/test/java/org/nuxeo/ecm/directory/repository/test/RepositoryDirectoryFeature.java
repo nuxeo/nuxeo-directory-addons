@@ -44,7 +44,8 @@ import com.google.inject.Provider;
 import com.google.inject.name.Names;
 
 @Features(CoreFeature.class)
-@RepositoryConfig(init = RepositoryDirectoryInit.class, cleanup = Granularity.METHOD)
+// Use granularity class to avoid cleaning the bootstrapped folder of the bundle between test method
+@RepositoryConfig(init = RepositoryDirectoryInit.class, cleanup = Granularity.CLASS)
 @Deploy({ "org.nuxeo.ecm.directory.api", "org.nuxeo.ecm.directory", "org.nuxeo.ecm.directory.sql",
         "org.nuxeo.ecm.core.schema", "org.nuxeo.ecm.directory.types.contrib", "org.nuxeo.ecm.platform.usermanager",
         "org.nuxeo.ecm.platform.usermanager.api", "org.nuxeo.ecm.directory.repository" })
@@ -65,13 +66,6 @@ public class RepositoryDirectoryFeature extends SimpleFeature {
     protected CoreSession coreSession;
 
     protected static final Log log = LogFactory.getLog(RepositoryDirectoryFeature.class);
-
-    @Override
-    public void initialize(FeaturesRunner runner) throws Exception {
-        // Use granularity class to avoid cleaning the bootstrapped folder of
-        // the bundle between test method
-        runner.getFeature(CoreFeature.class).getRepository().setGranularity(Granularity.CLASS);
-    }
 
     @Override
     public void configure(final FeaturesRunner runner, Binder binder) {
