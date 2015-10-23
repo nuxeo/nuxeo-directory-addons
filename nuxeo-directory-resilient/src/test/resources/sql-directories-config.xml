@@ -10,12 +10,7 @@
     <directory name="sqlUserDirectory">
 
       <schema>user</schema>
-
-      <dbDriver>${nuxeo.test.vcs.driver}</dbDriver>
-      <dbUrl>${nuxeo.test.vcs.url}</dbUrl>
-      <dbUser>${nuxeo.test.vcs.user}</dbUser>
-      <dbPassword>${nuxeo.test.vcs.password}</dbPassword>
-
+      <dataSource>java:/nxsqldirectory</dataSource>
       <table>user</table>
       <idField>username</idField>
       <passwordField>password</passwordField>
@@ -35,11 +30,7 @@
     <directory name="sqlGroupDirectory">
       <schema>group</schema>
       <idField>groupname</idField>
-
-      <dbDriver>${nuxeo.test.vcs.driver}</dbDriver>
-      <dbUrl>${nuxeo.test.vcs.url}</dbUrl>
-      <dbUser>${nuxeo.test.vcs.user}</dbUser>
-      <dbPassword>${nuxeo.test.vcs.password}</dbPassword>
+      <dataSource>java:/nxsqldirectory</dataSource>
       <table>group</table>
 
       <createTablePolicy>always</createTablePolicy>
