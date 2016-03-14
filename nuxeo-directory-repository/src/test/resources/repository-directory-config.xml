@@ -28,7 +28,7 @@
       </references>
 
     </directory>
-    
+
     <directory name="groupRepositoryDirectory">
       <schema>schema1</schema>
       <docType>OtherDirDoc</docType>

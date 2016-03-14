@@ -120,13 +120,10 @@ public class RepositoryDirectoryReference extends AbstractReference {
     }
 
     @Override
-    protected AbstractReference newInstance() {
-        return new RepositoryDirectoryReference();
-    }
-
-    @Override
-    public AbstractReference clone() {
-        return super.clone();
+    public RepositoryDirectoryReference clone() {
+        RepositoryDirectoryReference clone = (RepositoryDirectoryReference) super.clone();
+        // basic fields are already copied by super.clone()
+        return clone;
     }
 
 }

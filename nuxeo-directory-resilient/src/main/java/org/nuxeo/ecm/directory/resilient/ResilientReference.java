@@ -33,6 +33,8 @@ import org.nuxeo.ecm.directory.Directory;
 import org.nuxeo.ecm.directory.DirectoryEntryNotFoundException;
 import org.nuxeo.ecm.directory.DirectoryException;
 import org.nuxeo.ecm.directory.Reference;
+import org.nuxeo.ecm.directory.api.DirectoryService;
+import org.nuxeo.runtime.api.Framework;
 
 public class ResilientReference extends AbstractReference {
 
@@ -65,7 +67,7 @@ public class ResilientReference extends AbstractReference {
         Set<String> ids = new HashSet<String>();
         for (SubDirectoryDescriptor sub : dir.getDescriptor().subDirectories) {
 
-            Directory dir = ResilientDirectoryFactory.getDirectoryService().getDirectory(sub.name);
+            Directory dir = Framework.getService(DirectoryService.class).getDirectory(sub.name);
             if (dir == null) {
                 continue;
             }
@@ -128,16 +130,10 @@ public class ResilientReference extends AbstractReference {
      * @since 5.6
      */
     @Override
-    protected AbstractReference newInstance() {
-        return new ResilientReference(dir, fieldName);
-    }
-
-    /**
-     * @since 5.6
-     */
-    @Override
-    public AbstractReference clone() {
-        return super.clone();
+    public ResilientReference clone() {
+        ResilientReference clone = (ResilientReference) super.clone();
+        // basic fields are already copied by super.clone()
+        return clone;
     }
 
 }

@@ -54,7 +54,7 @@ public class TestReadOnlyRepositoryDirectory {
 
     @Before
     public void setUp() throws Exception {
-        ((RepositoryDirectory) repoDir).getDescriptor().readOnly = true;
+        ((RepositoryDirectory) repoDir).getDescriptor().setReadOnly(true);
         dirSystemReadOnlySession = repoDir.getSession();
     }
 

@@ -40,6 +40,7 @@ public class TestUserRepositoryDirectory extends TestRepositoryDirectory {
         dirSession = repoDir.getSession();
     }
 
+    @Override
     @After
     public void tearDown() throws Exception {
         dirSession.close();

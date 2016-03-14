@@ -52,7 +52,15 @@ public class RepositoryDirectoryInit implements RepositoryInit {
 
     @Override
     public void populate(CoreSession session) {
-        // RootFolder should have been bootstrapped by the directory on repository bundle
+        // create root folder manually, like would be done in RepositoryDirectory.start
+        DocumentModel rootFolder = session.createDocumentModel("/", ROOT_FOLDER_PATH.substring(1), "Workspace");
+        rootFolder = session.createDocument(rootFolder);
+        // add write ACL for user_1
+        ACP acp = rootFolder.getACP();
+        ACL localACL = acp.getOrCreateACL();
+        localACL.add(new ACE(RepositoryDirectoryFeature.USER1_NAME, SecurityConstants.WRITE, true));
+        session.setACP(rootFolder.getRef(), acp, true);
+
         DocumentModel doc = session.createDocumentModel(ROOT_FOLDER_PATH, "test", "Workspace");
         doc.setProperty("dublincore", "title", "test");
         doc = session.createDocument(doc);
@@ -61,8 +69,8 @@ public class RepositoryDirectoryInit implements RepositoryInit {
 
         // user_2 has no permission on it
 
-        ACP acp = doc.getACP();
-        ACL localACL = doc.getACP().getOrCreateACL("local");
+        acp = doc.getACP();
+        localACL = doc.getACP().getOrCreateACL("local");
         localACL.clear();
         localACL.add(new ACE("Administrator", SecurityConstants.EVERYTHING, true));
         localACL.add(new ACE(RepositoryDirectoryFeature.USER1_NAME, SecurityConstants.EVERYTHING, true));

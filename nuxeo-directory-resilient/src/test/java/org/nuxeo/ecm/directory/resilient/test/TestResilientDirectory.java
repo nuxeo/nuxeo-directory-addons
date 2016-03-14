@@ -37,8 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import junit.framework.Assert;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,9 +52,10 @@ import org.nuxeo.ecm.directory.DirectoryException;
 import org.nuxeo.ecm.directory.Session;
 import org.nuxeo.ecm.directory.api.DirectoryService;
 import org.nuxeo.ecm.directory.memory.MemoryDirectory;
-import org.nuxeo.ecm.directory.memory.MemoryDirectoryFactory;
+import org.nuxeo.ecm.directory.memory.MemoryDirectoryDescriptor;
 import org.nuxeo.ecm.directory.resilient.ResilientDirectory;
 import org.nuxeo.ecm.directory.resilient.ResilientDirectorySession;
+import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
@@ -81,8 +80,6 @@ public class TestResilientDirectory {
     @Inject
     DirectoryService directoryService;
 
-    MemoryDirectoryFactory memoryDirectoryFactory;
-
     MemoryDirectory memdir1;
 
     MemoryDirectory memdir2;
@@ -94,15 +91,14 @@ public class TestResilientDirectory {
     @Inject
     protected RuntimeHarness harness;
 
+    protected MemoryDirectoryDescriptor desc1;
+
+    protected MemoryDirectoryDescriptor desc2;
+
     @Before
     public void setUp() throws Exception {
-
         // Deploy custom schema
         harness.deployContrib(TEST_BUNDLE, "schemas-config.xml");
-
-        // mem dir factory
-        memoryDirectoryFactory = new MemoryDirectoryFactory();
-        directoryService.registerDirectory("memdirs", memoryDirectoryFactory);
 
         // create and register mem directories
         Map<String, Object> e;
@@ -119,32 +115,46 @@ public class TestResilientDirectory {
         // <passwordField>foo</passwordField>
         // </directory>
 
-        memdir1 = new MemoryDirectory("dir1", "schema1", schema1Set, "uid", "foo");
-        memoryDirectoryFactory.registerDirectory(memdir1);
+        desc1 = new MemoryDirectoryDescriptor();
+        desc1.name = "dir1";
+        desc1.schemaName = "schema1";
+        desc1.schemaSet = schema1Set;
+        desc1.idField = "uid";
+        desc1.passwordField = "foo";
+        directoryService.registerDirectoryDescriptor(desc1);
+        memdir1 = (MemoryDirectory) directoryService.getDirectory("dir1");
 
-        Session dir1 = memdir1.getSession();
-        e = new HashMap<String, Object>();
-        e.put("uid", "1");
-        e.put("foo", "foo1");
-        e.put("bar", "bar1");
-        dir1.createEntry(e);
+        try (Session dir1 = memdir1.getSession()) {
+            e = new HashMap<String, Object>();
+            e.put("uid", "1");
+            e.put("foo", "foo1");
+            e.put("bar", "bar1");
+            dir1.createEntry(e);
 
-        e = new HashMap<String, Object>();
-        e.put("uid", "4");
-        e.put("foo", "foo4");
-        e.put("bar", "bar4");
-        dir1.createEntry(e);
+            e = new HashMap<String, Object>();
+            e.put("uid", "4");
+            e.put("foo", "foo4");
+            e.put("bar", "bar4");
+            dir1.createEntry(e);
+        }
 
         // dir 2
-        memdir2 = new MemoryDirectory("dir2", "schema1", schema1Set, "uid", "foo");
-        memoryDirectoryFactory.registerDirectory(memdir2);
+        desc2 = new MemoryDirectoryDescriptor();
+        desc2.name = "dir2";
+        desc2.schemaName = "schema1";
+        desc2.schemaSet = schema1Set;
+        desc2.idField = "uid";
+        desc2.passwordField = "foo";
+        directoryService.registerDirectoryDescriptor(desc2);
+        memdir2 = (MemoryDirectory) directoryService.getDirectory("dir2");
 
-        Session dir2 = memdir2.getSession();
-        e = new HashMap<String, Object>();
-        e.put("uid", "2");
-        e.put("foo", "foo2");
-        e.put("bar", "bar2");
-        dir2.createEntry(e);
+        try (Session dir2 = memdir2.getSession()) {
+            e = new HashMap<String, Object>();
+            e.put("uid", "2");
+            e.put("foo", "foo2");
+            e.put("bar", "bar2");
+            dir2.createEntry(e);
+        }
 
         // Bundle to be tested
         // deployBundle("org.nuxeo.ecm.directory.resilient");
@@ -159,10 +169,12 @@ public class TestResilientDirectory {
 
     @After
     public void tearDown() throws Exception {
-        memoryDirectoryFactory.unregisterDirectory(memdir1);
-        memoryDirectoryFactory.unregisterDirectory(memdir2);
-        directoryService.unregisterDirectory("memdirs", memoryDirectoryFactory);
-        // super.tearDown();
+        if (dir != null) {
+            dir.close();
+        }
+        directoryService = Framework.getService(DirectoryService.class);
+        directoryService.unregisterDirectoryDescriptor(desc1);
+        directoryService.unregisterDirectoryDescriptor(desc2);
     }
 
     @Test
@@ -432,7 +444,7 @@ public class TestResilientDirectory {
 
         assertTrue(BaseSession.isReadOnlyEntry(dir.getEntry("4")));
 
-        Assert.assertNull(dir2.getEntry("4"));
+        assertNull(dir2.getEntry("4"));
     }
 
     @Test

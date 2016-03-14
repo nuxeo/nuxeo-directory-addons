@@ -29,6 +29,7 @@ import org.nuxeo.common.xmap.annotation.XNodeList;
 import org.nuxeo.common.xmap.annotation.XNodeMap;
 import org.nuxeo.common.xmap.annotation.XObject;
 import org.nuxeo.ecm.core.api.repository.RepositoryManager;
+import org.nuxeo.ecm.directory.BaseDirectoryDescriptor;
 import org.nuxeo.ecm.directory.InverseReference;
 import org.nuxeo.ecm.directory.repository.intercept.DirectorySessionWrapper;
 import org.nuxeo.ecm.directory.repository.intercept.SimpleForward;
@@ -40,49 +41,54 @@ import org.nuxeo.runtime.api.Framework;
  * @since 5.9.6
  */
 @XObject(value = "directory")
-public class RepositoryDirectoryDescriptor implements Cloneable {
+public class RepositoryDirectoryDescriptor extends BaseDirectoryDescriptor {
 
     protected static final Log log = LogFactory.getLog(RepositoryDirectoryDescriptor.class);
 
-    @XNode("@name")
-    public String name;
+    // TODO unused
+    public static final boolean DEFAULT_AUTO_VERSIONING = false;
 
-    @XNode("schema")
-    protected String schemaName;
+    public static final String DEFAULT_CREATE_PATH = "/";
+
+    public static final boolean DEFAULT_CAN_CREATE_ROOT_FOLDER = true;
 
     @XNode("docType")
     protected String docType;
 
-    @XNode("idField")
-    protected String idField;
-
-    @XNode("passwordField")
-    protected String passwordField;
-
-    @XNode("readOnly")
-    public Boolean readOnly;
-
     @XNode("querySizeLimit")
     public Integer querySizeLimit;
 
-    @XNode("@remove")
-    public boolean remove = false;
-
+    // TODO unused
     @XNode("autoVersioning")
-    public boolean autoVersioning = false;
+    public Boolean autoVersioning;
+
+    // TODO unused
+    public boolean getAutoVersioning() {
+        return autoVersioning == null ? DEFAULT_AUTO_VERSIONING : autoVersioning.booleanValue();
+    }
 
     @XNode("repositoryName")
     protected String repositoryName;
 
     @XNode("createPath")
-    protected String createPath = "/";
+    protected String createPath;
+
+    public String getCreatePath() {
+        return createPath == null ? DEFAULT_CREATE_PATH : createPath;
+    }
 
     @XNode("canCreateRootFolder")
-    public boolean canCreateRootFolder = true;
+    protected Boolean canCreateRootFolder;
 
+    public boolean canCreateRootFolder() {
+        return canCreateRootFolder == null ? DEFAULT_CAN_CREATE_ROOT_FOLDER : canCreateRootFolder.booleanValue();
+    }
+
+    // TODO unused
     @XNodeList(value = "references/repositoryDirectoryReference", type = RepositoryDirectoryReference[].class, componentType = RepositoryDirectoryReference.class)
     private RepositoryDirectoryReference[] repositoryDirectoryReference;
 
+    // TODO unused
     @XNodeList(value = "references/inverseReference", type = InverseReference[].class, componentType = InverseReference.class)
     private InverseReference[] inverseReferences;
 
@@ -92,32 +98,18 @@ public class RepositoryDirectoryDescriptor implements Cloneable {
     @XNodeList(value = "acl", type = ACLDescriptor[].class, componentType = ACLDescriptor.class)
     protected ACLDescriptor[] acls;
 
-    protected RepositoryDirectory repositoryDirectory;
-
     @XNode("wrapperClass")
     protected Class<? extends DirectorySessionWrapper> wrapperClass;
 
-    protected DirectorySessionWrapper wrapper = null;
+    protected DirectorySessionWrapper wrapper;
 
     @Override
     public RepositoryDirectoryDescriptor clone() {
-        RepositoryDirectoryDescriptor clone = new RepositoryDirectoryDescriptor();
-        clone.name = name;
-        clone.schemaName = schemaName;
-        clone.idField = idField;
-        clone.passwordField = passwordField;
-        clone.readOnly = readOnly;
-        clone.querySizeLimit = querySizeLimit;
-        clone.remove = remove;
-        clone.autoVersioning = autoVersioning;
-        clone.repositoryName = repositoryName;
-        clone.docType = docType;
-        clone.createPath = createPath;
-        clone.canCreateRootFolder = canCreateRootFolder;
+        RepositoryDirectoryDescriptor clone = (RepositoryDirectoryDescriptor) super.clone();
+        // basic fields are already copied by super.clone()
         clone.fieldMapping = fieldMapping;
-        clone.wrapperClass = wrapperClass;
         if (acls != null) {
-            clone.acls = acls;
+            clone.acls = acls.clone();
         }
         return clone;
     }
@@ -129,73 +121,51 @@ public class RepositoryDirectoryDescriptor implements Cloneable {
         return repositoryName;
     }
 
-    public void merge(RepositoryDirectoryDescriptor other) {
-        merge(other, false);
+    @Override
+    public void merge(BaseDirectoryDescriptor other) {
+        super.merge(other);
+        merge((RepositoryDirectoryDescriptor) other);
     }
 
-    public void merge(RepositoryDirectoryDescriptor other, boolean overwrite) {
-        if (other.schemaName != null || overwrite) {
-            schemaName = other.schemaName;
-        }
-        if (other.docType != null || overwrite) {
+    protected void merge(RepositoryDirectoryDescriptor other) {
+        if (other.docType != null) {
             docType = other.docType;
         }
-        if (other.idField != null || overwrite) {
-            idField = other.idField;
-        }
-        if (other.passwordField != null || overwrite) {
-            passwordField = other.passwordField;
-        }
-        if (other.readOnly != null || overwrite) {
-            readOnly = other.readOnly;
-        }
-        if (other.querySizeLimit != null || overwrite) {
+        if (other.querySizeLimit != null) {
             querySizeLimit = other.querySizeLimit;
         }
-        if (other.repositoryName != null || overwrite) {
+        if (other.autoVersioning != null) {
+            autoVersioning = other.autoVersioning;
+        }
+        if (other.repositoryName != null) {
             repositoryName = other.repositoryName;
         }
-        if (other.createPath != null || overwrite) {
+        if (other.createPath != null) {
             createPath = other.createPath;
         }
-        if (other.docType != null || overwrite) {
+        if (other.docType != null) {
             docType = other.docType;
         }
-        if (other.fieldMapping != null || overwrite) {
+        if (other.fieldMapping != null) {
             fieldMapping = other.fieldMapping;
         }
-        if (other.wrapperClass != null || overwrite) {
+        if (other.wrapperClass != null) {
             wrapperClass = other.wrapperClass;
         }
-
-        autoVersioning = other.autoVersioning;
-        canCreateRootFolder = other.canCreateRootFolder;
-
-        if (other.acls != null || overwrite) {
-            if (acls == null) {
-                acls = other.acls;
-            } else {
-                ACLDescriptor[] otherAcls = new ACLDescriptor[acls.length + other.acls.length];
-                System.arraycopy(acls, 0, otherAcls, 0, acls.length);
-                System.arraycopy(other.acls, 0, otherAcls, acls.length, other.acls.length);
-                acls = otherAcls;
-            }
+        if (other.canCreateRootFolder != null) {
+            canCreateRootFolder = other.canCreateRootFolder;
+        }
+        if (other.acls != null) {
+            ACLDescriptor[] otherAcls = new ACLDescriptor[acls.length + other.acls.length];
+            System.arraycopy(acls, 0, otherAcls, 0, acls.length);
+            System.arraycopy(other.acls, 0, otherAcls, acls.length, other.acls.length);
+            acls = otherAcls;
         }
     }
 
-    public void init() {
-        repositoryDirectory = new RepositoryDirectory(this);
-    }
-
-    public void start() {
-        repositoryDirectory.start();
-    }
-
-    public void stop() {
-        if (repositoryDirectory != null) {
-            repositoryDirectory.shutdown();
-            repositoryDirectory = null;
-        }
+    @Override
+    public RepositoryDirectory newDirectory() {
+        return new RepositoryDirectory(this);
     }
 
     public DirectorySessionWrapper getWrapper() {

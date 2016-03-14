@@ -57,8 +57,6 @@ public class ResilientDirectorySession extends BaseSession {
 
     private static final Log log = LogFactory.getLog(ResilientDirectorySession.class);
 
-    private final DirectoryService directoryService;
-
     private final ResilientDirectory directory;
 
     private final ResilientDirectoryDescriptor descriptor;
@@ -74,7 +72,6 @@ public class ResilientDirectorySession extends BaseSession {
     private List<SubDirectoryInfo> slaveSubDirectoryInfos;
 
     public ResilientDirectorySession(ResilientDirectory directory) {
-        directoryService = ResilientDirectoryFactory.getDirectoryService();
         this.directory = directory;
         descriptor = directory.getDescriptor();
         schemaName = directory.getSchema();
@@ -103,6 +100,7 @@ public class ResilientDirectorySession extends BaseSession {
 
         Session getSession() throws DirectoryException {
             if (session == null) {
+                DirectoryService directoryService = Framework.getService(DirectoryService.class);
                 session = directoryService.open(dirName);
             }
             return session;
@@ -124,7 +122,7 @@ public class ResilientDirectorySession extends BaseSession {
      * Recomputes all the info needed for efficient access.
      */
     private void recomputeSubDirectoryInfos() throws DirectoryException {
-
+        DirectoryService directoryService = Framework.getService(DirectoryService.class);
         List<SubDirectoryInfo> newSlaveSubDirectoryInfos = new ArrayList<SubDirectoryInfo>(2);
         for (SubDirectoryDescriptor subDir : descriptor.subDirectories) {
 

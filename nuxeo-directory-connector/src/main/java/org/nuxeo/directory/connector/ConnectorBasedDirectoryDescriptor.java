@@ -18,7 +18,6 @@
  */
 package org.nuxeo.directory.connector;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,32 +27,17 @@ import org.nuxeo.common.xmap.annotation.XNode;
 import org.nuxeo.common.xmap.annotation.XNodeList;
 import org.nuxeo.common.xmap.annotation.XNodeMap;
 import org.nuxeo.common.xmap.annotation.XObject;
+import org.nuxeo.ecm.directory.BaseDirectoryDescriptor;
 import org.nuxeo.ecm.directory.InverseReference;
 import org.nuxeo.ecm.directory.Reference;
 
 @XObject("directory")
-public class ConnectorBasedDirectoryDescriptor implements Serializable {
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
+public class ConnectorBasedDirectoryDescriptor extends BaseDirectoryDescriptor {
 
     protected Log log = LogFactory.getLog(ConnectorBasedDirectoryDescriptor.class);
 
-    @XNode("@name")
-    protected String name;
-
-    @XNode("schema")
-    protected String schema;
-
     @XNode("@class")
     protected Class<? extends EntryConnector> connectorClass;
-
-    @XNode("idField")
-    public String idField;
-
-    @XNode("passwordField")
-    private String passwordField;
 
     @XNodeMap(value = "parameters/parameter", key = "@name", type = HashMap.class, componentType = String.class)
     protected Map<String, String> parameters = new HashMap<String, String>();
@@ -90,24 +74,54 @@ public class ConnectorBasedDirectoryDescriptor implements Serializable {
         return parameters;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getSchemaName() {
-        return schema;
-    }
-
-    public String getIdField() {
-        return idField;
-    }
-
-    public String getPasswordField() {
-        return passwordField;
-    }
-
     public Map<String, String> getMapping() {
         return mapping;
+    }
+
+    @Override
+    public void merge(BaseDirectoryDescriptor other) {
+        super.merge(other);
+        merge((ConnectorBasedDirectoryDescriptor) other);
+    }
+
+    protected void merge(ConnectorBasedDirectoryDescriptor other) {
+        if (other.connectorClass != null) {
+            connectorClass = other.connectorClass;
+            connector = null;
+        }
+        if (other.parameters != null) {
+            parameters = other.parameters;
+        }
+        if (other.inverseReferences != null && other.inverseReferences.length != 0) {
+            inverseReferences = other.inverseReferences;
+        }
+        if (other.mapping != null) {
+            mapping.putAll(other.mapping);
+        }
+    }
+
+    @Override
+    public ConnectorBasedDirectoryDescriptor clone() {
+        ConnectorBasedDirectoryDescriptor clone = (ConnectorBasedDirectoryDescriptor) super.clone();
+        // basic fields are already copied by super.clone()
+        if (parameters != null) {
+            clone.parameters = new HashMap<>(parameters);
+        }
+        if (inverseReferences != null) {
+            clone.inverseReferences = new InverseReference[inverseReferences.length];
+            for (int i = 0; i < inverseReferences.length; i++) {
+                clone.inverseReferences[i] = inverseReferences[i].clone();
+            }
+        }
+        if (mapping != null) {
+            clone.mapping = new HashMap<>(mapping);
+        }
+        return clone;
+    }
+
+    @Override
+    public ConnectorBasedDirectory newDirectory() {
+        return new ConnectorBasedDirectory(this);
     }
 
 }

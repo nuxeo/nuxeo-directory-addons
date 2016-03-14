@@ -65,7 +65,7 @@ public class RepositoryDirectory extends AbstractDirectory {
             throw new DirectoryException(String.format("Unknown schema '%s' for directory '%s' ",
                     descriptor.schemaName, name));
         }
-
+        start();
     }
 
     public void start() {
@@ -74,7 +74,7 @@ public class RepositoryDirectory extends AbstractDirectory {
 
             @Override
             public void run() {
-                String createPath = descriptor.createPath;
+                String createPath = descriptor.getCreatePath();
 
                 DocumentModel rootFolder = null;
                 DocumentRef rootRef = new PathRef(createPath);
@@ -84,17 +84,17 @@ public class RepositoryDirectory extends AbstractDirectory {
 
                 if (rootFolder == null) {
 
-                    String parentFolder = descriptor.createPath.substring(0, createPath.lastIndexOf("/"));
+                    String parentFolder = createPath.substring(0, createPath.lastIndexOf("/"));
                     if (createPath.lastIndexOf("/") == 0) {
                         parentFolder = "/";
                     }
-                    String createFolder = descriptor.createPath.substring(createPath.lastIndexOf("/") + 1,
+                    String createFolder = createPath.substring(createPath.lastIndexOf("/") + 1,
                             createPath.length());
 
                     log.info(String.format(
                             "Root folder '%s' has not been found for the directory '%s' on the repository '%s', will create it with given ACL",
                             createPath, name, descriptor.getRepositoryName()));
-                    if (descriptor.canCreateRootFolder) {
+                    if (descriptor.canCreateRootFolder()) {
                         try {
                             DocumentModel doc = session.createDocumentModel(parentFolder, createFolder, "Folder");
                             doc.setProperty("dublincore", "title", createFolder);

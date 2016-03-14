@@ -44,6 +44,7 @@ import org.nuxeo.ecm.directory.Reference;
 import org.nuxeo.ecm.directory.api.DirectoryService;
 import org.nuxeo.ecm.directory.repository.intercept.DirectorySessionWrapper;
 import org.nuxeo.ecm.directory.repository.intercept.WrappableDirectorySession;
+import org.nuxeo.runtime.api.Framework;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -55,8 +56,6 @@ import com.google.common.collect.Collections2;
  * @since 5.9.6
  */
 public class RepositoryDirectorySession extends BaseSession implements WrappableDirectorySession {
-
-    final protected DirectoryService directoryService;
 
     final protected RepositoryDirectory directory;
 
@@ -79,14 +78,13 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
     protected DirectorySessionWrapper wrapper;
 
     public RepositoryDirectorySession(RepositoryDirectory repositoryDirectory) {
-        directoryService = RepositoryDirectoryFactory.getDirectoryService();
         directory = repositoryDirectory;
         schemaName = directory.getSchema();
         coreSession = CoreInstance.openCoreSession(directory.getDescriptor().getRepositoryName());
         schemaIdField = directory.getFieldMapper().getBackendField(directory.getIdField());
         schemaPasswordField = directory.getFieldMapper().getBackendField(directory.getPasswordField());
         docType = directory.getDescriptor().docType;
-        createPath = directory.getDescriptor().createPath;
+        createPath = directory.getDescriptor().getCreatePath();
 
         // init wrapper
         wrapper = directory.getDescriptor().getWrapper();
@@ -464,7 +462,7 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
 
     @Override
     public boolean isReadOnly() {
-        return directory.getDescriptor().readOnly;
+        return directory.getDescriptor().isReadOnly();
     }
 
     @Override

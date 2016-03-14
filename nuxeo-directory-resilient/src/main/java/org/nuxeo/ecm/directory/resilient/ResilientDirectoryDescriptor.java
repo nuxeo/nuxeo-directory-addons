@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2006-2007 Nuxeo SA (http://nuxeo.com/) and others.
+ * (C) Copyright 2006-2016 Nuxeo SA (http://nuxeo.com/) and others.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,41 +14,44 @@
  * limitations under the License.
  *
  * Contributors:
+ *     Maxime Hilaire
  *     Florent Guillaume
- *
- * $Id: MultiDirectoryDescriptor.java 24597 2007-09-05 16:04:04Z fguillaume $
  */
-
 package org.nuxeo.ecm.directory.resilient;
 
-import org.nuxeo.common.xmap.annotation.XNode;
 import org.nuxeo.common.xmap.annotation.XNodeList;
 import org.nuxeo.common.xmap.annotation.XObject;
+import org.nuxeo.ecm.directory.BaseDirectoryDescriptor;
+import org.nuxeo.ecm.directory.Directory;
 
 /**
- * @author Florent Guillaume
- * @author Maxime Hilaire
+ * Resilient directory descriptor.
  */
 @XObject(value = "directory")
-public class ResilientDirectoryDescriptor implements Cloneable {
-
-    @XNode("@name")
-    public String name;
-
-    @XNode("@remove")
-    public boolean remove = false;
+public class ResilientDirectoryDescriptor extends BaseDirectoryDescriptor {
 
     @XNodeList(value = "subDirectory", type = SubDirectoryDescriptor[].class, componentType = SubDirectoryDescriptor.class)
     protected SubDirectoryDescriptor[] subDirectories;
+
+    @Override
+    public void merge(BaseDirectoryDescriptor other) {
+        super.merge(other);
+        merge((ResilientDirectoryDescriptor) other);
+    }
+
+    protected void merge(ResilientDirectoryDescriptor other) {
+        if (other.subDirectories != null) {
+            subDirectories = other.subDirectories.clone();
+        }
+    }
 
     /**
      * @since 5.6
      */
     @Override
     public ResilientDirectoryDescriptor clone() {
-        ResilientDirectoryDescriptor clone = new ResilientDirectoryDescriptor();
-        clone.name = name;
-        clone.remove = remove;
+        ResilientDirectoryDescriptor clone = (ResilientDirectoryDescriptor) super.clone();
+        // basic fields are already copied by super.clone()
         if (subDirectories != null) {
             clone.subDirectories = new SubDirectoryDescriptor[subDirectories.length];
             for (int i = 0; i < subDirectories.length; i++) {
@@ -56,6 +59,11 @@ public class ResilientDirectoryDescriptor implements Cloneable {
             }
         }
         return clone;
+    }
+
+    @Override
+    public ResilientDirectory newDirectory() {
+        return new ResilientDirectory(this);
     }
 
 }

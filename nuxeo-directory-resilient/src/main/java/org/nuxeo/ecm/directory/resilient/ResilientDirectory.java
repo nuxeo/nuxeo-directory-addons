@@ -62,8 +62,9 @@ public class ResilientDirectory extends AbstractDirectory {
 
     private boolean checkSlaveSubDirectory(String masterSchemaName) {
         boolean slaveFound = false;
+        DirectoryService directoryService = Framework.getService(DirectoryService.class);
         for (SubDirectoryDescriptor sub : descriptor.subDirectories) {
-            Directory subDir = ResilientDirectoryFactory.getDirectoryService().getDirectory(sub.name);
+            Directory subDir = directoryService.getDirectory(sub.name);
             if (subDir == null) {
                 throw new DirectoryException(
                         String.format(
@@ -218,9 +219,10 @@ public class ResilientDirectory extends AbstractDirectory {
     @Override
     public void invalidateDirectoryCache() throws DirectoryException {
         getCache().invalidateAll();
+        DirectoryService directoryService = Framework.getService(DirectoryService.class);
         // and also invalidates the cache from the source directories
         for (SubDirectoryDescriptor sub : descriptor.subDirectories) {
-            Directory dir = ResilientDirectoryFactory.getDirectoryService().getDirectory(sub.name);
+            Directory dir = directoryService.getDirectory(sub.name);
             if (dir != null) {
                 dir.invalidateDirectoryCache();
             }

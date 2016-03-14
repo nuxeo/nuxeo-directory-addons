@@ -37,8 +37,9 @@ import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
 import org.nuxeo.ecm.directory.DirectoryException;
 import org.nuxeo.ecm.directory.api.DirectoryService;
 import org.nuxeo.ecm.directory.memory.MemoryDirectory;
-import org.nuxeo.ecm.directory.memory.MemoryDirectoryFactory;
+import org.nuxeo.ecm.directory.memory.MemoryDirectoryDescriptor;
 import org.nuxeo.ecm.directory.resilient.ResilientDirectory;
+import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
@@ -63,8 +64,6 @@ public class TestResilientReadOnlyDirectory {
     @Inject
     DirectoryService directoryService;
 
-    MemoryDirectoryFactory memoryDirectoryFactory;
-
     @Inject
     protected RuntimeHarness harness;
 
@@ -72,23 +71,35 @@ public class TestResilientReadOnlyDirectory {
 
     private MemoryDirectory memdir4;
 
+    protected MemoryDirectoryDescriptor desc3;
+
+    protected MemoryDirectoryDescriptor desc4;
+
     @Before
     public void setUp() throws Exception {
         // First deploy schema
         harness.deployContrib(TEST_BUNDLE, "schemas-config.xml");
 
-        // Define memory directory
-        memoryDirectoryFactory = new MemoryDirectoryFactory();
-        directoryService.registerDirectory("memdirs", memoryDirectoryFactory);
-
         Set<String> schema1Set = new HashSet<String>(Arrays.asList("uid", "foo", "bar"));
 
-        memdir3 = new MemoryDirectory("dir3", "schema1", schema1Set, "uid", "foo");
-        memoryDirectoryFactory.registerDirectory(memdir3);
+        desc3 = new MemoryDirectoryDescriptor();
+        desc3.name = "dir3";
+        desc3.schemaName = "schema1";
+        desc3.schemaSet = schema1Set;
+        desc3.idField = "uid";
+        desc3.passwordField = "foo";
+        directoryService.registerDirectoryDescriptor(desc3);
+        memdir3 = (MemoryDirectory) directoryService.getDirectory("dir3");
 
-        memdir4 = new MemoryDirectory("dir4", "schema1", schema1Set, "uid", "foo");
+        desc4 = new MemoryDirectoryDescriptor();
+        desc4.name = "dir4";
+        desc4.schemaName = "schema1";
+        desc4.schemaSet = schema1Set;
+        desc4.idField = "uid";
+        desc4.passwordField = "foo";
+        directoryService.registerDirectoryDescriptor(desc4);
+        memdir4 = (MemoryDirectory) directoryService.getDirectory("dir4");
         memdir4.setReadOnly(true);
-        memoryDirectoryFactory.registerDirectory(memdir4);
 
         // Deploy resilient contrib
         harness.deployContrib(TEST_BUNDLE, "resilient-memory-read-only-directories-config.xml");
@@ -109,8 +120,9 @@ public class TestResilientReadOnlyDirectory {
 
     @After
     public void tearDown() {
-        memoryDirectoryFactory.unregisterDirectory(memdir3);
-        memoryDirectoryFactory.unregisterDirectory(memdir4);
+        directoryService = Framework.getService(DirectoryService.class);
+        directoryService.unregisterDirectoryDescriptor(desc3);
+        directoryService.unregisterDirectoryDescriptor(desc4);
     }
 
 }
