@@ -39,32 +39,19 @@ import org.nuxeo.runtime.api.Framework;
  */
 public class ConnectorBasedDirectory extends AbstractDirectory {
 
-    public final String schemaName;
-
     public final Set<String> schemaSet;
-
-    public final String idField;
-
-    public final String passwordField;
 
     public Map<String, Object> map;
 
     public ConnectorBasedDirectorySession session;
 
-    protected ConnectorBasedDirectoryDescriptor descriptor;
-
     public ConnectorBasedDirectory(ConnectorBasedDirectoryDescriptor descriptor) throws DirectoryException {
-        super(descriptor.getName());
-        this.descriptor = descriptor;
-        this.schemaName = descriptor.getSchemaName();
+        super(descriptor);
         this.schemaSet = new HashSet<String>();
-        this.idField = descriptor.getIdField();
-        this.passwordField = descriptor.getPasswordField();
-
         SchemaManager sm = Framework.getLocalService(SchemaManager.class);
-        Schema sch = sm.getSchema(descriptor.getSchemaName());
+        Schema sch = sm.getSchema(descriptor.schemaName);
         if (sch == null) {
-            throw new DirectoryException("Unknown schema : " + descriptor.getSchemaName());
+            throw new DirectoryException("Unknown schema : " + descriptor.schemaName);
         }
         Collection<Field> fields = sch.getFields();
         for (Field f : fields) {
@@ -73,33 +60,20 @@ public class ConnectorBasedDirectory extends AbstractDirectory {
         addReferences(descriptor.getInverseReferences());
     }
 
-    public String getName() {
-        return name;
+    @Override
+    public ConnectorBasedDirectoryDescriptor getDescriptor() {
+        return (ConnectorBasedDirectoryDescriptor) descriptor;
     }
 
-    public String getSchema() {
-        return schemaName;
-    }
-
-    public String getParentDirectory() {
-        return null;
-    }
-
-    public String getIdField() {
-        return idField;
-    }
-
-    public String getPasswordField() {
-        return passwordField;
-    }
-
+    @Override
     public Session getSession() {
         if (session == null) {
-            session = new ConnectorBasedDirectorySession(this, descriptor.getConnector());
+            session = new ConnectorBasedDirectorySession(this, getDescriptor().getConnector());
         }
         return session;
     }
 
+    @Override
     public void shutdown() {
         if (session != null) {
             session.close();

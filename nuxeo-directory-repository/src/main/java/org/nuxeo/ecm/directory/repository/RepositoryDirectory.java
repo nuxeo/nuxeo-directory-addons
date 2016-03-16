@@ -22,8 +22,6 @@ package org.nuxeo.ecm.directory.repository;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.nuxeo.ecm.core.api.CoreInstance;
-import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentNotFoundException;
 import org.nuxeo.ecm.core.api.DocumentRef;
@@ -38,7 +36,6 @@ import org.nuxeo.ecm.core.schema.types.Schema;
 import org.nuxeo.ecm.directory.AbstractDirectory;
 import org.nuxeo.ecm.directory.DirectoryException;
 import org.nuxeo.ecm.directory.DirectoryFieldMapper;
-import org.nuxeo.ecm.directory.Reference;
 import org.nuxeo.ecm.directory.Session;
 import org.nuxeo.runtime.api.Framework;
 
@@ -51,25 +48,27 @@ public class RepositoryDirectory extends AbstractDirectory {
 
     private static final Log log = LogFactory.getLog(RepositoryDirectory.class);
 
-    private final RepositoryDirectoryDescriptor descriptor;
-
     protected final Schema schema;
 
     public RepositoryDirectory(RepositoryDirectoryDescriptor descriptor) {
-        super(descriptor.name);
-        this.descriptor = descriptor;
+        super(descriptor);
         SchemaManager sm = Framework.getLocalService(SchemaManager.class);
         schema = sm.getSchema(descriptor.schemaName);
         fieldMapper = new DirectoryFieldMapper(descriptor.fieldMapping);
         if (schema == null) {
             throw new DirectoryException(String.format("Unknown schema '%s' for directory '%s' ",
-                    descriptor.schemaName, name));
+                    descriptor.schemaName, getName()));
         }
         start();
     }
 
-    public void start() {
+    @Override
+    public RepositoryDirectoryDescriptor getDescriptor() {
+        return (RepositoryDirectoryDescriptor) descriptor;
+    }
 
+    public void start() {
+        RepositoryDirectoryDescriptor descriptor = getDescriptor();
         UnrestrictedSessionRunner directoryInitializer = new UnrestrictedSessionRunner(descriptor.getRepositoryName()) {
 
             @Override
@@ -93,7 +92,7 @@ public class RepositoryDirectory extends AbstractDirectory {
 
                     log.info(String.format(
                             "Root folder '%s' has not been found for the directory '%s' on the repository '%s', will create it with given ACL",
-                            createPath, name, descriptor.getRepositoryName()));
+                            createPath, getName(), descriptor.getRepositoryName()));
                     if (descriptor.canCreateRootFolder()) {
                         try {
                             DocumentModel doc = session.createDocumentModel(parentFolder, createFolder, "Folder");
@@ -112,14 +111,14 @@ public class RepositoryDirectory extends AbstractDirectory {
                             throw new DirectoryException(String.format(
                                     "The root folder '%s' can not be created under '%s' for the directory '%s' on the repository '%s',"
                                             + " please make sure you have set the right path or that the path exist",
-                                    createFolder, parentFolder, name, descriptor.getRepositoryName()), e);
+                                    createFolder, parentFolder, getName(), descriptor.getRepositoryName()), e);
                         }
                     }
 
                 } else {
                     log.info(String.format(
                             "Root folder '%s' has been found for the directory '%s' on the repository '%s', ACL will not be set",
-                            createPath, name, descriptor.getRepositoryName()));
+                            createPath, getName(), descriptor.getRepositoryName()));
                 }
 
             }
@@ -142,25 +141,6 @@ public class RepositoryDirectory extends AbstractDirectory {
         return rootFolder.getCoreSession().saveDocument(rootFolder);
     }
 
-    public RepositoryDirectoryDescriptor getDescriptor() {
-        return descriptor;
-    }
-
-    @Override
-    public String getName() {
-        return descriptor.name;
-    }
-
-    @Override
-    public String getSchema() {
-        return descriptor.schemaName;
-    }
-
-    @Override
-    public String getParentDirectory() {
-        return null;
-    }
-
     public Field getField(String name) throws DirectoryException {
         Field field = schema.getField(name);
         if (field == null) {
@@ -168,16 +148,6 @@ public class RepositoryDirectory extends AbstractDirectory {
                     schema.getName()));
         }
         return field;
-    }
-
-    @Override
-    public String getIdField() {
-        return descriptor.idField;
-    }
-
-    @Override
-    public String getPasswordField() {
-        return descriptor.passwordField;
     }
 
     @Override

@@ -109,7 +109,7 @@ public class JsonInMemoryDirectoryConnector extends BaseJSONDirectoryConnector i
     public void init(ConnectorBasedDirectoryDescriptor descriptor) {
         super.init(descriptor);
         results = this.getJsonStream();
-        idField = descriptor.getIdField();
+        idField = descriptor.idField;
 
     }
 

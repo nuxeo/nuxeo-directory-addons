@@ -48,13 +48,16 @@ import org.nuxeo.runtime.api.Framework;
  */
 public class ConnectorBasedDirectorySession extends BaseSession implements Session {
 
-    protected final ConnectorBasedDirectory directory;
-
     protected EntryConnector connector;
 
     public ConnectorBasedDirectorySession(ConnectorBasedDirectory directory, EntryConnector connector) {
-        this.directory = directory;
+        super(directory);
         this.connector = connector;
+    }
+
+    @Override
+    public ConnectorBasedDirectory getDirectory() {
+        return (ConnectorBasedDirectory) directory;
     }
 
     public boolean authenticate(String username, String password) throws DirectoryException {
@@ -91,7 +94,7 @@ public class ConnectorBasedDirectorySession extends BaseSession implements Sessi
         Schema schema = Framework.getLocalService(SchemaManager.class).getSchema(directory.getSchema());
         Map<String, Object> newMap = new HashMap<>();
 
-        Map<String, String> mapping = directory.descriptor.getMapping();
+        Map<String, String> mapping = getDirectory().getDescriptor().getMapping();
         for (Field field : schema.getFields()) {
             String fieldId = field.getName().getLocalName();
             if (mapping.containsKey(fieldId)) {
@@ -115,13 +118,13 @@ public class ConnectorBasedDirectorySession extends BaseSession implements Sessi
         map = translate(map);
 
         try {
-            DocumentModel entry = BaseSession.createEntryModel(null, directory.schemaName, id, map);
+            DocumentModel entry = BaseSession.createEntryModel(null, directory.getSchema(), id, map);
 
             if (fetchReferences) {
                 for (Reference reference : directory.getReferences()) {
                     List<String> targetIds = reference.getTargetIdsForSource(entry.getId());
                     try {
-                        entry.setProperty(directory.schemaName, reference.getFieldName(), targetIds);
+                        entry.setProperty(directory.getSchema(), reference.getFieldName(), targetIds);
                     } catch (PropertyNotFoundException e) {
                         throw new DirectoryException(e);
                     }
@@ -159,18 +162,6 @@ public class ConnectorBasedDirectorySession extends BaseSession implements Sessi
         deleteEntry(docModel.getId());
     }
 
-    public String getIdField() {
-        return directory.idField;
-    }
-
-    public String getPasswordField() {
-        return directory.passwordField;
-    }
-
-    public boolean isAuthenticating() {
-        return directory.passwordField != null;
-    }
-
     public boolean isReadOnly() {
         return true;
     }
@@ -195,7 +186,7 @@ public class ConnectorBasedDirectorySession extends BaseSession implements Sessi
         Map<String, Serializable> filt = new HashMap<String, Serializable>();
         for (Entry<String, Serializable> e : filter.entrySet()) {
             String fieldName = e.getKey();
-            if (!directory.schemaSet.contains(fieldName)) {
+            if (!getDirectory().schemaSet.contains(fieldName)) {
                 continue;
             }
             filt.put(fieldName, e.getValue());
@@ -210,7 +201,7 @@ public class ConnectorBasedDirectorySession extends BaseSession implements Sessi
 
         // order entries
         if (orderBy != null && !orderBy.isEmpty()) {
-            directory.orderEntries(results, orderBy);
+            getDirectory().orderEntries(results, orderBy);
         }
         return results;
     }
@@ -226,7 +217,7 @@ public class ConnectorBasedDirectorySession extends BaseSession implements Sessi
         for (DocumentModel doc : l) {
             Object value;
             try {
-                value = doc.getProperty(directory.schemaName, columnName);
+                value = doc.getProperty(directory.getSchema(), columnName);
             } catch (PropertyNotFoundException e) {
                 throw new DirectoryException(e);
             }
@@ -240,7 +231,7 @@ public class ConnectorBasedDirectorySession extends BaseSession implements Sessi
     }
 
     public DocumentModel createEntry(DocumentModel entry) {
-        Map<String, Object> fieldMap = entry.getProperties(directory.schemaName);
+        Map<String, Object> fieldMap = entry.getProperties(directory.getSchema());
         return createEntry(fieldMap);
     }
 

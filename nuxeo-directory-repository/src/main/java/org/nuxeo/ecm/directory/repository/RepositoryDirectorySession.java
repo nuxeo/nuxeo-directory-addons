@@ -41,10 +41,8 @@ import org.nuxeo.ecm.directory.BaseSession;
 import org.nuxeo.ecm.directory.DirectoryException;
 import org.nuxeo.ecm.directory.digest.PasswordHelper;
 import org.nuxeo.ecm.directory.Reference;
-import org.nuxeo.ecm.directory.api.DirectoryService;
 import org.nuxeo.ecm.directory.repository.intercept.DirectorySessionWrapper;
 import org.nuxeo.ecm.directory.repository.intercept.WrappableDirectorySession;
-import org.nuxeo.runtime.api.Framework;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -56,8 +54,6 @@ import com.google.common.collect.Collections2;
  * @since 5.9.6
  */
 public class RepositoryDirectorySession extends BaseSession implements WrappableDirectorySession {
-
-    final protected RepositoryDirectory directory;
 
     final protected String schemaName;
 
@@ -77,18 +73,24 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
 
     protected DirectorySessionWrapper wrapper;
 
-    public RepositoryDirectorySession(RepositoryDirectory repositoryDirectory) {
-        directory = repositoryDirectory;
+    public RepositoryDirectorySession(RepositoryDirectory directory) {
+        super(directory);
         schemaName = directory.getSchema();
-        coreSession = CoreInstance.openCoreSession(directory.getDescriptor().getRepositoryName());
-        schemaIdField = directory.getFieldMapper().getBackendField(directory.getIdField());
-        schemaPasswordField = directory.getFieldMapper().getBackendField(directory.getPasswordField());
-        docType = directory.getDescriptor().docType;
-        createPath = directory.getDescriptor().getCreatePath();
+        RepositoryDirectoryDescriptor descriptor = directory.getDescriptor();
+        coreSession = CoreInstance.openCoreSession(descriptor.getRepositoryName());
+        schemaIdField = directory.getFieldMapper().getBackendField(getIdField());
+        schemaPasswordField = directory.getFieldMapper().getBackendField(getPasswordField());
+        docType = descriptor.docType;
+        createPath = descriptor.getCreatePath();
 
         // init wrapper
-        wrapper = directory.getDescriptor().getWrapper();
-        wrapper.init(this, repositoryDirectory);
+        wrapper = descriptor.getWrapper();
+        wrapper.init(this, getDirectory());
+    }
+
+    @Override
+    public RepositoryDirectory getDirectory() {
+        return (RepositoryDirectory) directory;
     }
 
     @Override
@@ -104,7 +106,7 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
     @Override
     public DocumentModel doGetEntry(String id, boolean fetchReferences) throws DirectoryException {
 
-        if (UUID_FIELD.equals(directory.getIdField())) {
+        if (UUID_FIELD.equals(getIdField())) {
             IdRef ref = new IdRef(id);
             if (coreSession.exists(ref)) {
                 DocumentModel document = coreSession.getDocument(new IdRef(id));
@@ -117,7 +119,7 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
         StringBuilder sbQuery = new StringBuilder("SELECT * FROM ");
         sbQuery.append(docType);
         sbQuery.append(" WHERE ");
-        sbQuery.append(directory.getField(schemaIdField).getName().getPrefixedName());
+        sbQuery.append(getDirectory().getField(schemaIdField).getName().getPrefixedName());
         sbQuery.append(" = '");
         sbQuery.append(id);
         sbQuery.append("' AND ecm:path STARTSWITH '");
@@ -149,7 +151,7 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
         if (UUID_FIELD.equals(fieldName)) {
             return fieldName;
         }
-        Field schemaField = directory.getField(fieldName);
+        Field schemaField = getDirectory().getField(fieldName);
         return schemaField.getName().getPrefixedName();
     }
 
@@ -163,7 +165,8 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
     public DocumentModel doCreateEntry(Map<String, Object> fieldMap) throws DirectoryException {
 
         if (isReadOnly()) {
-            log.warn(String.format("The directory '%s' is in read-only mode, could not create entry.", directory.name));
+            log.warn(String.format("The directory '%s' is in read-only mode, could not create entry.",
+                    directory.getName()));
             return null;
         }
         // TODO : deal with auto-versionning
@@ -172,7 +175,7 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
         Map<String, Object> properties = new HashMap<String, Object>();
         List<String> createdRefs = new LinkedList<String>();
         for (String fieldId : fieldMap.keySet()) {
-            if (directory.isReference(fieldId)) {
+            if (getDirectory().isReference(fieldId)) {
                 createdRefs.add(fieldId);
             }
             Object value = fieldMap.get(fieldId);
@@ -180,7 +183,7 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
         }
 
         final String rawid = (String) properties.get(getPrefixedFieldName(schemaIdField));
-        if (rawid == null && (!UUID_FIELD.equals(directory.getIdField()))) {
+        if (rawid == null && (!UUID_FIELD.equals(getIdField()))) {
             throw new DirectoryException(String.format("Entry is missing id field '%s'", schemaIdField));
         }
 
@@ -206,7 +209,8 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
     @SuppressWarnings("unchecked")
     public void doUpdateEntry(DocumentModel docModel) throws DirectoryException {
         if (isReadOnly()) {
-            log.warn(String.format("The directory '%s' is in read-only mode, could not update entry.", directory.name));
+            log.warn(String.format("The directory '%s' is in read-only mode, could not update entry.",
+                    directory.getName()));
         } else {
 
             if (!isReadOnlyEntry(docModel)) {
@@ -228,7 +232,7 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
                         for (String field : docModel.getProperties(schemaName).keySet()) {
                             String schemaField = getMappedPrefixedFieldName(field);
                             if (!dataModel.isDirty(schemaField)) {
-                                if (directory.isReference(field)) {
+                                if (getDirectory().isReference(field)) {
                                     updatedRefs.add(field);
                                 } else {
                                     updatedProps.put(schemaField, docModel.getProperties(schemaName).get(field));
@@ -268,7 +272,8 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
     @Override
     public void doDeleteEntry(String id) throws DirectoryException {
         if (isReadOnly()) {
-            log.warn(String.format("The directory '%s' is in read-only mode, could not delete entry.", directory.name));
+            log.warn(String.format("The directory '%s' is in read-only mode, could not delete entry.",
+                    directory.getName()));
         } else {
             if (id == null) {
                 throw new DirectoryException("Can not update entry with a null id ");
@@ -284,7 +289,8 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
     @Override
     public void deleteEntry(String id, Map<String, String> map) throws DirectoryException {
         if (isReadOnly()) {
-            log.warn(String.format("The directory '%s' is in read-only mode, could not delete entry.", directory.name));
+            log.warn(String.format("The directory '%s' is in read-only mode, could not delete entry.",
+                    directory.getName()));
         }
 
         Map<String, Serializable> props = new HashMap<String, Serializable>(map);
@@ -322,7 +328,7 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
     }
 
     protected String getMappedPrefixedFieldName(String fieldName) {
-        String backendFieldId = directory.getFieldMapper().getBackendField(fieldName);
+        String backendFieldId = getDirectory().getFieldMapper().getBackendField(fieldName);
         return getPrefixedFieldName(backendFieldId);
     }
 
@@ -411,7 +417,7 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
     @Override
     public void close() throws DirectoryException {
         coreSession.close();
-        directory.removeSession(this);
+        getDirectory().removeSession(this);
     }
 
     @Override
@@ -448,21 +454,6 @@ public class RepositoryDirectorySession extends BaseSession implements Wrappable
     @Override
     public boolean isAuthenticating() {
         return schemaPasswordField != null;
-    }
-
-    @Override
-    public String getIdField() {
-        return directory.getDescriptor().idField;
-    }
-
-    @Override
-    public String getPasswordField() {
-        return directory.getDescriptor().passwordField;
-    }
-
-    @Override
-    public boolean isReadOnly() {
-        return directory.getDescriptor().isReadOnly();
     }
 
     @Override

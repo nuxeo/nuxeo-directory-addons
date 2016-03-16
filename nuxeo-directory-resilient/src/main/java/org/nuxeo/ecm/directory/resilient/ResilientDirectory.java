@@ -44,23 +44,30 @@ import org.nuxeo.runtime.api.Framework;
  */
 public class ResilientDirectory extends AbstractDirectory {
 
-    private String schemaName = null;
+    private String schemaName;
 
-    private String idField = null;
+    private String idField;
 
-    private String passwordField = null;
-
-    private final ResilientDirectoryDescriptor descriptor;
+    private String passwordField;
 
     private Map<String, Field> schemaFieldMap;
 
     public ResilientDirectory(ResilientDirectoryDescriptor descriptor) {
-        super(descriptor.name);
-        this.descriptor = descriptor;
+        super(descriptor);
+    }
 
+    @Override
+    protected boolean doSanityChecks() {
+        return false; // we compute schema, id field etc. from the sub-directories
+    }
+
+    @Override
+    public ResilientDirectoryDescriptor getDescriptor() {
+        return (ResilientDirectoryDescriptor) descriptor;
     }
 
     private boolean checkSlaveSubDirectory(String masterSchemaName) {
+        ResilientDirectoryDescriptor descriptor = getDescriptor();
         boolean slaveFound = false;
         DirectoryService directoryService = Framework.getService(DirectoryService.class);
         for (SubDirectoryDescriptor sub : descriptor.subDirectories) {
@@ -92,7 +99,7 @@ public class ResilientDirectory extends AbstractDirectory {
                             "ResilientDirectory '%s' reference a slave directory '%s' that is in read-only mode !",
                             descriptor.name, subDir.getName()));
                 } else if (subDir instanceof SQLDirectory) {
-                    if (((SQLDirectory) subDir).getConfig().autoincrementIdField) {
+                    if (((SQLDirectory) subDir).getDescriptor().autoincrementIdField) {
                         throw new DirectoryException(
                                 String.format(
                                         "ResilientDirectory '%s' reference a slave SQL directory '%s' that use auto-increment id! This is still not supported by the resilient directory.",
@@ -113,7 +120,7 @@ public class ResilientDirectory extends AbstractDirectory {
         String masterSchemaName = null;
         // Find the master subdirectory and init resilient directory from the
         // master
-        for (SubDirectoryDescriptor sub : descriptor.subDirectories) {
+        for (SubDirectoryDescriptor sub : getDescriptor().subDirectories) {
             Directory dir = Framework.getLocalService(DirectoryService.class).getDirectory(sub.name);
             if (sub.isMaster() && masterSchemaName == null) {
                 if (dir != null) {
@@ -163,10 +170,6 @@ public class ResilientDirectory extends AbstractDirectory {
             }
         }
 
-    }
-
-    protected ResilientDirectoryDescriptor getDescriptor() {
-        return descriptor;
     }
 
     @Override
@@ -221,7 +224,7 @@ public class ResilientDirectory extends AbstractDirectory {
         getCache().invalidateAll();
         DirectoryService directoryService = Framework.getService(DirectoryService.class);
         // and also invalidates the cache from the source directories
-        for (SubDirectoryDescriptor sub : descriptor.subDirectories) {
+        for (SubDirectoryDescriptor sub : getDescriptor().subDirectories) {
             Directory dir = directoryService.getDirectory(sub.name);
             if (dir != null) {
                 dir.invalidateDirectoryCache();

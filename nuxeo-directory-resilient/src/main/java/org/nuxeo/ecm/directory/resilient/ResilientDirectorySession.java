@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -35,8 +34,6 @@ import org.apache.commons.logging.LogFactory;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentModelList;
 import org.nuxeo.ecm.core.api.impl.DocumentModelListImpl;
-import org.nuxeo.ecm.core.query.QueryParseException;
-import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.types.Field;
 import org.nuxeo.ecm.directory.BaseSession;
 import org.nuxeo.ecm.directory.DirectoryException;
@@ -57,26 +54,21 @@ public class ResilientDirectorySession extends BaseSession {
 
     private static final Log log = LogFactory.getLog(ResilientDirectorySession.class);
 
-    private final ResilientDirectory directory;
-
-    private final ResilientDirectoryDescriptor descriptor;
-
-    private final String schemaName;
-
-    private final String schemaIdField;
-
-    private final String schemaPasswordField;
-
     private SubDirectoryInfo masterSubDirectoryInfo;
 
     private List<SubDirectoryInfo> slaveSubDirectoryInfos;
 
     public ResilientDirectorySession(ResilientDirectory directory) {
-        this.directory = directory;
-        descriptor = directory.getDescriptor();
-        schemaName = directory.getSchema();
-        schemaIdField = directory.getIdField();
-        schemaPasswordField = directory.getPasswordField();
+        super(directory);
+    }
+
+    @Override
+    public ResilientDirectory getDirectory() {
+        return (ResilientDirectory) directory;
+    }
+
+    protected String getSchema() {
+        return directory.getSchema();
     }
 
     protected class SubDirectoryInfo {
@@ -124,7 +116,7 @@ public class ResilientDirectorySession extends BaseSession {
     private void recomputeSubDirectoryInfos() throws DirectoryException {
         DirectoryService directoryService = Framework.getService(DirectoryService.class);
         List<SubDirectoryInfo> newSlaveSubDirectoryInfos = new ArrayList<SubDirectoryInfo>(2);
-        for (SubDirectoryDescriptor subDir : descriptor.subDirectories) {
+        for (SubDirectoryDescriptor subDir : getDirectory().getDescriptor().subDirectories) {
 
             final String dirName = subDir.name;
             final String dirSchemaName = directoryService.getDirectorySchema(dirName);
@@ -166,7 +158,7 @@ public class ResilientDirectorySession extends BaseSession {
             }
 
         } finally {
-            directory.removeSession(this);
+            getDirectory().removeSession(this);
         }
     }
 
@@ -199,22 +191,6 @@ public class ResilientDirectorySession extends BaseSession {
 
     }
 
-    @Override
-    public String getIdField() throws DirectoryException {
-        return schemaIdField;
-    }
-
-    @Override
-    public String getPasswordField() {
-        return schemaPasswordField;
-    }
-
-    @Override
-    public boolean isAuthenticating() {
-        return schemaPasswordField != null;
-    }
-
-    @Override
     /**
      * Get the read-only value
      *
@@ -222,6 +198,7 @@ public class ResilientDirectorySession extends BaseSession {
      * @throws DirectoryException
      *
      */
+    @Override
     public boolean isReadOnly() {
         // The aim of this resilient directory is to replicate at least one
         // master directory (read-only or not) to at least one slave
@@ -262,11 +239,11 @@ public class ResilientDirectorySession extends BaseSession {
                 for (SubDirectoryInfo subDirInfo : slaveSubDirectoryInfos) {
                     try {
                         if (subDirInfo.getSession().hasEntry(entryId)) {
-                            final DocumentModel entry = BaseSession.createEntryModel(null, schemaName, entryId, null);
+                            final DocumentModel entry = BaseSession.createEntryModel(null, getSchema(), entryId, null);
                             // Do not set dataModel values with constructor to
                             // force fields dirty
 
-                            Map<String, Object> masterProps = docModel.getProperties(schemaName);
+                            Map<String, Object> masterProps = docModel.getProperties(getSchema());
 
                             // Force update with the given properties if there
                             // are
@@ -276,7 +253,7 @@ public class ResilientDirectorySession extends BaseSession {
                                 masterProps.putAll(fieldMap);
                             } else {
                                 if (getPasswordField() != null) {
-                                    Field passwordField = directory.getSchemaFieldMap().get(getPasswordField());
+                                    Field passwordField = getDirectory().getSchemaFieldMap().get(getPasswordField());
                                     if (masterProps.containsKey(passwordField.getName().getPrefixedName())) {
                                         if (masterProps.get(passwordField.getName().getPrefixedName()) == null) {
                                             // The password should be null only
@@ -290,14 +267,14 @@ public class ResilientDirectorySession extends BaseSession {
                             }
 
                             // Init props from master
-                            entry.getDataModel(schemaName).setMap(masterProps);
+                            entry.getDataModel(getSchema()).setMap(masterProps);
 
                             subDirInfo.getSession().updateEntry(entry);
 
                         } else {
                             // Do not set dataModel values with constructor to
                             // force fields dirty
-                            Map<String, Object> prefixProps = docModel.getProperties(schemaName);
+                            Map<String, Object> prefixProps = docModel.getProperties(getSchema());
                             // Force update with the given properties if there
                             // are
                             // Some props are not retrieved from master
@@ -473,17 +450,17 @@ public class ResilientDirectorySession extends BaseSession {
             return null;
         }
 
-        Field schemaField = directory.getSchemaFieldMap().get(schemaIdField);
+        Field schemaField = getDirectory().getSchemaFieldMap().get(getIdField());
 
         final Object rawid = fieldMap.get(schemaField.getName().getPrefixedName());
         if (rawid == null) {
-            throw new DirectoryException(String.format("Entry is missing id field '%s'", schemaIdField));
+            throw new DirectoryException(String.format("Entry is missing id field '%s'", getIdField()));
         }
         final String id = String.valueOf(rawid); // XXX allow longs too
 
-        final DocumentModel entry = BaseSession.createEntryModel(null, schemaName, id, null);
+        final DocumentModel entry = BaseSession.createEntryModel(null, getSchema(), id, null);
         // Do not set dataModel values with constructor to force fields dirty
-        entry.getDataModel(schemaName).setMap(fieldMap);
+        entry.getDataModel(getSchema()).setMap(fieldMap);
 
         // Do not fallback if create on master has failed.
         // The master source must stay the most up-to-date source
@@ -523,7 +500,7 @@ public class ResilientDirectorySession extends BaseSession {
         // Do not fallback if update on master has failed.
         // The master source must stay the most up-to-date source
         masterSubDirectoryInfo.getSession().updateEntry(docModel);
-        updateMasterOnSlaves(docModel.getId(), docModel.getProperties(schemaName), true);
+        updateMasterOnSlaves(docModel.getId(), docModel.getProperties(getSchema()), true);
 
     }
 
@@ -568,13 +545,13 @@ public class ResilientDirectorySession extends BaseSession {
                     log.warn(
                             String.format(
                                     "Resilient directory '%s' : Unable to query entries on slave directory '%s'for synchronization",
-                                    descriptor.name, masterSubDirectoryInfo.dirName), exc);
+                                    directory.getName(), masterSubDirectoryInfo.dirName), exc);
                 }
             }
         } catch (DirectoryException e) {
             log.warn(String.format(
                     "Resilient directory '%s' : Unable to query entries on master directory '%s', fallback on slaves",
-                    descriptor.name, masterSubDirectoryInfo.dirName), e);
+                    directory.getName(), masterSubDirectoryInfo.dirName), e);
 
             // Try to get the entry from slaves
             for (SubDirectoryInfo subDirectoryInfo : slaveSubDirectoryInfos) {
@@ -585,7 +562,7 @@ public class ResilientDirectorySession extends BaseSession {
                     log.warn(
                             String.format(
                                     "Resilient directory '%s' : Unable to query entries on slave directory '%s', fallback on another slave if it exists",
-                                    descriptor.name, masterSubDirectoryInfo.dirName), e);
+                                    directory.getName(), masterSubDirectoryInfo.dirName), e);
                 }
             }
 
@@ -613,7 +590,7 @@ public class ResilientDirectorySession extends BaseSession {
         final DocumentModelList entries = query(filter, fulltext);
         final List<String> results = new ArrayList<String>(entries.size());
         for (DocumentModel entry : entries) {
-            final Object value = entry.getProperty(schemaName, columnName);
+            final Object value = entry.getProperty(getSchema(), columnName);
             if (value == null) {
                 results.add(null);
             } else {
@@ -625,7 +602,7 @@ public class ResilientDirectorySession extends BaseSession {
 
     @Override
     public DocumentModel createEntry(DocumentModel entry) {
-        Map<String, Object> fieldMap = entry.getProperties(schemaName);
+        Map<String, Object> fieldMap = entry.getProperties(getSchema());
         return createEntry(fieldMap);
     }
 

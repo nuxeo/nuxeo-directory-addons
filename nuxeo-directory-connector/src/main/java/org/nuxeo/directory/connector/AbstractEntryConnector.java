@@ -39,7 +39,7 @@ public abstract class AbstractEntryConnector implements EntryConnector {
         if (map == null) {
             return false;
         }
-        String pwd = (String) map.get(descriptor.getPasswordField());
+        String pwd = (String) map.get(descriptor.passwordField);
 
         return password.equals(pwd);
     }
