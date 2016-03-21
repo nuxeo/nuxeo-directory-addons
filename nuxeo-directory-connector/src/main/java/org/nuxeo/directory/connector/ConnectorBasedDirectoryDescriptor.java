@@ -81,7 +81,9 @@ public class ConnectorBasedDirectoryDescriptor extends BaseDirectoryDescriptor {
     @Override
     public void merge(BaseDirectoryDescriptor other) {
         super.merge(other);
-        merge((ConnectorBasedDirectoryDescriptor) other);
+        if (other instanceof ConnectorBasedDirectoryDescriptor) {
+            merge((ConnectorBasedDirectoryDescriptor) other);
+        }
     }
 
     protected void merge(ConnectorBasedDirectoryDescriptor other) {

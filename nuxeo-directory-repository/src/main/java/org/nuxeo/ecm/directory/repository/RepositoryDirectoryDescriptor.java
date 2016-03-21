@@ -124,7 +124,9 @@ public class RepositoryDirectoryDescriptor extends BaseDirectoryDescriptor {
     @Override
     public void merge(BaseDirectoryDescriptor other) {
         super.merge(other);
-        merge((RepositoryDirectoryDescriptor) other);
+        if (other instanceof RepositoryDirectoryDescriptor) {
+            merge((RepositoryDirectoryDescriptor) other);
+        }
     }
 
     protected void merge(RepositoryDirectoryDescriptor other) {

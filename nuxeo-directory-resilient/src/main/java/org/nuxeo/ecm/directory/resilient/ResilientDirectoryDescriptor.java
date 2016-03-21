@@ -36,7 +36,9 @@ public class ResilientDirectoryDescriptor extends BaseDirectoryDescriptor {
     @Override
     public void merge(BaseDirectoryDescriptor other) {
         super.merge(other);
-        merge((ResilientDirectoryDescriptor) other);
+        if (other instanceof ResilientDirectoryDescriptor) {
+            merge((ResilientDirectoryDescriptor) other);
+        }
     }
 
     protected void merge(ResilientDirectoryDescriptor other) {
