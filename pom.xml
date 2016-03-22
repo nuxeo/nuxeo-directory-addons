@@ -14,7 +14,6 @@
   </description>
 
   <modules>
-    <module>nuxeo-directory-repository</module>
     <module>nuxeo-directory-connector</module>
     <module>nuxeo-directory-resilient</module>
   </modules>

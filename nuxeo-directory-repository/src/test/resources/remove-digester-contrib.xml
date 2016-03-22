@@ -1,8 +1,0 @@
-<component name="remove.digester.contrib">
-
-  <extension target="org.nuxeo.ecm.directory.digest.PasswordDigesterServiceImpl"
-    point="digester">
-
-    <digester name="PBKDF2Hmac256" enabled="false" />
-  </extension>
-</component>
