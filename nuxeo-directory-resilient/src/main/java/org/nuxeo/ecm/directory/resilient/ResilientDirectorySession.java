@@ -240,15 +240,9 @@ public class ResilientDirectorySession extends BaseSession {
                     try {
                         if (subDirInfo.getSession().hasEntry(entryId)) {
                             final DocumentModel entry = BaseSession.createEntryModel(null, getSchema(), entryId, null);
-                            // Do not set dataModel values with constructor to
-                            // force fields dirty
-
                             Map<String, Object> masterProps = docModel.getProperties(getSchema());
-
-                            // Force update with the given properties if there
-                            // are
-                            // Some props are not retrieved from master
-                            // (ex:password)
+                            // Force update with the given properties if there are
+                            // Some props are not retrieved from master (ex:password)
                             if (fieldMap != null) {
                                 masterProps.putAll(fieldMap);
                             } else {
@@ -265,24 +259,16 @@ public class ResilientDirectorySession extends BaseSession {
                                     }
                                 }
                             }
-
                             // Init props from master
-                            entry.getDataModel(getSchema()).setMap(masterProps);
-
+                            entry.setProperties(getSchema(), masterProps);
                             subDirInfo.getSession().updateEntry(entry);
-
                         } else {
-                            // Do not set dataModel values with constructor to
-                            // force fields dirty
                             Map<String, Object> prefixProps = docModel.getProperties(getSchema());
-                            // Force update with the given properties if there
-                            // are
-                            // Some props are not retrieved from master
-                            // (ex:password)
+                            // Force update with the given properties if there are
+                            // Some props are not retrieved from master (ex:password)
                             if (fieldMap != null) {
                                 prefixProps.putAll(fieldMap);
                             }
-
                             subDirInfo.getSession().createEntry(prefixProps);
                         }
                     }
@@ -459,8 +445,7 @@ public class ResilientDirectorySession extends BaseSession {
         final String id = String.valueOf(rawid); // XXX allow longs too
 
         final DocumentModel entry = BaseSession.createEntryModel(null, getSchema(), id, null);
-        // Do not set dataModel values with constructor to force fields dirty
-        entry.getDataModel(getSchema()).setMap(fieldMap);
+        entry.setProperties(getSchema(), fieldMap);
 
         // Do not fallback if create on master has failed.
         // The master source must stay the most up-to-date source
