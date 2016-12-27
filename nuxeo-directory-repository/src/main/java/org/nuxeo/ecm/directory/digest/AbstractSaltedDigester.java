@@ -23,7 +23,8 @@ import java.security.SecureRandom;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
-import org.nuxeo.common.utils.Base64;
+
+import org.apache.commons.codec.binary.Base64;
 import org.nuxeo.runtime.api.Framework;
 
 /**
@@ -105,7 +106,7 @@ public abstract class AbstractSaltedDigester implements PasswordDigester {
         byte[] bytes = new byte[hash.length + salt.length];
         System.arraycopy(hash, 0, bytes, 0, hash.length);
         System.arraycopy(salt, 0, bytes, hash.length, salt.length);
-        return String.format("{%s}%s", getName(), Base64.encodeBytes(bytes));
+        return String.format("{%s}%s", getName(), Base64.encodeBase64String(bytes));
     }
 
     @Override
@@ -138,7 +139,7 @@ public abstract class AbstractSaltedDigester implements PasswordDigester {
         // Extract digest part
         String digest = hashedPassword.substring(String.format("{%s}", method).length());
 
-        byte[] bytes = Base64.decode(digest);
+        byte[] bytes = Base64.decodeBase64(digest);
         if (bytes == null) {
             // invalid base64
             return false;
