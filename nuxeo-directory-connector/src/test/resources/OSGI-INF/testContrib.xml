@@ -11,6 +11,7 @@
       <idField>username</idField>
       <passwordField>password</passwordField>
       <schema>user</schema>
+      <readOnly>true</readOnly>
       <parameters>
         <parameter name="toto">username=toto|password=password|firstName=Toto
         </parameter>

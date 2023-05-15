@@ -33,7 +33,9 @@ import org.nuxeo.ecm.directory.Directory;
 import org.nuxeo.ecm.directory.DirectoryEntryNotFoundException;
 import org.nuxeo.ecm.directory.DirectoryException;
 import org.nuxeo.ecm.directory.Reference;
+import org.nuxeo.ecm.directory.Session;
 import org.nuxeo.ecm.directory.api.DirectoryService;
+import org.nuxeo.ecm.directory.sql.SQLSession;
 import org.nuxeo.runtime.api.Framework;
 
 public class ResilientReference extends AbstractReference {
@@ -45,6 +47,7 @@ public class ResilientReference extends AbstractReference {
     final String fieldName;
 
     ResilientReference(ResilientDirectory dir, String fieldName) {
+        super(fieldName, dir.getName());
         this.dir = dir;
         this.fieldName = fieldName;
     }
@@ -55,7 +58,17 @@ public class ResilientReference extends AbstractReference {
     }
 
     @Override
+    public void addLinks(String sourceId, List<String> targetIds, Session session) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void addLinks(List<String> sourceIds, String targetId) throws DirectoryException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void addLinks(List<String> sourceIds, String targetId, Session session) {
         throw new UnsupportedOperationException();
     }
 
@@ -112,7 +125,17 @@ public class ResilientReference extends AbstractReference {
     }
 
     @Override
+    public void removeLinksForSource(String sourceId, Session session) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void removeLinksForTarget(String targetId) throws DirectoryException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void removeLinksForTarget(String targetId, Session session) {
         throw new UnsupportedOperationException();
     }
 
@@ -122,15 +145,26 @@ public class ResilientReference extends AbstractReference {
     }
 
     @Override
+    public void setSourceIdsForTarget(String targetId, List<String> sourceIds, Session session) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void setTargetIdsForSource(String sourceId, List<String> targetIds) throws DirectoryException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public void setTargetIdsForSource(String sourceId, List<String> targetIds, Session session) {
+        throw new UnsupportedOperationException();
+    }
+
     /**
+     * @throws CloneNotSupportedException 
      * @since 5.6
      */
     @Override
-    public ResilientReference clone() {
+    public ResilientReference clone() throws CloneNotSupportedException {
         ResilientReference clone = (ResilientReference) super.clone();
         // basic fields are already copied by super.clone()
         return clone;

@@ -73,9 +73,10 @@ import com.google.inject.Inject;
 @RepositoryConfig(init = DefaultRepositoryInit.class)
 @Deploy({ "org.nuxeo.ecm.directory.api", "org.nuxeo.ecm.directory", "org.nuxeo.ecm.core.schema",
         "org.nuxeo.ecm.directory.types.contrib", "org.nuxeo.ecm.directory.resilient" })
+@Deploy("org.nuxeo.ecm.directory.resilient.tests:schemas-config.xml")
+@Deploy("org.nuxeo.ecm.directory.resilient.tests:resilient-memory-directories-config.xml")
 public class TestResilientDirectory {
 
-    private static final String TEST_BUNDLE = "org.nuxeo.ecm.directory.resilient.tests";
 
     @Inject
     DirectoryService directoryService;
@@ -97,14 +98,12 @@ public class TestResilientDirectory {
 
     @Before
     public void setUp() throws Exception {
-        // Deploy custom schema
-        harness.deployContrib(TEST_BUNDLE, "schemas-config.xml");
 
         // create and register mem directories
         Map<String, Object> e;
 
         // Define the schema used for queries
-        Set<String> schema1Set = new HashSet<String>(Arrays.asList("uid", "foo", "bar"));
+        Set<String> schema1Set = new HashSet<String>(Arrays.asList("uid", "foo", "bar", "password"));
 
         // dir 1
         // Define here the in-memory directory as :
@@ -112,7 +111,7 @@ public class TestResilientDirectory {
         // <directory name="dir1">
         // <schema>schema1</schema>
         // <idField>uid</idField>
-        // <passwordField>foo</passwordField>
+        // <passwordField>password</passwordField>
         // </directory>
 
         desc1 = new MemoryDirectoryDescriptor();
@@ -120,7 +119,7 @@ public class TestResilientDirectory {
         desc1.schemaName = "schema1";
         desc1.schemaSet = schema1Set;
         desc1.idField = "uid";
-        desc1.passwordField = "foo";
+        desc1.passwordField = "password";
         directoryService.registerDirectoryDescriptor(desc1);
         memdir1 = (MemoryDirectory) directoryService.getDirectory("dir1");
 
@@ -129,7 +128,9 @@ public class TestResilientDirectory {
             e.put("uid", "1");
             e.put("foo", "foo1");
             e.put("bar", "bar1");
-            dir1.createEntry(e);
+            DocumentModel doc1 = dir1.createEntry(e);
+            doc1.setPropertyValue("password", "pass1");
+            dir1.updateEntry(doc1);
 
             e = new HashMap<String, Object>();
             e.put("uid", "4");
@@ -144,7 +145,7 @@ public class TestResilientDirectory {
         desc2.schemaName = "schema1";
         desc2.schemaSet = schema1Set;
         desc2.idField = "uid";
-        desc2.passwordField = "foo";
+        desc2.passwordField = "password";
         directoryService.registerDirectoryDescriptor(desc2);
         memdir2 = (MemoryDirectory) directoryService.getDirectory("dir2");
 
@@ -153,14 +154,10 @@ public class TestResilientDirectory {
             e.put("uid", "2");
             e.put("foo", "foo2");
             e.put("bar", "bar2");
-            dir2.createEntry(e);
+            DocumentModel doc2 = dir2.createEntry(e);
+            doc2.setPropertyValue("password", "pass2");
+            dir2.updateEntry(doc2);
         }
-
-        // Bundle to be tested
-        // deployBundle("org.nuxeo.ecm.directory.resilient");
-
-        // Config for the tested bundle
-        harness.deployContrib(TEST_BUNDLE, "resilient-memory-directories-config.xml");
 
         // the resilient directory
         resilientDir = (ResilientDirectory) directoryService.getDirectory("resilient");
@@ -268,12 +265,12 @@ public class TestResilientDirectory {
     public void testAuthenticate() throws Exception {
         // sub dirs
         Session dir2 = memdir2.getSession();
-        assertTrue(dir.authenticate("1", "foo1"));
+        assertTrue(dir.authenticate("1", "pass1"));
 
-        assertTrue(dir2.authenticate("1", "foo1"));
+        assertTrue(dir2.authenticate("1", "pass1"));
         assertFalse(dir.authenticate("1", "haha"));
-        assertFalse(dir.authenticate("2", "foo2"));
-
+        assertFalse(dir.authenticate("2", "pass2"));
+        //assertTrue(dir2.authenticate("2", "pass1"));
     }
 
     @Test

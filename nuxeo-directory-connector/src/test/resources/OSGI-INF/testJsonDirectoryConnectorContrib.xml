@@ -16,6 +16,7 @@
 
       <idField>trackId</idField>
       <schema>itunes</schema>
+      <readOnly>true</readOnly>
       <parameters>
         <parameter name="url">https://itunes.apple.com/search?term=morcheeba</parameter>
       </parameters>
@@ -27,8 +28,9 @@
 
       <idField>id</idField>
       <schema>vocabulary</schema>
+      <readOnly>true</readOnly>
       <parameters>
-        <parameter name="url">http://data.nasa.gov/api/get_category_index/</parameter>
+        <parameter name="url">https://eonet.gsfc.nasa.gov/api/v2.1/categories</parameter>
       </parameters>
       <mapping>
        <map field="label">title</map>
@@ -42,8 +44,9 @@
 
       <idField>id</idField>
       <schema>nasads</schema>
+      <readOnly>true</readOnly>
       <parameters>
-        <parameter name="url">http://data.nasa.gov/api/</parameter>
+        <parameter name="url">https://api.nasa.gov/assets/json/apis.json</parameter>
       </parameters>
       <mapping>
        <map field="id">id</map>

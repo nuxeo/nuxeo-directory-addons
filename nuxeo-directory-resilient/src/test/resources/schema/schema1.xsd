@@ -5,5 +5,6 @@
   <xs:element name="uid" type="xs:string" />
   <xs:element name="foo" type="xs:string" default="defaultFooValue" />
   <xs:element name="bar" type="xs:string" />
+  <xs:element name="password" type="xs:string" />
 
 </xs:schema>

@@ -25,40 +25,38 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.nuxeo.directory.test.DirectoryFeature;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentModelList;
+import org.nuxeo.ecm.core.test.annotations.Granularity;
+import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
 import org.nuxeo.ecm.directory.Directory;
 import org.nuxeo.ecm.directory.Session;
 import org.nuxeo.ecm.directory.api.DirectoryService;
 import org.nuxeo.runtime.api.Framework;
-import org.nuxeo.runtime.test.NXRuntimeTestCase;
+import org.nuxeo.runtime.test.runner.Deploy;
+import org.nuxeo.runtime.test.runner.Features;
+import org.nuxeo.runtime.test.runner.FeaturesRunner;
 
-public class TestConnectorDirectory extends NXRuntimeTestCase {
-
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        deployBundle("org.nuxeo.ecm.core.api");
-        deployBundle("org.nuxeo.ecm.core.schema");
-        deployBundle("org.nuxeo.ecm.core");
-        deployBundle("org.nuxeo.ecm.directory.api");
-        deployBundle("org.nuxeo.ecm.directory");
-        deployBundle("org.nuxeo.ecm.directory.types.contrib");
-        deployContrib("org.nuxeo.directory.connector", "OSGI-INF/connectorbased-directory-framework.xml");
-    }
+@RunWith(FeaturesRunner.class)
+@Features(DirectoryFeature.class)
+@RepositoryConfig(cleanup = Granularity.METHOD)
+@Deploy("org.nuxeo.directory.connector:OSGI-INF/connectorbased-directory-framework.xml")
+public class TestConnectorDirectory {
 
     @Test
+    @Deploy("org.nuxeo.directory.connector.test:OSGI-INF/testContrib.xml")
     public void testContrib() throws Exception {
 
-        deployContrib("org.nuxeo.directory.connector.test", "OSGI-INF/testContrib.xml");
-
-        DirectoryService ds = Framework.getLocalService(DirectoryService.class);
+        DirectoryService ds = Framework.getService(DirectoryService.class);
         assertNotNull(ds);
 
         List<String> dsNames = ds.getDirectoryNames();
@@ -104,12 +102,13 @@ public class TestConnectorDirectory extends NXRuntimeTestCase {
         assertNotNull(entries);
         assertEquals(0, entries.totalSize());
     }
+    
 
     @Test
+    @Deploy("org.nuxeo.directory.connector.test:OSGI-INF/testJsonDirectoryConnectorContrib.xml")
     public void testJsonDirectoryConnectorContrib() throws Exception {
 
-        deployContrib("org.nuxeo.directory.connector.test", "OSGI-INF/testJsonDirectoryConnectorContrib.xml");
-        DirectoryService ds = Framework.getLocalService(DirectoryService.class);
+        DirectoryService ds = Framework.getService(DirectoryService.class);
         assertNotNull(ds);
 
         List<String> dsNames = ds.getDirectoryNames();
@@ -120,7 +119,7 @@ public class TestConnectorDirectory extends NXRuntimeTestCase {
         Session session = d.getSession();
         assertNotNull(session);
 
-        DocumentModelList entries = session.getEntries();
+        DocumentModelList entries = session.query(Collections.emptyMap());
         assertNotNull(entries);
         assertEquals(50, entries.totalSize());
 
@@ -131,11 +130,10 @@ public class TestConnectorDirectory extends NXRuntimeTestCase {
     }
 
     @Test
-    @Ignore("Service is down ?")
+    @Deploy("org.nuxeo.directory.connector.test:OSGI-INF/testJsonDirectoryConnectorContrib.xml")
     public void testNasaDirectoryConnectorContrib() throws Exception {
 
-        deployContrib("org.nuxeo.directory.connector.test", "OSGI-INF/testJsonDirectoryConnectorContrib.xml");
-        DirectoryService ds = Framework.getLocalService(DirectoryService.class);
+        DirectoryService ds = Framework.getService(DirectoryService.class);
         assertNotNull(ds);
 
         List<String> dsNames = ds.getDirectoryNames();
@@ -148,19 +146,19 @@ public class TestConnectorDirectory extends NXRuntimeTestCase {
 
         DocumentModelList entries = session.getEntries();
         assertNotNull(entries);
-        assertEquals(9, entries.totalSize());
+        assertEquals(13, entries.totalSize());
 
-        DocumentModel entry = session.getEntry("178");
+        DocumentModel entry = session.getEntry("12");
         assertNotNull(entry);
-        assertEquals("Aeronautics", (String) entry.getProperty("vocabulary", "label"));
+        assertEquals("Volcanoes", (String) entry.getProperty("vocabulary", "label"));
     }
 
     @Test
+    @Deploy("org.nuxeo.directory.connector.test:OSGI-INF/testJsonDirectoryConnectorContrib.xml")
     @Ignore("Service is down ?")
     public void testNasaDSDirectoryConnectorContrib() throws Exception {
 
-        deployContrib("org.nuxeo.directory.connector.test", "OSGI-INF/testJsonDirectoryConnectorContrib.xml");
-        DirectoryService ds = Framework.getLocalService(DirectoryService.class);
+        DirectoryService ds = Framework.getService(DirectoryService.class);
         assertNotNull(ds);
 
         List<String> dsNames = ds.getDirectoryNames();
@@ -183,5 +181,4 @@ public class TestConnectorDirectory extends NXRuntimeTestCase {
         assertEquals("lunar-sample-atlas", (String) entry.getProperty("nasads", "slug"));
 
     }
-
 }

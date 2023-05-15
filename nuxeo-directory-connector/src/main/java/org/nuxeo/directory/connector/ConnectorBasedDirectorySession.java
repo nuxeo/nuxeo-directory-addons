@@ -32,6 +32,7 @@ import org.nuxeo.ecm.core.api.DocumentModelList;
 import org.nuxeo.ecm.core.api.PropertyException;
 import org.nuxeo.ecm.core.api.impl.DocumentModelListImpl;
 import org.nuxeo.ecm.core.api.model.PropertyNotFoundException;
+import org.nuxeo.ecm.core.query.sql.model.QueryBuilder;
 import org.nuxeo.ecm.core.schema.SchemaManager;
 import org.nuxeo.ecm.core.schema.types.Field;
 import org.nuxeo.ecm.core.schema.types.Schema;
@@ -51,7 +52,7 @@ public class ConnectorBasedDirectorySession extends BaseSession implements Sessi
     protected EntryConnector connector;
 
     public ConnectorBasedDirectorySession(ConnectorBasedDirectory directory, EntryConnector connector) {
-        super(directory);
+        super(directory, null);
         this.connector = connector;
     }
 
@@ -162,6 +163,7 @@ public class ConnectorBasedDirectorySession extends BaseSession implements Sessi
         deleteEntry(docModel.getId());
     }
 
+    @Override
     public boolean isReadOnly() {
         return true;
     }
@@ -237,6 +239,49 @@ public class ConnectorBasedDirectorySession extends BaseSession implements Sessi
 
     public boolean hasEntry(String id) {
         return connector.hasEntry(id);
+    }
+
+    @Override
+    public DocumentModelList query(QueryBuilder arg0, boolean arg1) {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public DocumentModelList query(Map<String, Serializable> arg0, Set<String> arg1, Map<String, String> arg2,
+            boolean arg3, int arg4, int arg5) {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<String> queryIds(QueryBuilder arg0) {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    protected DocumentModel createEntryWithoutReferences(Map<String, Object> arg0) {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    protected void deleteEntryWithoutReferences(String arg0) {
+        // TODO Auto-generated method stub
+        // 
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    protected List<String> updateEntryWithoutReferences(DocumentModel arg0) {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
     }
 
 }

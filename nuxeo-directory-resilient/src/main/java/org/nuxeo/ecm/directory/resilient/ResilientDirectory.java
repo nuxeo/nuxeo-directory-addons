@@ -53,7 +53,7 @@ public class ResilientDirectory extends AbstractDirectory {
     private Map<String, Field> schemaFieldMap;
 
     public ResilientDirectory(ResilientDirectoryDescriptor descriptor) {
-        super(descriptor);
+        super(descriptor, null);
     }
 
     @Override

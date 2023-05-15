@@ -46,7 +46,7 @@ public class ConnectorBasedDirectory extends AbstractDirectory {
     public ConnectorBasedDirectorySession session;
 
     public ConnectorBasedDirectory(ConnectorBasedDirectoryDescriptor descriptor) throws DirectoryException {
-        super(descriptor);
+        super(descriptor, null);
         this.schemaSet = new HashSet<String>();
         SchemaManager sm = Framework.getLocalService(SchemaManager.class);
         Schema sch = sm.getSchema(descriptor.schemaName);
@@ -57,7 +57,7 @@ public class ConnectorBasedDirectory extends AbstractDirectory {
         for (Field f : fields) {
             schemaSet.add(f.getName().getLocalName());
         }
-        addReferences(descriptor.getInverseReferences());
+        addReferences();
     }
 
     @Override

@@ -27,10 +27,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.nuxeo.directory.connector.ConnectorBasedDirectoryDescriptor;
 import org.nuxeo.directory.connector.EntryConnector;
 import org.nuxeo.directory.connector.InMemorySearchHelper;
@@ -48,7 +44,7 @@ public class JsonInMemoryDirectoryConnector extends BaseJSONDirectoryConnector i
     }
 
     protected JsonNode extractResult(JsonNode responseAsJson) {
-        return responseAsJson.get("results");
+            return responseAsJson.get("results");
     }
 
     protected ArrayList<HashMap<String, Object>> getJsonStream() {

@@ -34,10 +34,16 @@ import org.apache.commons.logging.LogFactory;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentModelList;
 import org.nuxeo.ecm.core.api.impl.DocumentModelListImpl;
+import org.nuxeo.ecm.core.api.security.SecurityConstants;
+import org.nuxeo.ecm.core.query.sql.model.OrderByList;
+import org.nuxeo.ecm.core.query.sql.model.Predicate;
+import org.nuxeo.ecm.core.query.sql.model.QueryBuilder;
 import org.nuxeo.ecm.core.schema.types.Field;
+import org.nuxeo.ecm.directory.AbstractDirectory;
 import org.nuxeo.ecm.directory.BaseSession;
 import org.nuxeo.ecm.directory.DirectoryException;
 import org.nuxeo.ecm.directory.Session;
+import org.nuxeo.ecm.directory.BaseSession.FieldDetector;
 import org.nuxeo.ecm.directory.api.DirectoryService;
 import org.nuxeo.runtime.api.Framework;
 
@@ -59,7 +65,7 @@ public class ResilientDirectorySession extends BaseSession {
     private List<SubDirectoryInfo> slaveSubDirectoryInfos;
 
     public ResilientDirectorySession(ResilientDirectory directory) {
-        super(directory);
+        super(directory, null);
     }
 
     @Override
@@ -430,6 +436,11 @@ public class ResilientDirectorySession extends BaseSession {
 
     @Override
     public DocumentModel createEntry(Map<String, Object> fieldMap) {
+        return createEntryWithoutReferences(fieldMap);
+    }
+
+    @Override
+    protected DocumentModel createEntryWithoutReferences(Map<String, Object> fieldMap) {
         init();
 
         if (isReadOnly()) {
@@ -452,9 +463,8 @@ public class ResilientDirectorySession extends BaseSession {
         masterSubDirectoryInfo.getSession().createEntry(entry);
         updateMasterOnSlaves(id, fieldMap, true);
         return entry;
-
     }
-
+    
     @Override
     public void deleteEntry(DocumentModel docModel) {
         deleteEntry(docModel.getId());
@@ -462,6 +472,11 @@ public class ResilientDirectorySession extends BaseSession {
 
     @Override
     public void deleteEntry(String id) {
+        deleteEntryWithoutReferences(id);
+    }
+
+    @Override
+    protected void deleteEntryWithoutReferences(String id) {
         init();
         // If we are removing a entry from the master, update the slave(s)
         // even if the master is in read-only mode
@@ -477,16 +492,21 @@ public class ResilientDirectorySession extends BaseSession {
 
     @Override
     public void updateEntry(DocumentModel docModel) {
+        updateEntryWithoutReferences(docModel);
+    }
+
+    @Override
+    protected List<String> updateEntryWithoutReferences(DocumentModel docModel) {
         init();
         if (isReadOnly() || isReadOnlyEntry(docModel)) {
-            return;
+            return null;
         }
 
         // Do not fallback if update on master has failed.
         // The master source must stay the most up-to-date source
         masterSubDirectoryInfo.getSession().updateEntry(docModel);
         updateMasterOnSlaves(docModel.getId(), docModel.getProperties(getSchema()), true);
-
+        return new ArrayList<>();
     }
 
     @Override
@@ -509,17 +529,23 @@ public class ResilientDirectorySession extends BaseSession {
     @Override
     public DocumentModelList query(Map<String, Serializable> filter, Set<String> fulltext, Map<String, String> orderBy,
             boolean fetchReferences) {
+        return query(filter, fulltext, orderBy, fetchReferences, 0, 0);
+    }
+    
+    @Override
+    public DocumentModelList query(Map<String, Serializable> filter, Set<String> fulltext, Map<String, String> orderBy,
+                boolean fetchReferences, int limit, int offset) {
         init();
 
         // list of entries
         final DocumentModelList results = new DocumentModelListImpl();
         try {
-            results.addAll(masterSubDirectoryInfo.getSession().query(filter, fulltext, orderBy, fetchReferences));
+            results.addAll(masterSubDirectoryInfo.getSession().query(filter, fulltext, orderBy, fetchReferences, limit, offset));
             DocumentModelList slaveResults = null;
 
             for (SubDirectoryInfo subDirectoryInfo : slaveSubDirectoryInfos) {
                 try {
-                    slaveResults = subDirectoryInfo.getSession().query(filter, fulltext, orderBy, fetchReferences);
+                    slaveResults = subDirectoryInfo.getSession().query(filter, fulltext, orderBy, fetchReferences, limit, offset);
 
                     // XXX : Should we update all entries on all directories ??
                     // Performance issue ...
@@ -541,7 +567,7 @@ public class ResilientDirectorySession extends BaseSession {
             // Try to get the entry from slaves
             for (SubDirectoryInfo subDirectoryInfo : slaveSubDirectoryInfos) {
                 try {
-                    results.addAll(subDirectoryInfo.getSession().query(filter, fulltext, orderBy, fetchReferences));
+                    results.addAll(subDirectoryInfo.getSession().query(filter, fulltext, orderBy, fetchReferences, limit, offset));
                     break;
                 } catch (DirectoryException exc) {
                     log.warn(
@@ -550,17 +576,14 @@ public class ResilientDirectorySession extends BaseSession {
                                     directory.getName(), masterSubDirectoryInfo.dirName), e);
                 }
             }
-
         }
 
         for (DocumentModel documentModel : results) {
             if (isReadOnly()) {
                 setReadOnlyEntry(documentModel);
             }
-
         }
         return results;
-
     }
 
     @Override
@@ -604,6 +627,31 @@ public class ResilientDirectorySession extends BaseSession {
                     masterSubDirectoryInfo.dirName, id), e);
             return hasEntryOnSlave(id);
         }
+    }
+
+    @Override
+    public DocumentModelList query(QueryBuilder queryBuilder, boolean fetchReferences) {
+        init();
+        if (!hasPermission(SecurityConstants.READ)) {
+            return new DocumentModelListImpl();
+        }
+        if (FieldDetector.hasField(queryBuilder.predicate(), getPasswordField())) {
+            throw new DirectoryException("Cannot filter on password");
+        }
+        
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<String> queryIds(QueryBuilder queryBuilder) {
+        init();
+        if (!hasPermission(SecurityConstants.READ)) {
+            return Collections.emptyList();
+        }
+        if (FieldDetector.hasField(queryBuilder.predicate(), getPasswordField())) {
+            throw new DirectoryException("Cannot filter on password");
+        }
+        throw new UnsupportedOperationException();
     }
 
 }

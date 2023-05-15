@@ -29,7 +29,9 @@ import org.nuxeo.common.xmap.annotation.XNodeMap;
 import org.nuxeo.common.xmap.annotation.XObject;
 import org.nuxeo.ecm.directory.BaseDirectoryDescriptor;
 import org.nuxeo.ecm.directory.InverseReference;
+import org.nuxeo.ecm.directory.InverseReferenceDescriptor;
 import org.nuxeo.ecm.directory.Reference;
+import org.nuxeo.ecm.directory.ReferenceDescriptor;
 
 @XObject("directory")
 public class ConnectorBasedDirectoryDescriptor extends BaseDirectoryDescriptor {
@@ -42,15 +44,8 @@ public class ConnectorBasedDirectoryDescriptor extends BaseDirectoryDescriptor {
     @XNodeMap(value = "parameters/parameter", key = "@name", type = HashMap.class, componentType = String.class)
     protected Map<String, String> parameters = new HashMap<String, String>();
 
-    @XNodeList(value = "references/inverseReference", type = InverseReference[].class, componentType = InverseReference.class)
-    private InverseReference[] inverseReferences;
-
     @XNodeMap(value = "mapping/map", key = "@field", type = HashMap.class, componentType = String.class)
     protected Map<String, String> mapping = new HashMap<String, String>();
-
-    public Reference[] getInverseReferences() {
-        return inverseReferences;
-    }
 
     public Reference[] getTableReferences() {
         return null;
@@ -87,15 +82,13 @@ public class ConnectorBasedDirectoryDescriptor extends BaseDirectoryDescriptor {
     }
 
     protected void merge(ConnectorBasedDirectoryDescriptor other) {
+        super.merge(other);
         if (other.connectorClass != null) {
             connectorClass = other.connectorClass;
             connector = null;
         }
         if (other.parameters != null) {
             parameters = other.parameters;
-        }
-        if (other.inverseReferences != null && other.inverseReferences.length != 0) {
-            inverseReferences = other.inverseReferences;
         }
         if (other.mapping != null) {
             mapping.putAll(other.mapping);
@@ -108,12 +101,6 @@ public class ConnectorBasedDirectoryDescriptor extends BaseDirectoryDescriptor {
         // basic fields are already copied by super.clone()
         if (parameters != null) {
             clone.parameters = new HashMap<>(parameters);
-        }
-        if (inverseReferences != null) {
-            clone.inverseReferences = new InverseReference[inverseReferences.length];
-            for (int i = 0; i < inverseReferences.length; i++) {
-                clone.inverseReferences[i] = inverseReferences[i].clone();
-            }
         }
         if (mapping != null) {
             clone.mapping = new HashMap<>(mapping);
